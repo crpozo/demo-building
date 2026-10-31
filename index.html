@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alhelí Residencias</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: sticky brand bar + tabbed single-page showroom; plum/cream brand palette from the sales brochure */
+:root{
+  --bg:#efeae1; --bg2:#f8f5ef; --fg:#2b1d2e; --muted:#6f6472; --line:#d9d1c4;
+  --gold:#b98b4a; --gold2:#d4b27a; --plum:#2b1d2e; --plum2:#3b2a3f; --lilac:#b9a4cc;
+  --ok:#4a7a4f; --warn:#b07a1f; --bad:#9c3d3d;
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --radius:6px; --shadow:0 10px 30px rgba(43,29,46,.12);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1e1420; --bg2:#2b1d2e; --fg:#efe8dd; --muted:#b4a7b6; --line:#4a3a4e;
+  --gold:#d4b27a; --gold2:#b98b4a; --plum:#150e17; --plum2:#3b2a3f; --lilac:#9f87b5;
+  --ok:#8fcb95; --warn:#e2b45a; --bad:#e08a8a; --shadow:0 10px 30px rgba(0,0,0,.4); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#1e1420; --bg2:#2b1d2e; --fg:#efe8dd; --muted:#b4a7b6; --line:#4a3a4e;
+  --gold:#d4b27a; --gold2:#b98b4a; --plum:#150e17; --plum2:#3b2a3f; --lilac:#9f87b5;
+  --ok:#8fcb95; --warn:#e2b45a; --bad:#e08a8a; --shadow:0 10px 30px rgba(0,0,0,.4); color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;font-weight:400}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--plum)}
+img{max-width:100%;display:block}
+button{font:inherit;cursor:pointer}
+h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.4rem,6vw,4.4rem);letter-spacing:.14em;text-transform:uppercase}
+h2{font-size:clamp(1.8rem,3.4vw,2.6rem)}
+h3{font-size:1.45rem}
+p{margin:0}
+.eyebrow{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.muted{color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--plum);color:#efe8dd;border-bottom:1px solid rgba(212,178,122,.25)}
+.top .wrap{display:flex;align-items:center;gap:18px;min-height:60px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.brand svg{width:26px;height:34px}
+.brand b{font-family:var(--display);font-weight:500;letter-spacing:.28em;font-size:1.25rem;text-transform:uppercase}
+.brand small{display:block;font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold2);margin-top:-3px}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+nav.tabs a{color:#cfc3d1;text-decoration:none;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;padding:9px 12px;border-bottom:2px solid transparent;font-weight:500}
+nav.tabs a:hover{color:#fff}
+nav.tabs a.on{color:#fff;border-bottom-color:var(--gold2)}
+.mode{display:flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#cfc3d1}
+.switch{width:38px;height:22px;border-radius:11px;background:#5a4860;border:0;position:relative;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.switch[aria-checked="true"]{background:var(--gold)}
+.switch[aria-checked="true"]::after{left:19px}
+
+/* sections */
+section.view{display:none;padding-block:28px 56px}
+section.view.on{display:block}
+.sec-head{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
+
+/* hero */
+.hero{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.hero img{width:100%;aspect-ratio:1210/719;object-fit:cover}
+.hero .cap{position:absolute;inset:auto 0 0 0;padding:clamp(18px,4vw,44px);background:linear-gradient(to top,rgba(43,29,46,.92),rgba(43,29,46,0));color:#efe8dd}
+.hero .cap p{max-width:46ch;font-weight:300}
+.hero .cap .eyebrow{color:var(--gold2)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:22px;border-radius:var(--radius);overflow:hidden}
+.facts div{background:var(--bg2);padding:16px 18px}
+.facts b{display:block;font-family:var(--display);font-size:2rem;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.facts span{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.intro{display:grid;grid-template-columns:1.1fr 1fr;gap:34px;margin-top:40px;align-items:start}
+.intro .txt{display:flex;flex-direction:column;gap:14px;max-width:62ch}
+.intro .txt p{font-weight:300;font-size:1.02rem}
+.credits{display:flex;gap:28px;flex-wrap:wrap;margin-top:8px}
+.credits div{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.credits div b{display:block;font-size:.95rem;letter-spacing:.04em;color:var(--fg);font-weight:600;text-transform:none;margin-top:2px}
+.quick{display:grid;gap:10px}
+.quick a{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;text-decoration:none;color:inherit;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px 8px 8px}
+.quick a img{width:72px;aspect-ratio:1;object-fit:cover;border-radius:4px}
+.quick a b{font-family:var(--display);font-size:1.2rem;font-weight:500}
+.quick a span{display:block;font-size:.8rem;color:var(--muted)}
+.quick a i{font-style:normal;color:var(--gold);font-size:1.3rem}
+.quick a:hover{border-color:var(--gold)}
+
+/* recorrido */
+.tour{display:grid;grid-template-columns:1fr 280px;gap:22px;align-items:start}
+.stage{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--plum);box-shadow:var(--shadow)}
+.stage img{width:100%;aspect-ratio:1210/719;object-fit:cover}
+.stage .cap{position:absolute;left:0;right:0;bottom:0;padding:16px 22px;background:linear-gradient(to top,rgba(43,29,46,.9),rgba(43,29,46,0));color:#efe8dd;display:flex;justify-content:space-between;align-items:end;gap:12px}
+.stage .cap h3{font-size:1.6rem}
+.stage .cap .eyebrow{color:var(--gold2)}
+.stage .cap small{font-variant-numeric:tabular-nums;opacity:.8}
+.stage .arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 10px;pointer-events:none}
+.stage .arrows button{pointer-events:auto;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(43,29,46,.55);color:#fff;font-size:1.3rem;display:grid;place-items:center}
+.thumbs{display:grid;gap:8px;max-height:560px;overflow:auto;padding-right:4px}
+.thumbs button{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:center;text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:4px;padding:5px;color:inherit}
+.thumbs button img{aspect-ratio:84/50;object-fit:cover;border-radius:2px;width:84px}
+.thumbs button span{font-size:.8rem;line-height:1.3}
+.thumbs button small{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.thumbs button.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+
+/* plantas */
+.plan-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--bg2);color:var(--fg);border-radius:999px;padding:7px 14px;font-size:.78rem;letter-spacing:.04em}
+.chip.on{background:var(--plum);color:#efe8dd;border-color:var(--plum)}
+:root[data-theme="dark"] .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)} }
+.plan-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+.plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.plan img{width:100%;aspect-ratio:1125/598}
+.hot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:var(--plum);color:#fff;font-family:var(--display);font-size:1.1rem;font-weight:600;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.35);padding:0;transition:transform .15s}
+.hot:hover,.hot.on{transform:translate(-50%,-50%) scale(1.18);background:var(--gold)}
+.hot.st-reservado{background:var(--warn)}
+.hot.st-vendido{background:#8a8a8a;color:#eee}
+.hot:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.72rem;color:var(--muted);margin-top:10px;letter-spacing:.06em;text-transform:uppercase}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.side{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.side img{border-radius:4px;background:#fff;border:1px solid var(--line)}
+.side .empty{color:var(--muted);font-weight:300;font-size:.95rem}
+
+/* departamentos */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.filters .lbl{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.filters .sep{width:1px;height:22px;background:var(--line);margin:0 6px}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card .ph{background:#fff;border-bottom:1px solid var(--line);position:relative}
+.card .ph img{aspect-ratio:943/674;object-fit:contain}
+.card .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card h3{font-size:1.5rem}
+.card .num{font-family:var(--display);font-size:.9rem;letter-spacing:.2em;color:var(--gold);font-weight:600}
+.spec{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:.82rem;font-variant-numeric:tabular-nums}
+.spec span{color:var(--muted)}
+.spec b{font-weight:600;text-align:right}
+.price{font-family:var(--display);font-size:1.5rem;font-weight:600;font-variant-numeric:tabular-nums}
+.price small{font-family:var(--body);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-left:6px}
+.badge{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:4px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.badge.disponible{background:rgba(74,122,79,.15);color:var(--ok)}
+.badge.reservado{background:rgba(176,122,31,.15);color:var(--warn)}
+.badge.vendido{background:rgba(120,120,120,.18);color:var(--muted)}
+.actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--plum);background:var(--plum);color:#efe8dd;border-radius:4px;padding:8px 14px;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--gold)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1e1420}
+.btn.on{background:var(--gold);border-color:var(--gold);color:#1e1420}
+.btn:focus-visible,.chip:focus-visible,.thumbs button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* detalle (modal) */
+.modal{position:fixed;inset:0;z-index:20;background:rgba(20,12,22,.72);display:none;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-left,0px))}
+.modal.on{display:flex}
+.sheet{background:var(--bg);color:var(--fg);width:min(1000px,100%);max-height:92vh;overflow:auto;border-radius:8px;box-shadow:var(--shadow);display:grid;grid-template-columns:1.3fr 1fr}
+.sheet .ph{background:#fff;padding:12px;display:grid;place-items:center}
+.sheet .ph img{aspect-ratio:943/674;object-fit:contain}
+.sheet .bd{padding:26px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.sheet .close{margin-left:auto;background:none;border:1px solid var(--line);border-radius:50%;width:34px;height:34px;color:var(--fg);font-size:1.1rem}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 16px;font-size:.9rem;border-top:1px solid var(--line);padding-top:12px;font-variant-numeric:tabular-nums}
+.kv span{color:var(--muted)}
+.kv b{font-weight:600}
+.kv .tot{border-top:1px solid var(--line);padding-top:6px;margin-top:2px;font-family:var(--display);font-size:1.2rem}
+.rooms{display:flex;gap:6px;flex-wrap:wrap}
+.rooms span{font-size:.7rem;letter-spacing:.08em;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.amb{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.amb img{aspect-ratio:3/2;object-fit:cover;border-radius:4px}
+
+/* comparar */
+.cmp{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg2)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+th{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.k{color:var(--muted);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+td img{width:160px;background:#fff;border:1px solid var(--line);border-radius:4px}
+td .hd{font-family:var(--display);font-size:1.3rem;font-weight:600}
+td .best{color:var(--ok);font-weight:600}
+
+/* constructor */
+.builder{background:var(--plum2);color:#efe8dd;border-radius:var(--radius);padding:18px 20px;margin-bottom:22px;display:none;gap:14px;flex-wrap:wrap;align-items:end}
+.builder.on{display:flex}
+.builder label{display:flex;flex-direction:column;gap:5px;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#d8cddb}
+.builder input,.builder select,.sheet select{font:inherit;padding:8px 10px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg);min-width:150px}
+.builder .note{flex-basis:100%;font-size:.78rem;color:#d8cddb;font-weight:300}
+.sheet .admin{border:1px dashed var(--gold);border-radius:4px;padding:12px;display:grid;gap:8px;font-size:.8rem}
+.sheet .admin label{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sheet .admin input{width:120px;text-align:right;font:inherit;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg)}
+
+footer{border-top:1px solid var(--line);padding-block:24px;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#efe8dd;padding:10px 18px;border-radius:999px;font-size:.8rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.on{opacity:1}
+
+@media (max-width:900px){
+  .intro,.tour,.plan-grid,.sheet{grid-template-columns:1fr}
+  .thumbs{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:none}
+  .thumbs button{grid-template-columns:1fr;gap:4px}
+  .thumbs button img{width:100%;aspect-ratio:3/2}
+  .side{order:-1}
+}
+@media (max-width:560px){
+  nav.tabs a{padding:8px 8px;font-size:.66rem}
+  .hero .cap p{display:none}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#proyecto">
+      <svg viewBox="0 0 26 34" aria-hidden="true"><path d="M13 8v26M13 16c-5 0-7-2-7-5M13 22c4 0 6-1 7-4" stroke="#d4b27a" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="4" r="2.2" fill="#d4b27a"/><circle cx="6" cy="9" r="1.8" fill="#d4b27a"/><circle cx="20" cy="12" r="1.8" fill="#d4b27a"/><circle cx="8" cy="19" r="1.5" fill="#d4b27a"/></svg>
+      <span><b>Alhelí</b><small>Residencias boutique</small></span>
+    </a>
+    <nav class="tabs" id="tabs">
+      <a href="#proyecto" data-v="proyecto">Proyecto</a>
+      <a href="#recorrido" data-v="recorrido">Recorrido</a>
+      <a href="#plantas" data-v="plantas">Plantas</a>
+      <a href="#departamentos" data-v="departamentos">Departamentos</a>
+      <a href="#comparar" data-v="comparar">Comparar <span id="cmpCount"></span></a>
+    </nav>
+    <div class="mode">
+      <span>Modo constructor</span>
+      <button class="switch" id="modeBtn" role="switch" aria-checked="false" aria-label="Activar modo constructor"></button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- PROYECTO -->
+<section class="view" id="v-proyecto">
+  <div class="wrap">
+    <div class="hero">
+      <img src="img/r-hero.jpg" alt="Acceso principal de Alhelí al atardecer, acuarela">
+      <div class="cap">
+        <div class="eyebrow">Residencias boutique</div>
+        <h1>Alhelí</h1>
+        <p>Donde una historia vuelve a florecer. Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
+      </div>
+    </div>
+    <div class="facts">
+      <div><b>10</b><span>Departamentos</span></div>
+      <div><b>2</b><span>Plantas + terraza</span></div>
+      <div><b>1 · 2 · 3</b><span>Dormitorios</span></div>
+      <div><b>71–164</b><span>m² cubiertos</span></div>
+      <div><b id="factDisp">10</b><span>Disponibles</span></div>
+    </div>
+    <div class="intro">
+      <div class="txt">
+        <div class="eyebrow">El proyecto</div>
+        <h2>Una forma distinta de entender la transformación</h2>
+        <p>Alhelí nace de una forma distinta de entender la transformación. No se trata de borrar lo que existe para comenzar de cero, sino de reconocer el valor de un lugar, reinterpretarlo y hacerlo evolucionar.</p>
+        <p>El nombre nace del alhelí, una flor reconocida por su aroma y por la intensidad y diversidad de sus colores. Una especie capaz de aparecer entre muros y jardines y transformar la percepción de un lugar cuando florece.</p>
+        <div class="credits">
+          <div>Diseño<b>JGStudio</b></div>
+          <div>Construcción<b>Conarmo</b></div>
+          <div>Web<b>alheliresidencias.com</b></div>
+        </div>
+      </div>
+      <div class="quick">
+        <a href="#recorrido"><img src="img/r-patio.jpg" alt=""><span><b>Recorrido visual</b><span>Fachada, accesos, patio central e interiores</span></span><i>›</i></a>
+        <a href="#plantas"><img src="img/plan-pb.jpg" alt=""><span><b>Plantas interactivas</b><span>Toque un departamento sobre el plano</span></span><i>›</i></a>
+        <a href="#departamentos"><img src="img/u9.jpg" alt=""><span><b>Departamentos</b><span>Filtre por dormitorios, planta y disponibilidad</span></span><i>›</i></a>
+        <a href="#comparar"><img src="img/r-terraza.jpg" alt=""><span><b>Comparar opciones</b><span>Hasta tres unidades lado a lado</span></span><i>›</i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECORRIDO -->
+<section class="view" id="v-recorrido">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Recorrido</div><h2>Del acceso a la terraza</h2></div>
+    <div class="tour">
+      <div class="stage">
+        <img id="stageImg" src="img/r-fachada.jpg" alt="">
+        <div class="arrows"><button id="prevImg" aria-label="Anterior">‹</button><button id="nextImg" aria-label="Siguiente">›</button></div>
+        <div class="cap"><div><div class="eyebrow" id="stageKind"></div><h3 id="stageTitle"></h3></div><small id="stageN"></small></div>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANTAS -->
+<section class="view" id="v-plantas">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Plantas</div><h2>Ubique cada departamento en el proyecto</h2></div>
+    <div class="plan-tabs" id="planTabs">
+      <button class="chip on" data-plan="pb">Planta baja</button>
+      <button class="chip" data-plan="pa">Planta alta</button>
+      <button class="chip" data-plan="tc">Terraza comunal</button>
+    </div>
+    <div class="plan-grid">
+      <div>
+        <div class="plan" id="plan"><img id="planImg" src="img/plan-pb.jpg" alt="Planta baja"></div>
+        <div class="legend"><span><i style="background:var(--plum)"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
+      </div>
+      <aside class="side" id="planSide"><p class="empty">Toque un número sobre el plano para ver el departamento.</p></aside>
+    </div>
+  </div>
+</section>
+
+<!-- DEPARTAMENTOS -->
+<section class="view" id="v-departamentos">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Departamentos</div><h2>Diez unidades, tres tipologías</h2></div>
+    <div class="builder" id="builderBar">
+      <label>Precio por m² cubierto (USD)<input type="number" id="pM2" min="0" step="10" placeholder="ej. 1800"></label>
+      <label>Factor exterior (patio / terraza)<input type="number" id="pExt" min="0" max="1" step="0.05" placeholder="ej. 0.5"></label>
+      <label>Moneda<select id="cur"><option value="USD">USD</option><option value="MXN">MXN</option><option value="EUR">EUR</option></select></label>
+      <button class="btn gold" id="resetPrices">Borrar precios</button>
+      <p class="note">Los precios se calculan como cubierto × precio/m² + exterior × precio/m² × factor. Puede fijar un precio manual y el estado de cada unidad desde su ficha. Esta configuración se guarda solo en este dispositivo.</p>
+    </div>
+    <div class="filters" id="filters">
+      <span class="lbl">Dormitorios</span>
+      <button class="chip on" data-f="dorm" data-val="all">Todos</button>
+      <button class="chip" data-f="dorm" data-val="1">1</button>
+      <button class="chip" data-f="dorm" data-val="2">2</button>
+      <button class="chip" data-f="dorm" data-val="3">3</button>
+      <span class="sep"></span>
+      <span class="lbl">Planta</span>
+      <button class="chip on" data-f="planta" data-val="all">Todas</button>
+      <button class="chip" data-f="planta" data-val="pb">Baja</button>
+      <button class="chip" data-f="planta" data-val="pa">Alta</button>
+      <span class="sep"></span>
+      <button class="chip" data-f="disp" data-val="1">Solo disponibles</button>
+    </div>
+    <div class="units" id="units"></div>
+  </div>
+</section>
+
+<!-- COMPARAR -->
+<section class="view" id="v-comparar">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Comparar</div><h2>Opciones lado a lado</h2><p class="muted" style="font-weight:300">Agregue hasta tres departamentos desde sus fichas.</p></div>
+    <div id="cmpWrap"></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span>ALHELÍ · RESIDENCIAS BOUTIQUE</span><span>Diseño JGStudio · Construcción Conarmo · www.alheliresidencias.com</span></div></footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const UNITS=[
+ {n:1,planta:'pb',dorm:2,cub:116.08,ext:29.59,extName:'Patio',bbq:12.42,rooms:['Sala','Comedor','Cocina','Lavandería','Baño social','Dormitorio máster','Dormitorio 1','BBQ','Patio'],pos:[41.3,44.8]},
+ {n:2,planta:'pb',dorm:2,cub:91.02,ext:38.11,extName:'Patio',rooms:['Sala','Comedor','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Patio'],pos:[30.8,20]},
+ {n:3,planta:'pb',dorm:2,cub:104.86,ext:52.43,extName:'Patio',rooms:['Hall','Sala','Comedor','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Patio'],pos:[48.7,23.4]},
+ {n:4,planta:'pb',dorm:1,cub:71.05,ext:80.55,extName:'Patio',rooms:['Sala','Comedor','Cocina','Lavandería','Baño social','Dormitorio 1','Patio'],pos:[72.9,19.7]},
+ {n:5,planta:'pa',dorm:3,cub:134.85,ext:19.91,extName:'Terrazas',rooms:['Sala','Comedor','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Dormitorio 2','2 terrazas'],pos:[43.6,40.6]},
+ {n:6,planta:'pa',dorm:2,cub:114.78,ext:33.38,extName:'Terrazas',rooms:['Sala','Comedor','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Terraza'],pos:[30.9,59.4]},
+ {n:7,planta:'pa',dorm:1,cub:78.70,ext:11.69,extName:'Terraza',rooms:['Sala','Comedor','Cocina','Baño social','Dormitorio máster','Balcón'],pos:[24,25.9]},
+ {n:8,planta:'pa',dorm:2,cub:123.42,ext:7.74,extName:'Terraza',rooms:['Sala','Comedor','Cocina','Baño social','Dormitorio 1','Dormitorio 2','Terraza'],pos:[48,25.6]},
+ {n:9,planta:'pa',dorm:3,cub:149.61,ext:24.55,extName:'Terraza',rooms:['Sala','Comedor','Sala de estar','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Dormitorio 2','2 terrazas'],pos:[74,26.8]},
+ {n:10,planta:'pa',dorm:3,cub:163.55,ext:32.58,extName:'Terraza',rooms:['Sala','Comedor','Sala de estar','Cocina','Baño social','Dormitorio máster','Dormitorio 1','Dormitorio 2','2 terrazas','Jardinera'],pos:[70.7,65.6]},
+];
+const TOUR=[
+ {src:'r-fachada',t:'Fachada frontal',k:'Exterior'},
+ {src:'r-acceso',t:'Acceso principal',k:'Exterior'},
+ {src:'r-jardines',t:'Acceso secundario y jardines',k:'Exterior'},
+ {src:'r-patio',t:'Patio central',k:'Áreas comunes'},
+ {src:'r-depto-pb',t:'Departamento planta baja',k:'Interior'},
+ {src:'r-dorm-pa-1',t:'Dormitorio planta alta',k:'Interior'},
+ {src:'r-depto-pa',t:'Departamento planta alta',k:'Interior'},
+ {src:'r-cocina-pa',t:'Cocina planta alta',k:'Interior'},
+ {src:'r-dorm-pa-2',t:'Dormitorio con terraza',k:'Interior'},
+ {src:'r-terraza',t:'Terraza comunal',k:'Áreas comunes'},
+ {src:'r-hero',t:'Acceso principal, acuarela',k:'Exterior'},
+];
+const PLANTA={pb:'Planta baja',pa:'Planta alta'};
+const AMB={pb:['r-depto-pb','r-patio'],pa:['r-depto-pa','r-dorm-pa-2']};
+
+/* ---- estado (solo en este dispositivo) ---- */
+const KEY='alheli-config-v1';
+let cfg={builder:false,pM2:'',pExt:'0.5',cur:'USD',units:{}};
+try{Object.assign(cfg,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}}
+const ucfg=n=>cfg.units[n]||(cfg.units[n]={status:'disponible',price:''});
+const status=n=>ucfg(n).status;
+function price(u){
+  const c=ucfg(u.n); if(c.price!=='' && !isNaN(+c.price)) return +c.price;
+  const p=+cfg.pM2; if(!p) return null;
+  return Math.round((u.cub*p + u.ext*p*(+cfg.pExt||0))/100)*100;
+}
+const fmt=v=>v==null?'Precio a consultar':new Intl.NumberFormat('es',{style:'currency',currency:cfg.cur,maximumFractionDigits:0}).format(v);
+const m2=v=>v.toFixed(2).replace('.',',')+' m²';
+let compare=[]; try{compare=JSON.parse(sessionStorage.getItem('alheli-cmp')||'[]')}catch(e){}
+function saveCmp(){try{sessionStorage.setItem('alheli-cmp',JSON.stringify(compare))}catch(e){}}
+const $=s=>document.querySelector(s);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800)}
+
+/* ---- navegación por hash ---- */
+const VIEWS=['proyecto','recorrido','plantas','departamentos','comparar'];
+function route(){
+  const h=(location.hash||'#proyecto').slice(1); const v=VIEWS.includes(h)?h:'proyecto';
+  document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  window.scrollTo({top:0});
+}
+addEventListener('hashchange',route);
+
+/* ---- modo constructor ---- */
+function applyMode(){
+  $('#modeBtn').setAttribute('aria-checked',String(cfg.builder));
+  $('#builderBar').classList.toggle('on',cfg.builder);
+  $('#pM2').value=cfg.pM2; $('#pExt').value=cfg.pExt; $('#cur').value=cfg.cur;
+  renderAll();
+}
+$('#modeBtn').onclick=()=>{cfg.builder=!cfg.builder;save();applyMode();toast(cfg.builder?'Modo constructor activado':'Vista cliente')};
+['pM2','pExt','cur'].forEach(id=>$('#'+id).oninput=e=>{cfg[id]=e.target.value;save();renderAll()});
+$('#resetPrices').onclick=()=>{cfg.pM2='';Object.values(cfg.units).forEach(u=>u.price='');save();applyMode();toast('Precios borrados')};
+
+/* ---- recorrido ---- */
+let ti=0;
+function renderTour(){
+  const t=TOUR[ti]; $('#stageImg').src='img/'+t.src+'.jpg'; $('#stageImg').alt=t.t;
+  $('#stageTitle').textContent=t.t; $('#stageKind').textContent=t.k; $('#stageN').textContent=(ti+1)+' / '+TOUR.length;
+  document.querySelectorAll('#thumbs button').forEach((b,i)=>b.classList.toggle('on',i===ti));
+}
+$('#thumbs').innerHTML=TOUR.map((t,i)=>`<button data-i="${i}"><img src="img/${t.src}.jpg" alt=""><span><small>${t.k}</small>${t.t}</span></button>`).join('');
+$('#thumbs').onclick=e=>{const b=e.target.closest('button');if(b){ti=+b.dataset.i;renderTour()}};
+$('#prevImg').onclick=()=>{ti=(ti-1+TOUR.length)%TOUR.length;renderTour()};
+$('#nextImg').onclick=()=>{ti=(ti+1)%TOUR.length;renderTour()};
+addEventListener('keydown',e=>{if($('#v-recorrido').classList.contains('on')&&!$('#modal').classList.contains('on')){if(e.key==='ArrowRight')$('#nextImg').click();if(e.key==='ArrowLeft')$('#prevImg').click()}});
+renderTour();
+
+/* ---- plantas ---- */
+let plan='pb', planSel=null;
+$('#planTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;plan=b.dataset.plan;planSel=null;renderPlan()};
+function renderPlan(){
+  document.querySelectorAll('#planTabs .chip').forEach(b=>b.classList.toggle('on',b.dataset.plan===plan));
+  const img=$('#planImg'); img.src='img/plan-'+plan+'.jpg'; img.alt={pb:'Planta baja',pa:'Planta alta',tc:'Terraza comunal'}[plan];
+  document.querySelectorAll('.hot').forEach(h=>h.remove());
+  UNITS.filter(u=>u.planta===plan).forEach(u=>{
+    const b=document.createElement('button'); b.className='hot st-'+status(u.n)+(planSel===u.n?' on':''); b.textContent=u.n;
+    b.style.left=u.pos[0]+'%'; b.style.top=u.pos[1]+'%'; b.setAttribute('aria-label','Departamento '+u.n);
+    b.onclick=()=>{planSel=u.n;renderPlan()}; $('#plan').appendChild(b);
+  });
+  const side=$('#planSide');
+  if(plan==='tc'){side.innerHTML=`<div class="eyebrow">Áreas comunes</div><h3>Terraza comunal</h3><p class="empty">Salón con cocina, baños y terraza abierta sobre la cubierta, con jardineras perimetrales. Un espacio compartido para reuniones de los diez departamentos.</p><img src="img/r-terraza.jpg" alt="Render de la terraza comunal">`;return}
+  const u=UNITS.find(x=>x.n===planSel);
+  if(!u){side.innerHTML='<p class="empty">Toque un número sobre el plano para ver el departamento.</p>';return}
+  side.innerHTML=`<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div>${badge(u.n)}</div>
+   <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
+   <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
+   <div class="price">${fmt(price(u))}</div>
+   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button><button class="btn ghost ${compare.includes(u.n)?'on':''}" data-cmp="${u.n}">${compare.includes(u.n)?'En comparación':'Comparar'}</button></div>`;
+}
+const total=u=>u.cub+u.ext+(u.bbq||0);
+const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
+
+/* ---- departamentos ---- */
+let f={dorm:'all',planta:'all',disp:false};
+$('#filters').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.f==='disp'){f.disp=!f.disp}else{f[b.dataset.f]=b.dataset.val}
+  document.querySelectorAll('#filters .chip').forEach(c=>{if(c.dataset.f==='disp')c.classList.toggle('on',f.disp);else c.classList.toggle('on',f[c.dataset.f]===c.dataset.val)});
+  renderUnits()};
+function renderUnits(){
+  const list=UNITS.filter(u=>(f.dorm==='all'||u.dorm==+f.dorm)&&(f.planta==='all'||u.planta===f.planta)&&(!f.disp||status(u.n)==='disponible'));
+  $('#units').innerHTML=list.length?list.map(u=>`<article class="card">
+    <div class="ph"><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}"></div>
+    <div class="bd">
+      <div class="row"><span class="num">${PLANTA[u.planta].toUpperCase()}</span>${badge(u.n)}</div>
+      <div class="row"><h3>Departamento ${u.n}</h3><span class="muted" style="font-size:.8rem">${u.dorm} dorm.</span></div>
+      <div class="spec"><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
+      <div class="price">${fmt(price(u))}</div>
+      <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button><button class="btn ghost ${compare.includes(u.n)?'on':''}" data-cmp="${u.n}">${compare.includes(u.n)?'En comparación':'Comparar'}</button></div>
+    </div></article>`).join(''):'<p class="muted">Ningún departamento cumple estos filtros.</p>';
+  $('#factDisp').textContent=UNITS.filter(u=>status(u.n)==='disponible').length;
+}
+
+/* ---- ficha ---- */
+function openUnit(n){
+  const u=UNITS.find(x=>x.n===n); const c=ucfg(n);
+  $('#sheet').innerHTML=`<div class="ph"><img src="img/u${n}.jpg" alt="Plano del departamento ${n}"></div>
+  <div class="bd">
+    <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">${PLANTA[u.planta]} · ${u.dorm} dormitorio${u.dorm>1?'s':''}</div>${badge(n)}<button class="close" aria-label="Cerrar">×</button></div>
+    <h2 id="mTitle">Departamento ${n}</h2>
+    <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
+    <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
+    <div class="price">${fmt(price(u))}${price(u)!=null&&c.price===''?`<small>${fmt(+cfg.pM2)} / m²</small>`:''}</div>
+    <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
+    ${cfg.builder?`<div class="admin"><div class="eyebrow">Modo constructor</div>
+      <label>Estado<select id="adStatus"><option value="disponible">Disponible</option><option value="reservado">Reservado</option><option value="vendido">Vendido</option></select></label>
+      <label>Precio manual (${cfg.cur}, vacío = calculado)<input type="number" id="adPrice" min="0" step="1000" value="${c.price}"></label></div>`:''}
+    <div class="actions"><button class="btn ghost ${compare.includes(n)?'on':''}" data-cmp="${n}">${compare.includes(n)?'Quitar de comparación':'Agregar a comparación'}</button><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a></div>
+  </div>`;
+  if(cfg.builder){const s=$('#adStatus');s.value=c.status;s.onchange=()=>{c.status=s.value;save();renderAll();openUnit(n)};
+    $('#adPrice').oninput=e=>{c.price=e.target.value;save();renderAll()}}
+  $('#modal').classList.add('on'); $('#sheet .close').focus();
+}
+function closeModal(){$('#modal').classList.remove('on')}
+$('#modal').onclick=e=>{if(e.target===$('#modal')||e.target.closest('.close'))closeModal()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ---- comparar ---- */
+function toggleCmp(n){
+  if(compare.includes(n)){compare=compare.filter(x=>x!==n);toast('Quitado de la comparación')}
+  else if(compare.length>=3){toast('Máximo tres departamentos');return}
+  else{compare.push(n);toast('Agregado a la comparación')}
+  saveCmp(); renderAll();
+}
+function renderCmp(){
+  $('#cmpCount').textContent=compare.length?`(${compare.length})`:'';
+  const w=$('#cmpWrap'); const us=compare.map(n=>UNITS.find(u=>u.n===n));
+  if(!us.length){w.innerHTML='<p class="muted" style="font-weight:300">Todavía no hay departamentos seleccionados. Vaya a <a href="#departamentos" style="color:var(--gold)">Departamentos</a> y pulse “Comparar” en las fichas.</p>';return}
+  const maxBy=k=>Math.max(...us.map(k));
+  const row=(label,fn,bestFn)=>`<tr><td class="k">${label}</td>${us.map(u=>`<td${bestFn&&bestFn(u)?' class="best"':''}>${fn(u)}</td>`).join('')}</tr>`;
+  const prices=us.map(price).filter(p=>p!=null); const minP=prices.length?Math.min(...prices):null;
+  w.innerHTML=`<div class="cmp"><table>
+   <thead><tr><th></th>${us.map(u=>`<th><img src="img/u${u.n}.jpg" alt=""><div class="hd">Depto. ${u.n}</div>${badge(u.n)}</th>`).join('')}</tr></thead><tbody>
+   ${row('Planta',u=>PLANTA[u.planta])}
+   ${row('Dormitorios',u=>u.dorm,u=>u.dorm===maxBy(x=>x.dorm)&&us.length>1)}
+   ${row('Cubierto',u=>m2(u.cub),u=>u.cub===maxBy(x=>x.cub)&&us.length>1)}
+   ${row('Exterior',u=>`${m2(u.ext+(u.bbq||0))} <span class="muted">${u.extName.toLowerCase()}${u.bbq?' + BBQ':''}</span>`,u=>(u.ext+(u.bbq||0))===maxBy(x=>x.ext+(x.bbq||0))&&us.length>1)}
+   ${row('Total',u=>m2(total(u)),u=>total(u)===maxBy(total)&&us.length>1)}
+   ${row('Precio',u=>fmt(price(u)),u=>minP!=null&&price(u)===minP&&us.length>1)}
+   ${row('Precio / m² total',u=>price(u)==null?'—':fmt(Math.round(price(u)/total(u))))}
+   <tr><td class="k"></td>${us.map(u=>`<td><button class="btn" data-open="${u.n}">Ver ficha</button> <button class="btn ghost" data-cmp="${u.n}">Quitar</button></td>`).join('')}</tr>
+  </tbody></table></div>`;
+}
+
+/* ---- delegación global ---- */
+document.addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]'); if(o){openUnit(+o.dataset.open);return}
+  const c=e.target.closest('[data-cmp]'); if(c){toggleCmp(+c.dataset.cmp);if($('#modal').classList.contains('on'))openUnit(+c.dataset.cmp);return}
+  const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
+});
+function renderAll(){renderUnits();renderPlan();renderCmp()}
+applyMode(); route();
+</script>
+
+</html>
