@@ -779,25 +779,29 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   function maple(px,pz,h,seed){const g=new THREE.Group();const stems=1+(seed%3);
     for(let i=0;i<stems;i++){const a=i/stems*6.28+seed;const lean=stems>1?.14:.04;branch(g,Math.cos(a)*2,0,Math.sin(a)*2,Math.cos(a)*lean,1,Math.sin(a)*lean,h*.45,1.6+(h/70),3,seed+i*7)}
     g.position.set(px,0,pz);g.rotation.y=seed;g.userData.level='pb';root.add(g)}
-  TREES.forEach((p,i)=>maple(p[0],p[1],60+((i*37)%40),i+1));
-  // árboles del patio central (altos y delgados, como en el render)
-  [[730,190],[812,205],[745,322],[800,310],[715,255]].forEach((p,i)=>maple(p[0],p[1],80+i*6,20+i));
+  // posiciones validadas: fuera del edificio (margen 16) y a más de 34 entre sí
+  const BLOCKS=[];UNITS.forEach(u=>ENC[u.n].forEach(pp=>BLOCKS.push(bbox(pp))));CORES.forEach(c=>BLOCKS.push(bbox(c)));
+  const streetX=z=>115+z*(245-115)/598;
+  const freeSpot=(x,z,placed)=>!BLOCKS.some(b=>x>b[0]-16&&x<b[2]+16&&z>b[1]-16&&z<b[3]+16)&&x>streetX(z)+14&&!placed.some(q=>Math.hypot(q[0]-x,q[1]-z)<34);
+  const placed=[];const want=TREES.concat([[730,192],[812,208],[742,322],[806,306]]);
+  want.forEach((p,i)=>{let x=p[0],z=p[1],ok=freeSpot(x,z,placed);for(let t=0;!ok&&t<12;t++){x=p[0]+Math.cos(t*2.4)*(10+t*6);z=p[1]+Math.sin(t*2.4)*(10+t*6);ok=freeSpot(x,z,placed)}
+    if(ok){placed.push([x,z]);maple(x,z,(i>=TREES.length?80:60)+((i*37)%36),i+1)}});
   // palmas y helechos en los macizos
   const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
   function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
     g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
-  const ZONES=[[135,185,335,465],[882,65,1010,465],[705,168,836,335],[215,32,895,64],[128,80,200,180]];
-  for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];palm(z[0]+((i*53)%(z[2]-z[0])),z[1]+((i*29)%(z[3]-z[1])),.7+(i%3)*.35)}
+  const ZONES=[[258,190,335,340],[890,65,1000,460],[705,168,836,335],[215,32,895,64]];
+  for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(!BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))palm(x,zz,.7+(i%3)*.35)}
   // flores moradas en los bordes de senderos
   const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
-    const beds=[[135,185,200,465],[640,205,700,345],[705,168,836,335],[882,65,1010,465],[215,32,895,64]];
+    const beds=[[258,190,300,340],[640,205,700,345],[705,168,836,335],[890,65,1000,460],[215,32,895,64]];
     for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
   // luces bajas de sendero (se encienden de noche)
   const lampM=new THREE.MeshStandardMaterial({color:0xfff1c0,emissive:0xffb347,emissiveIntensity:0,roughness:.3});
   const lamps=new THREE.InstancedMesh(new THREE.SphereGeometry(1.6,8,6),lampM,60);{const mm=new THREE.Matrix4();let k=0;
-    for(let i=0;i<26;i++){mm.makeTranslation(135+i*6,3,195+i*10);lamps.setMatrixAt(k++,mm)}
+    for(let i=0;i<26;i++){mm.makeTranslation(258,3,195+i*10);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<18;i++){mm.makeTranslation(660+(i%2)*38,3,210+i*7);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<16;i++){mm.makeTranslation(230+i*42,3,36);lamps.setMatrixAt(k++,mm)}
     lamps.userData.level='pb';root.add(lamps)}
