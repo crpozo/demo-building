@@ -133,7 +133,7 @@ def car(p,i):
     for sx in (-1,1): box('light',3,.8,1.5,sx*6,19,6,M['white'](),.3,parent=p)
 
 # ---------- construcción por planta ----------
-for lvl in ('pb','pa','tc'):
+for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     clear()
     z0=0  # cada GLB se posiciona en su nivel desde Three.js
     # muros
@@ -141,7 +141,7 @@ for lvl in ('pb','pa','tc'):
     V=[];Fc=[]
     for i,r in enumerate(WALLS[lvl]):
         outside=lvl=='pb' and (r[1]>350 or r[0]<200 or r[0]>910 or r[1]<55)
-        hh=(0 if r[1]>520 else 10) if outside else h
+        hh=0 if outside else h
         if hh<=0: continue
         x0,y0,x1,y1=r[0],-r[3],r[2],-r[1]; b=len(V)
         V+=[(x0,y0,z0),(x1,y0,z0),(x1,y1,z0),(x0,y1,z0),(x0,y0,z0+hh),(x1,y0,z0+hh),(x1,y1,z0+hh),(x0,y1,z0+hh)]
