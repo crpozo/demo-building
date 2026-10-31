@@ -237,10 +237,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <a href="#edificio" data-v="edificio">Vista 3D</a>
       <a href="#departamentos" data-v="departamentos">Departamentos</a>
     </nav>
-    <div class="mode">
-      <span>Modo constructor</span>
-      <button class="switch" id="modeBtn" role="switch" aria-checked="false" aria-label="Activar modo constructor"></button>
-    </div>
   </div>
 </header>
 
@@ -349,13 +345,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 <section class="view" id="v-departamentos">
   <div class="wrap">
     <div class="sec-head"><div class="eyebrow">Departamentos</div><h2>Diez unidades, tres tipologías</h2></div>
-    <div class="builder" id="builderBar">
-      <label>Precio por m² cubierto (USD)<input type="number" id="pM2" min="0" step="10" placeholder="ej. 1800"></label>
-      <label>Factor exterior (patio / terraza)<input type="number" id="pExt" min="0" max="1" step="0.05" placeholder="ej. 0.5"></label>
-      <label>Moneda<select id="cur"><option value="USD">USD</option><option value="MXN">MXN</option><option value="EUR">EUR</option></select></label>
-      <button class="btn gold" id="resetPrices">Borrar precios</button>
-      <p class="note">Los precios se calculan como cubierto × precio/m² + exterior × precio/m² × factor. Puede fijar un precio manual y el estado de cada unidad desde su ficha. Esta configuración se guarda solo en este dispositivo.</p>
-    </div>
     <div class="filters" id="filters">
       <span class="lbl">Dormitorios</span>
       <button class="chip on" data-f="dorm" data-val="all">Todos</button>
@@ -410,19 +399,9 @@ const TOUR=[
 const PLANTA={pb:'Planta baja',pa:'Planta alta'};
 const AMB={pb:['r-depto-pb','r-patio'],pa:['r-depto-pa','r-dorm-pa-2']};
 
-/* ---- estado (solo en este dispositivo) ---- */
-const KEY='alheli-config-v1';
-let cfg={builder:false,pM2:'',pExt:'0.5',cur:'USD',units:{}};
-try{Object.assign(cfg,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}}
-const ucfg=n=>cfg.units[n]||(cfg.units[n]={status:'disponible',price:''});
-const status=n=>ucfg(n).status;
-function price(u){
-  const c=ucfg(u.n); if(c.price!=='' && !isNaN(+c.price)) return +c.price;
-  const p=+cfg.pM2; if(!p) return null;
-  return Math.round((u.cub*p + u.ext*p*(+cfg.pExt||0))/100)*100;
-}
-const fmt=v=>v==null?'Precio a consultar':new Intl.NumberFormat('es',{style:'currency',currency:cfg.cur,maximumFractionDigits:0}).format(v);
+/* ---- disponibilidad (editar aquí: disponible | reservado | vendido) ---- */
+const STATUS={1:'disponible',2:'disponible',3:'disponible',4:'disponible',5:'disponible',6:'disponible',7:'disponible',8:'disponible',9:'disponible',10:'disponible'};
+const status=n=>STATUS[n]||'disponible';
 const m2=v=>v.toFixed(2).replace('.',',')+' m²';
 const $=s=>document.querySelector(s);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800)}
@@ -436,17 +415,6 @@ function route(){
   window.scrollTo({top:0});
 }
 addEventListener('hashchange',route);
-
-/* ---- modo constructor ---- */
-function applyMode(){
-  $('#modeBtn').setAttribute('aria-checked',String(cfg.builder));
-  $('#builderBar').classList.toggle('on',cfg.builder);
-  $('#pM2').value=cfg.pM2; $('#pExt').value=cfg.pExt; $('#cur').value=cfg.cur;
-  renderAll();
-}
-$('#modeBtn').onclick=()=>{cfg.builder=!cfg.builder;save();applyMode();toast(cfg.builder?'Modo constructor activado':'Vista cliente')};
-['pM2','pExt','cur'].forEach(id=>$('#'+id).oninput=e=>{cfg[id]=e.target.value;save();renderAll()});
-$('#resetPrices').onclick=()=>{cfg.pM2='';Object.values(cfg.units).forEach(u=>u.price='');save();applyMode();toast('Precios borrados')};
 
 /* ---- recorrido ---- */
 let ti=0;
@@ -483,7 +451,6 @@ function renderPlan(){
 function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div>${badge(u.n)}</div>
    <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
    <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-   <div class="price">${fmt(price(u))}</div>
    <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>`}
 const total=u=>u.cub+u.ext+(u.bbq||0);
 const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
@@ -502,30 +469,23 @@ function renderUnits(){
       <div class="row"><span class="num">${PLANTA[u.planta].toUpperCase()}</span>${badge(u.n)}</div>
       <div class="row"><h3>Departamento ${u.n}</h3><span class="muted" style="font-size:.8rem">${u.dorm} dorm.</span></div>
       <div class="spec"><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-      <div class="price">${fmt(price(u))}</div>
-      <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>
+         <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>
     </div></article>`).join(''):'<p class="muted">Ningún departamento cumple estos filtros.</p>';
   $('#factDisp').textContent=UNITS.filter(u=>status(u.n)==='disponible').length;
 }
 
 /* ---- ficha ---- */
 function openUnit(n){
-  const u=UNITS.find(x=>x.n===n); const c=ucfg(n);
+  const u=UNITS.find(x=>x.n===n);
   $('#sheet').innerHTML=`<div class="ph"><img src="img/u${n}.jpg" alt="Plano del departamento ${n}"></div>
   <div class="bd">
     <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">${PLANTA[u.planta]} · ${u.dorm} dormitorio${u.dorm>1?'s':''}</div>${badge(n)}<button class="close" aria-label="Cerrar">×</button></div>
     <h2 id="mTitle">Departamento ${n}</h2>
     <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
     <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
-    <div class="price">${fmt(price(u))}${price(u)!=null&&c.price===''?`<small>${fmt(+cfg.pM2)} / m²</small>`:''}</div>
     <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
-    ${cfg.builder?`<div class="admin"><div class="eyebrow">Modo constructor</div>
-      <label>Estado<select id="adStatus"><option value="disponible">Disponible</option><option value="reservado">Reservado</option><option value="vendido">Vendido</option></select></label>
-      <label>Precio manual (${cfg.cur}, vacío = calculado)<input type="number" id="adPrice" min="0" step="1000" value="${c.price}"></label></div>`:''}
     <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a></div>
   </div>`;
-  if(cfg.builder){const s=$('#adStatus');s.value=c.status;s.onchange=()=>{c.status=s.value;save();renderAll();openUnit(n)};
-    $('#adPrice').oninput=e=>{c.price=e.target.value;save();renderAll()}}
   $('#modal').classList.add('on'); $('#sheet .close').focus();
 }
 function closeModal(){$('#modal').classList.remove('on')}
@@ -539,7 +499,7 @@ document.addEventListener('click',e=>{
   const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
 });
 function renderAll(){renderUnits();renderPlan();if(window.update3D)update3D()}
-applyMode(); route();
+renderAll(); route();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
