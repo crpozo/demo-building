@@ -20,10 +20,37 @@
     "appId": "com.alheli.showroom",
     "productName": "Alhelí Showroom",
     "artifactName": "Alheli-Showroom-${version}-${os}-${arch}.${ext}",
-    "files": ["main.js", "preload.js", "app/**/*"],
-    "directories": { "output": "dist", "buildResources": "build" },
-    "mac": { "category": "public.app-category.business", "target": ["dmg", "zip"], "icon": "build/icon.png", "hardenedRuntime": false, "identity": null },
-    "win": { "target": ["nsis"], "icon": "build/icon.png" },
-    "dmg": { "title": "Alhelí Showroom" }
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.png",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": false
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
+    },
+    "dmg": {
+      "title": "Alhelí Showroom"
+    },
+    
   }
 }

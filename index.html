@@ -746,9 +746,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(4.2,2.2,3),brick,2*21*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<14;row++)for(let c=0;c<21;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(702+dd*3.2,2.2+row*2.9,165+c*8.2+(row%2?2.6:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
   [[738,300,11],[790,286,8],[812,318,10]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x7a2a2a,roughness:.5,metalness:.3,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);
     const w=new THREE.Mesh(new THREE.CircleGeometry(b[2]-.6,24),M.water);w.rotation.x=-Math.PI/2;w.position.set(b[0],5.6,b[1]);root.add(w);bowl.userData.level=w.userData.level='pb'});
-  const petals=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
-  for(let i=0;i<260;i++){const beds=[[705,170,835,230],[705,300,835,338],[705,230,725,300],[820,230,838,300]];const z=beds[i%4];const m=new THREE.Mesh(new THREE.SphereGeometry(1.4+(i%3)*.4,6,5),petals[i%4]);m.position.set(z[0]+((i*61)%(z[2]-z[0])),4+(i%4),z[1]+((i*37)%(z[3]-z[1])));m.userData.level='pb';root.add(m)}
-  for(let i=0;i<40;i++){const z=[[705,170,835,230],[705,300,835,338]][i%2];const f=new THREE.Mesh(new THREE.ConeGeometry(4,9,6),M.leaf[i%4]);f.position.set(z[0]+((i*47)%(z[2]-z[0])),5,z[1]+((i*23)%(z[3]-z[1])));f.userData.level='pb';root.add(f)}
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
   prism(CORES[0],LV.tc,26,M.terra,{core:1});prism(CORES[2],LV.tc,26,M.terra,{core:1});
@@ -759,13 +756,51 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   [[335,300,342,445],[508,300,515,445],[335,438,515,445]].forEach(w=>box(w[0],w[1],w[2],w[3],LV.tc,8,M.planter,{common:'Terraza comunal abierta'}));
   // columnas bajo los voladizos de planta alta
   [[240,350],[300,350],[360,350],[420,350],[240,440],[300,440],[360,440],[420,440],[720,360],[800,360],[880,360],[960,360],[720,430],[800,430],[880,430],[960,430]].forEach(p=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4,4,LV.pa,10),M.column);m.position.set(p[0],LV.pa/2,p[1]);m.castShadow=true;root.add(m)});
-  // árboles y arbustos
-  TREES.forEach((p,i)=>{const h=55+((i*37)%35);const g=new THREE.Group();
-    const tr=new THREE.Mesh(new THREE.CylinderGeometry(1.6,2.4,h*.55,6),M.trunk);tr.position.y=h*.27;g.add(tr);
-    for(let k=0;k<4;k++){const r=h*.22+((i+k)%3)*3;const s=new THREE.Mesh(new THREE.SphereGeometry(r,10,8),M.leaf[(i+k)%4]);s.position.set(((k%2)-.5)*r*.9,h*.55+(k>1?r*.6:0),((k>>1)-.5)*r*.9);s.castShadow=true;g.add(s)}
-    g.position.set(p[0],0,p[1]);root.add(g)});
-  for(let i=0;i<40;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(4+(i%3)*2,8,6),M.leaf[i%4]);const zones=[[135,180,335,470],[880,60,1015,470],[700,165,840,335],[215,30,900,66]];const z=zones[i%4];s.position.set(z[0]+((i*53)%(z[2]-z[0])),3,z[1]+((i*29)%(z[3]-z[1])));s.castShadow=true;root.add(s)}
-
+  // árboles tipo arce de tallo múltiple (como en los renders), palmas, helechos, flores y luces de sendero
+  const leafTex=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+    for(let i=0;i<70;i++){const px=40+Math.random()*176,py=40+Math.random()*176,r=10+Math.random()*16;x.save();x.translate(px,py);x.rotate(Math.random()*6.3);
+      const g=x.createRadialGradient(0,0,2,0,0,r);const h=92+Math.random()*30,l=30+Math.random()*18;g.addColorStop(0,`hsla(${h},48%,${l+10}%,1)`);g.addColorStop(1,`hsla(${h},50%,${l}%,0)`);x.fillStyle=g;
+      x.beginPath();for(let k=0;k<5;k++){const a=k/5*6.28;x.lineTo(Math.cos(a)*r,Math.sin(a)*r*.75);x.lineTo(Math.cos(a+.6)*r*.45,Math.sin(a+.6)*r*.4)}x.closePath();x.fill();x.restore()}
+    const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t})();
+  const leafMats=[0x6f9a3c,0x5f8a34,0x7fa848,0x557f30].map(c=>new THREE.MeshLambertMaterial({map:leafTex,color:c,transparent:true,alphaTest:.45,side:THREE.DoubleSide,depthWrite:true}));
+  const barkM=new THREE.MeshStandardMaterial({color:0x6b5a4a,roughness:1});
+  const leafQuad=new THREE.PlaneGeometry(1,1);
+  const treeLeaves=[];
+  function branch(g,x,y,z,dx,dy,dz,len,rad,depth,seed){
+    const ex=x+dx*len,ey=y+dy*len,ez=z+dz*len;
+    const geo=new THREE.CylinderGeometry(rad*.65,rad,len,6);const m=new THREE.Mesh(geo,barkM);
+    m.position.set((x+ex)/2,(y+ey)/2,(z+ez)/2);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(dx,dy,dz).normalize());m.castShadow=true;g.add(m);
+    if(depth===0){for(let k=0;k<3;k++){const q=new THREE.Mesh(leafQuad,leafMats[(seed+k)%4]);const sz=16+(seed%3)*4;q.scale.set(sz,sz*.8,1);q.position.set(ex+(k-1)*5,ey+2+k*3,ez+((seed+k)%3-1)*5);q.rotation.set((k*1.3)%3,(seed*.7+k)%3,0);treeLeaves.push(q);g.add(q)}return}
+    const n=2+(seed%2);
+    for(let k=0;k<n;k++){const a=(seed*1.7+k*2.1+depth)%6.28;const spread=.45+depth*.08;
+      const ndx=dx*.7+Math.cos(a)*spread,ndy=Math.max(.35,dy*.9+.15),ndz=dz*.7+Math.sin(a)*spread;const l=Math.hypot(ndx,ndy,ndz);
+      branch(g,ex,ey,ez,ndx/l,ndy/l,ndz/l,len*.68,rad*.62,depth-1,seed*3+k+1)}
+  }
+  function maple(px,pz,h,seed){const g=new THREE.Group();const stems=1+(seed%3);
+    for(let i=0;i<stems;i++){const a=i/stems*6.28+seed;const lean=stems>1?.14:.04;branch(g,Math.cos(a)*2,0,Math.sin(a)*2,Math.cos(a)*lean,1,Math.sin(a)*lean,h*.45,1.6+(h/70),3,seed+i*7)}
+    g.position.set(px,0,pz);g.rotation.y=seed;g.userData.level='pb';root.add(g)}
+  TREES.forEach((p,i)=>maple(p[0],p[1],60+((i*37)%40),i+1));
+  // árboles del patio central (altos y delgados, como en el render)
+  [[730,190],[812,205],[745,322],[800,310],[715,255]].forEach((p,i)=>maple(p[0],p[1],80+i*6,20+i));
+  // palmas y helechos en los macizos
+  const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
+  function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
+    g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
+  const ZONES=[[135,185,335,465],[882,65,1010,465],[705,168,836,335],[215,32,895,64],[128,80,200,180]];
+  for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];palm(z[0]+((i*53)%(z[2]-z[0])),z[1]+((i*29)%(z[3]-z[1])),.7+(i%3)*.35)}
+  // flores moradas en los bordes de senderos
+  const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
+  const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
+    const beds=[[135,185,200,465],[640,205,700,345],[705,168,836,335],[882,65,1010,465],[215,32,895,64]];
+    for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
+    flower.userData.level='pb';root.add(flower)}
+  // luces bajas de sendero (se encienden de noche)
+  const lampM=new THREE.MeshStandardMaterial({color:0xfff1c0,emissive:0xffb347,emissiveIntensity:0,roughness:.3});
+  const lamps=new THREE.InstancedMesh(new THREE.SphereGeometry(1.6,8,6),lampM,60);{const mm=new THREE.Matrix4();let k=0;
+    for(let i=0;i<26;i++){mm.makeTranslation(135+i*6,3,195+i*10);lamps.setMatrixAt(k++,mm)}
+    for(let i=0;i<18;i++){mm.makeTranslation(660+(i%2)*38,3,210+i*7);lamps.setMatrixAt(k++,mm)}
+    for(let i=0;i<16;i++){mm.makeTranslation(230+i*42,3,36);lamps.setMatrixAt(k++,mm)}
+    lamps.userData.level='pb';root.add(lamps)}
   /* planos sobre cada planta (modo casa de muñecas) */
   const loader=new THREE.TextureLoader();const slabs={};
   ['pb','pa','tc'].forEach(k=>{const m=new THREE.MeshBasicMaterial({transparent:true,opacity:.95,side:THREE.DoubleSide});loader.load('img/plan-'+k+'-hd.jpg',t=>{t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();m.map=t;m.needsUpdate=true});
@@ -862,7 +897,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     scene.background=sky;scene.fog.color.copy(sky);
     sunL.intensity=t<.55?1.1:Math.max(.08,1.1*(1-(t-.55)*2.2));amb.intensity=Math.max(.18,.7*(1-t*.8));
     sunL.color.setHex(t<.4?0xfff2e0:t<.7?0xffb070:0x9ab0ff);sunL.position.set(-700+t*1400,1000-t*600,900);
-    const glow=t>.55;root.traverse(o=>{if(o.isMesh&&o.userData.pane){o.material.emissive.setHex(glow&&status(o.userData.unit)!=='vendido'?0xffb45a:0x000000);o.material.emissiveIntensity=glow?.9:0}});}
+    const glow=t>.55;lampM.emissiveIntensity=glow?1.6:0;root.traverse(o=>{if(o.isMesh&&o.userData.pane){o.material.emissive.setHex(glow&&status(o.userData.unit)!=='vendido'?0xffb45a:0x000000);o.material.emissiveIntensity=glow?.9:0}});}
   $('#sun').oninput=e=>daylight(+e.target.value); daylight(22);
   if(window.ALHELI_DESKTOP)setTimeout(()=>setHQ(true),300);
   function frameO(){const w=el.clientWidth,h=el.clientHeight;const half=Math.max(60,Math.min(1700,tv.dist*.42));camO.left=-half*w/h;camO.right=half*w/h;camO.top=half;camO.bottom=-half;camO.updateProjectionMatrix()}

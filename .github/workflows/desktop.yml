@@ -25,7 +25,13 @@ jobs:
       - run: npm run ${{ matrix.script }}
         working-directory: desktop
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          # Firma y notarización de Apple: se activan solas cuando existen estos secretos en el repositorio.
+          CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CERT_P12_BASE64 != '' }}
       - name: Version
         id: v
         shell: bash
