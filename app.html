@@ -560,8 +560,8 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   const scene=new THREE.Scene();
   const cam=new THREE.PerspectiveCamera(42,1,10,20000);
-  const sunL=new THREE.DirectionalLight(0xffffff,1); sunL.position.set(600,900,400); scene.add(sunL);
-  const amb=new THREE.HemisphereLight(0xdfe8ff,0x6b5a3a,.9); scene.add(amb);
+  const sunL=new THREE.DirectionalLight(0xffffff,.65); sunL.position.set(600,900,400); scene.add(sunL);
+  const amb=new THREE.HemisphereLight(0xdfe8ff,0x6b5a3a,.55); scene.add(amb);
   const root=new THREE.Group(); root.position.set(-PW/2,0,-PH/2); scene.add(root);
   const loader=new THREE.TextureLoader();
   const tex={}; const plane=(name,y)=>{const g=new THREE.PlaneGeometry(PW,PH);const m=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:name==='pb'?1:.7,depthWrite:name==='pb',side:THREE.DoubleSide});
@@ -626,9 +626,9 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   // día / noche
   const sky=new THREE.Color();
   function daylight(v){ // 0 amanecer · 100 noche
-    const t=v/100;const day=new THREE.Color(0x9fc3e8),dusk=new THREE.Color(0xd9a07a),night=new THREE.Color(0x1b1424);
+    const t=v/100;const day=new THREE.Color(0x7fb0e0),dusk=new THREE.Color(0xd79a6c),night=new THREE.Color(0x1b1424);
     if(t<.5)sky.copy(day).lerp(dusk,t*2);else sky.copy(dusk).lerp(night,(t-.5)*2);
-    scene.background=sky;const i=t<.5?1:1-(t-.5)*1.7;sunL.intensity=Math.max(.15,i);amb.intensity=Math.max(.35,.9*(1-t*.7));
+    scene.background=sky;const i=t<.5?.65:.65*(1-(t-.5)*1.7);sunL.intensity=Math.max(.1,i);amb.intensity=Math.max(.25,.55*(1-t*.7));
     sunL.color.setHex(t<.5?0xffffff:0xffc890);
     meshes.forEach(m=>{if(m.userData.unit)m.material.emissive.setHex(t>.6&&status(m.userData.unit)!=='vendido'?0x3a2a10:0)});}
   $('#sun').oninput=e=>daylight(+e.target.value); daylight(22);
