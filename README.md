@@ -10,4 +10,4 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 - Recorrido visual por fachada, accesos, patio central, interiores y terraza comunal.
 - Plantas baja, alta y terraza con cada departamento clicable sobre el plano.
 - Fichas de los 10 departamentos con ambientes, áreas y filtros por dormitorios, planta y disponibilidad.
-- Vista 3D del edificio: interiores modelados en Blender desde los planos (`blender/build_alheli.py` genera `models/*.glb`), fachadas, jardines y patio central con celosía, cuencos de agua y flores, isométrica o perspectiva, selector de piso, disponibilidad, modo "separar plantas", día/noche, pantalla completa y recorrido en primera persona con entrada a cada departamento.
+- Vista 3D a pantalla completa bajo el menú: interiores modelados en Blender desde los planos (`blender/build_alheli.py` genera `models/*`), fachadas, jardines y patio central, isométrica o perspectiva, selector de piso, "Abrir paredes" para ver los interiores, disponibilidad, "Separar plantas", día/noche y pantalla completa.

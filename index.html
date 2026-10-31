@@ -59,6 +59,8 @@ nav.tabs a.on{color:#fff;border-bottom-color:var(--gold2)}
 
 /* sections */
 section.view{display:none;padding-block:28px 56px}
+#v-edificio.view{padding-block:0}
+.wrap3{max-width:none;padding:0}
 section.view.on{display:block}
 .sec-head{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
 
@@ -124,10 +126,11 @@ section.view.on{display:block}
 .side .empty{color:var(--muted);font-weight:300;font-size:.95rem}
 
 /* vista 3D */
-.v3{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
-.v3 .stage3{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:#8fb3d9;touch-action:none;height:clamp(380px,62vh,640px)}
+.v3{position:relative}
+.v3 .stage3{position:relative;overflow:hidden;background:#8fb3d9;touch-action:none;height:calc(100vh - 61px - env(safe-area-inset-top,0px))}
+.v3 .side{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:70px;width:300px;max-height:calc(100% - 90px);overflow:auto;z-index:2;background:color-mix(in srgb,var(--bg2) 88%,transparent);backdrop-filter:blur(8px)}
 .v3 canvas{display:block;width:100%;height:100%}
-.ctl3{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;pointer-events:none}
+.ctl3{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;pointer-events:none}
 .ctl3 > *{pointer-events:auto}
 .ctl3 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .ctl3 .chip{backdrop-filter:blur(6px);background:rgba(43,29,46,.55);color:#fff;border-color:rgba(255,255,255,.3)}
@@ -150,7 +153,7 @@ section.view.on{display:block}
 .walkbar .chip.on{background:var(--gold);border-color:var(--gold);color:#1e1420}
 .where{position:absolute;left:50%;top:calc(110px + env(safe-area-inset-top,0px));transform:translateX(-50%);pointer-events:none;background:rgba(43,29,46,.6);color:#fff;padding:6px 14px;border-radius:999px;font-size:.78rem;display:none;white-space:nowrap}
 .stage3.walk .where{display:block}
-@media (max-width:900px){.v3{grid-template-columns:1fr}.v3 .stage3{height:60vh}}
+@media (max-width:900px){.v3 .stage3{height:calc(100vh - 61px - env(safe-area-inset-top,0px))}.v3 .side{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));top:auto;bottom:16px;width:auto;max-height:42%}}
 
 /* departamentos */
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
@@ -219,6 +222,7 @@ td .best{color:var(--ok);font-weight:600}
 .sheet .admin label{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sheet .admin input{width:120px;text-align:right;font:inherit;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg)}
 
+body:has(#v-edificio.on) footer{display:none}
 footer{border-top:1px solid var(--line);padding-block:24px;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#efe8dd;padding:10px 18px;border-radius:999px;font-size:.8rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
@@ -330,8 +334,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 
 <!-- VISTA 3D -->
 <section class="view" id="v-edificio">
-  <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Vista 3D</div><h2>Recorra el edificio y toque un departamento</h2><p class="muted" style="font-weight:300">Modelo construido a partir de las plantas del proyecto. Arrastre para girar, use la rueda o pellizque para acercar y toque un departamento o su número.</p></div>
+  <div class="wrap wrap3">
     <div class="v3">
       <div class="stage3" id="stage3">
         <canvas id="c3"></canvas>
@@ -342,24 +345,17 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
             <button class="chip" data-fl="pa">Planta alta</button>
             <button class="chip" data-fl="tc">Terraza</button>
           </div>
-          <div class="chips"><button class="chip on" id="iso3">Isométrica</button><button class="chip" id="status3">Disponibilidad</button><button class="chip" id="explode3">Separar plantas</button></div>
+          <div class="chips"><button class="chip on" id="iso3">Isométrica</button><button class="chip" id="cut3">Abrir paredes</button><button class="chip" id="status3">Disponibilidad</button><button class="chip" id="explode3">Separar plantas</button></div>
           <div class="right">
             <label class="sun"><span aria-hidden="true">☀</span><input type="range" id="sun" min="0" max="100" value="22" aria-label="Hora del día"><span aria-hidden="true">☾</span></label>
-            <button class="chip" id="walk3">Recorrer</button>
             <button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">⌂</button>
             <button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">⛶</button>
           </div>
         </div>
-        <div class="where" id="where3"></div>
-        <div class="joy" id="joy"><i></i></div>
-        <div class="walkbar">
-          <button class="chip on" data-wl="pb">Planta baja</button><button class="chip" data-wl="pa">Planta alta</button><button class="chip" data-wl="tc">Terraza</button>
-          <button class="chip" id="walkExit">Salir del recorrido</button>
-        </div>
-        <div class="hint3" id="hint3">Girando automáticamente · toque para detener</div>
+
         <div class="tip3" id="tip3"></div>
       </div>
-      <aside class="side" id="side3"><p class="empty">Toque un departamento o su número para ver la ficha. Active “Disponibilidad” para colorear las unidades por estado.</p>
+      <aside class="side" id="side3"><p class="empty">Toque un departamento o su número para ver la ficha. Active “Abrir paredes” para ver los interiores y “Disponibilidad” para colorear las unidades por estado.</p>
         <div class="legend"><span><i style="background:#6a4f74"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
       </aside>
     </div>
@@ -476,7 +472,7 @@ function renderPlan(){
 function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div>${badge(u.n)}</div>
    <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
    <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button><button class="btn gold" data-enter="${u.n}">Entrar en 3D</button></div>`}
+   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>`}
 const total=u=>u.cub+u.ext+(u.bbq||0);
 const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
 
@@ -509,7 +505,7 @@ function openUnit(n){
     <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
     <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
     <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
-    <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a><a class="btn gold" href="#edificio" data-enter="${n}">Entrar en 3D</a></div>
+    <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a></div>
   </div>`;
   $('#modal').classList.add('on'); $('#sheet .close').focus();
 }
@@ -520,7 +516,6 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 /* ---- delegación global ---- */
 document.addEventListener('click',e=>{
   const o=e.target.closest('[data-open]'); if(o){openUnit(+o.dataset.open);return}
-  const en=e.target.closest('[data-enter]'); if(en){closeModal();location.hash='#edificio';if(window.enterUnit)setTimeout(()=>enterUnit(+en.dataset.enter),50);return}
   const s3=e.target.closest('[data-sel3]'); if(s3){closeModal();if(window.select3D)select3D(+s3.dataset.sel3);return}
   const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
 });
@@ -709,7 +704,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
-    root.add(grp);if(floor!=='all')$('#floor3 .chip.on').click()},undefined,()=>{}));
+    root.add(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
   const brick=new THREE.MeshStandardMaterial({color:0xa8583c,roughness:.9});
   const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(4.2,2.2,3),brick,2*21*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<14;row++)for(let c=0;c<21;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(702+dd*3.2,2.2+row*2.9,165+c*8.2+(row%2?2.6:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
@@ -744,7 +739,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   root.children.forEach(o=>{o.userData.baseY=o.position.y;if(!o.userData.level)o.userData.level=o.position.y>=LV.tc-1?'tc':o.position.y>=LV.pa-1?'pa':'pb'});
 
   /* cámara y controles */
-  var walk=false;
   let theta=Math.PI/4+Math.PI,phi=.96,dist=1250,auto=true,sel=null,hover=null,floor='all',showStatus=false;
   const target=new THREE.Vector3(0,45,0),targetT=new THREE.Vector3(0,45,0);const tv={theta,phi,dist};
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};
@@ -753,21 +747,20 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
   el.addEventListener('contextmenu',e=>e.preventDefault());
-  el.addEventListener('pointerdown',e=>{if(walk||e.target!==canvas||(e.pointerType==='touch'&&pinch))return;drag=pos(e);drag.pan=e.button===2||e.shiftKey||e.ctrlKey;moved=false;auto=false;$('#hint3').textContent='Arrastre: girar · botón derecho, Shift o dos dedos: desplazar · rueda o pellizco: acercar';el.setPointerCapture(e.pointerId)});
+  el.addEventListener('pointerdown',e=>{if(e.target!==canvas||(e.pointerType==='touch'&&pinch))return;drag=pos(e);drag.pan=e.button===2||e.shiftKey||e.ctrlKey;moved=false;auto=false;el.setPointerCapture(e.pointerId)});
   el.addEventListener('pointermove',e=>{
-    if(walk)return;
     if(e.target!==canvas&&!drag){$('#tip3').style.display='none';return}
     if(drag){const p=pos(e);const dx=p.x-drag.x,dy=p.y-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;if(drag.pan)pan(dx,dy);else{theta-=dx*.006;phi=Math.min(1.52,Math.max(.08,phi-dy*.006))}p.pan=drag.pan;drag=p;return}
     pick(e,false)});
-  el.addEventListener('pointerup',e=>{if(walk)return;if(drag&&!moved)pick(e,true);drag=null});
+  el.addEventListener('pointerup',e=>{if(drag&&!moved)pick(e,true);drag=null});
   el.addEventListener('pointercancel',()=>drag=null);
-  el.addEventListener('wheel',e=>{e.preventDefault();if(walk){camW.fov=Math.min(90,Math.max(35,camW.fov+Math.sign(e.deltaY)*4));camW.updateProjectionMatrix();return}
+  el.addEventListener('wheel',e=>{e.preventDefault();
     const k=Math.exp(Math.sign(e.deltaY)*.12);const nd=Math.min(4200,Math.max(140,dist*k));
     if(nd<dist){const r=canvas.getBoundingClientRect();mouse.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(mouse,cam);const g=new THREE.Plane(new THREE.Vector3(0,1,0),-30);const hit=new THREE.Vector3();if(ray.ray.intersectPlane(g,hit)){const t=1-nd/dist;targetT.x+=(hit.x-targetT.x)*t;targetT.z+=(hit.z-targetT.z)*t;targetT.x=Math.max(-700,Math.min(700,targetT.x));targetT.z=Math.max(-500,Math.min(500,targetT.z))}}
     dist=nd;auto=false},{passive:false});
   let tmid=null;
   el.addEventListener('touchstart',e=>{if(e.touches.length===2){drag=null;pinch=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);tmid={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2}}},{passive:true});
-  el.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);dist=Math.min(4200,Math.max(140,dist*pinch/d));pinch=d;const m={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};if(tmid&&!walk)pan(m.x-tmid.x,m.y-tmid.y);tmid=m}},{passive:true});
+  el.addEventListener('touchmove',e=>{if(e.touches.length===2&&pinch){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);dist=Math.min(4200,Math.max(140,dist*pinch/d));pinch=d;const m={x:(e.touches[0].clientX+e.touches[1].clientX)/2,y:(e.touches[0].clientY+e.touches[1].clientY)/2};if(tmid)pan(m.x-tmid.x,m.y-tmid.y);tmid=m}},{passive:true});
   el.addEventListener('touchend',()=>{pinch=null;tmid=null});
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
   function pick(e,click){
@@ -792,11 +785,18 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     document.querySelectorAll('#floor3 .chip').forEach(c=>c.classList.toggle('on',c===b));
     const order=['pb','pa','tc'];const idx=floor==='all'?2:order.indexOf(floor);
     root.children.forEach(o=>{if(o.userData.level)o.visible=order.indexOf(o.userData.level)<=idx});
-    Object.values(slabs).forEach(s=>s.visible=gapT>0&&s.visible);};
+    Object.values(slabs).forEach(s=>s.visible=gapT>0&&s.visible);if(cut)applyCut()};
+  /* abrir paredes: oculta la envolvente y baja los tabiques para ver los interiores */
+  let cut=false;
+  function applyCut(){root.traverse(o=>{
+      if(o.isMesh&&!o.isSprite&&!o.userData.interior&&!o.userData.floor&&(o.userData.unit||o.userData.core||o.userData.common)&&o.material!==M.deck&&!o.material.isMeshBasicMaterial){o.visible=!cut}
+      if(o.isMesh&&o.userData.interior&&o.name==='walls'){o.scale.y=cut?.3:1}
+      if(o.userData.pane&&o.parent){o.parent.visible=!cut}})}
+  $('#cut3').onclick=e=>{cut=!cut;e.target.classList.toggle('on',cut);auto=false;if(cut){phi=Math.min(phi,.75)}applyCut();if(floor!=='all')$('#floor3 .chip.on').click()};
   /* separar plantas */
   let gap=0,gapT=0;
   $('#explode3').onclick=e=>{gapT=gapT?0:150;e.target.classList.toggle('on',gapT>0);auto=false;
-    $('#hint3').textContent=gapT?'Plantas separadas · toque un volumen':'Arrastre para girar';
+    
     const order=['pb','pa','tc'];const idx=floor==='all'?2:order.indexOf(floor);
     Object.entries(slabs).forEach(([k,s])=>s.visible=gapT>0&&order.indexOf(k)<=idx);
     root.traverse(o=>{if(o.isMesh&&o.material&&!o.userData.pane&&!o.isSprite&&!o.isInstancedMesh&&!o.userData.floor&&!(o.parent&&o.parent.userData.interior)&&o.material!==M.lawn&&o.material!==M.cobble&&o.material!==M.pave){if(gapT){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.35;o.castShadow=false}else{o.material.transparent=o.userData.wasT||false;o.material.opacity=1;o.castShadow=true}}});
@@ -809,53 +809,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&el.classList.contains('full')){el.classList.remove('full');$('#full3').classList.remove('on');document.body.style.overflow='';setTimeout(resize,50)}});
   addEventListener('keydown',e=>{if(e.key==='Escape'&&el.classList.contains('full'))$('#full3').click()});
 
-  /* modo recorrido (primera persona) */
-  const camW=new THREE.PerspectiveCamera(68,1,2,20000);const lamp=new THREE.PointLight(0xfff1dc,.35,380,1.4);lamp.visible=false;camW.add(lamp);scene.add(camW);
-  let wx=165,wz=290,wlevel='pb',yaw=Math.PI/2,pitch=0,keys={},joy={x:0,y:0},look=null;
-  const EYE=25;
-  const walls=[];root.traverse(o=>{if(o.isMesh&&!o.isSprite&&!o.isInstancedMesh&&!o.material.isMeshBasicMaterial&&!o.userData.floor&&(o.userData.unit||o.userData.core||o.userData.common)&&!o.userData.pane)walls.push(o)});
-  function setWalkMaterials(on){walls.forEach(o=>{if(on){if(!o.userData.mat){o.userData.mat=o.material;o.material=o.material.clone();o.material.transparent=true;o.material.opacity=1}}else if(o.userData.mat){o.material=o.userData.mat;delete o.userData.mat;o.visible=true}})}
-  function startWalk(){walk=true;auto=false;el.classList.add('walk');$('#walk3').classList.add('on');cam=camW;camW.aspect=el.clientWidth/el.clientHeight;camW.updateProjectionMatrix();
-    setWalkMaterials(true);Object.values(slabs).forEach(sl=>sl.visible=false);labels.forEach(l=>l.visible=false);lamp.visible=true;amb.intensity=Math.max(amb.intensity,.8);$('#hint3').textContent='Arrastre para mirar · joystick, flechas o WASD para caminar';}
-  function stopWalk(){walk=false;labels.forEach(l=>l.visible=true);lamp.visible=false;daylight(+$('#sun').value);el.classList.remove('walk');$('#walk3').classList.remove('on');cam=iso?camO:camP;setWalkMaterials(false);Object.values(slabs).forEach(sl=>sl.visible=gapT>0);$('#hint3').textContent='Arrastre para girar · rueda o pellizco para acercar';$('#tip3').style.display='none'}
-  $('#walk3').onclick=()=>walk?stopWalk():startWalk();
-  const ENTRY={1:[478,262,Math.PI],2:[318,165,Math.PI],3:[548,128,Math.PI],4:[838,150,Math.PI],5:[495,235,0],6:[350,345,Math.PI],7:[250,160,Math.PI],8:[530,160,Math.PI],9:[712,148,Math.PI],10:[740,395,Math.PI/2]};
-  window.enterUnit=n=>{const u=UNITS.find(x=>x.n===n);const e=ENTRY[n];wx=e[0];wz=e[1];yaw=e[2];wlevel=u.planta;pitch=-.05;
-    document.querySelectorAll('[data-wl]').forEach(c=>c.classList.toggle('on',c.dataset.wl===wlevel));if(!walk)startWalk();sel=n;$('#side3').innerHTML=sideHTML(u);paint()};
-  $('#walkExit').onclick=stopWalk;
-  document.querySelectorAll('[data-wl]').forEach(b=>b.onclick=()=>{wlevel=b.dataset.wl;document.querySelectorAll('[data-wl]').forEach(c=>c.classList.toggle('on',c===b));if(wlevel==='tc'){wx=425;wz=370}});
-  addEventListener('keydown',e=>{if(!walk&&$('#v-edificio').classList.contains('on')&&!$('#modal').classList.contains('on')){const k=e.key;const st=18;if(k==='ArrowLeft')pan(st,0);if(k==='ArrowRight')pan(-st,0);if(k==='ArrowUp')pan(0,st);if(k==='ArrowDown')pan(0,-st);if(k==='+'||k==='=')dist=Math.max(380,dist*.9);if(k==='-')dist=Math.min(3600,dist*1.1);if(k==='PageUp')phi=Math.max(.08,phi-.08);if(k==='PageDown')phi=Math.min(1.52,phi+.08);if(k.startsWith('Arrow')||k==='PageUp'||k==='PageDown')e.preventDefault();auto=false;return}
-    if(!walk)return;keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()});
-  addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
-  const jel=$('#joy'),knob=jel.querySelector('i');
-  jel.addEventListener('pointerdown',e=>{jel.setPointerCapture(e.pointerId);joyMove(e)});
-  jel.addEventListener('pointermove',e=>{if(jel.hasPointerCapture(e.pointerId))joyMove(e)});
-  jel.addEventListener('pointerup',e=>{joy={x:0,y:0};knob.style.transform=''});
-  jel.addEventListener('pointercancel',()=>{joy={x:0,y:0};knob.style.transform=''});
-  function joyMove(e){const r=jel.getBoundingClientRect();let x=(e.clientX-r.left-r.width/2)/(r.width/2),y=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(x,y);if(l>1){x/=l;y/=l}joy={x,y};knob.style.transform=`translate(${x*35}px,${y*35}px)`}
-  // mirar arrastrando (reutiliza los eventos de la escena)
-  const origDown=el.onpointerdown;
-  el.addEventListener('pointerdown',e=>{if(walk&&e.target===canvas){look={x:e.clientX,y:e.clientY};drag=null}});
-  el.addEventListener('pointermove',e=>{if(walk&&look){yaw-=(e.clientX-look.x)*.004;pitch=Math.max(-1,Math.min(.9,pitch-(e.clientY-look.y)*.004));look={x:e.clientX,y:e.clientY}}});
-  el.addEventListener('pointerup',e=>{if(walk&&look){const r=canvas.getBoundingClientRect();look=null;}});
-  function whereAmI(){const pt=[wx,wz];let u=UNITS.find(x=>x.planta===wlevel&&inside(pt,FOOT[x.n]));
-    if(wlevel==='tc')$('#where3').textContent=inside(pt,[[335,195],[515,195],[515,300],[335,300]])?'Salón de la terraza comunal':inside(pt,[[335,300],[515,300],[515,445],[335,445]])?'Terraza comunal':'Cubierta';
-    else if(u){$('#where3').textContent=`Departamento ${u.n} · ${u.dorm} dorm. · ${m2(u.cub)} cubiertos`;if(sel!==u.n){sel=u.n;$('#side3').innerHTML=sideHTML(u);paint()}}
-    else $('#where3').textContent=wlevel==='pb'?(inside(pt,[[700,160],[840,160],[840,340],[700,340]])?'Patio central':'Exterior · planta baja'):'Pasillo · planta alta';}
-  function walkStep(){const f=(keys['w']||keys['arrowup']?1:0)-(keys['s']||keys['arrowdown']?1:0)-joy.y;const st=(keys['d']||keys['arrowright']?1:0)-(keys['a']||keys['arrowleft']?1:0)+joy.x;
-    if(keys['q'])yaw+=.03;if(keys['e'])yaw-=.03;
-    const sp=2.6;const nx=wx+(Math.sin(yaw)*f-Math.cos(yaw)*st)*sp,nz=wz+(Math.cos(yaw)*f+Math.sin(yaw)*st)*sp;
-    const blocked=(x,z)=>(WALLS[wlevel]||[]).some(r=>x>r[0]-4&&x<r[2]+4&&z>r[1]-4&&z<r[3]+4&&!(wlevel==='pb'&&(r[1]>350||r[0]<200||r[0]>910||r[1]<55)));
-    if(!blocked(nx,wz))wx=nx;if(!blocked(wx,nz))wz=nz;
-    wx=Math.max(115,Math.min(1025,wx));wz=Math.max(25,Math.min(560,wz));
-    const y=LV[wlevel]+LIDX[wlevel]*gap+EYE;camW.position.set(wx-PW/2,y,wz-PH/2);
-    camW.lookAt(wx-PW/2+Math.sin(yaw)*Math.cos(pitch),y+Math.sin(pitch),wz-PH/2+Math.cos(yaw)*Math.cos(pitch));
-    // la unidad en la que estoy (o a la que me acerco) se vuelve transparente y pierde el techo
-    const pt=[wx,wz];let near=null;UNITS.forEach(u=>{if(u.planta!==wlevel)return;const [x0,y0,x1,y1]=bbox(FOOT[u.n]);if(wx>x0-22&&wx<x1+22&&wz>y0-22&&wz<y1+22)near=u.n});
-    const insideU=near!==null&&UNITS.some(u=>u.n===near&&ENC[near].some(pp=>inside(pt,pp)));
-    walls.forEach(o=>{const inU=o.userData.unit===near&&near!==null;o.visible=!(inU&&insideU&&!o.userData.deckOrTer);if(o.userData.mat){o.material.opacity=inU&&!insideU?.35:1;o.material.depthWrite=!(inU&&!insideU)}
-      if(o.userData.mat===M.slab||o.material.map===M.slab.map)o.visible=!inU});
-    whereAmI();}
+  addEventListener('keydown',e=>{if($('#v-edificio').classList.contains('on')&&!$('#modal').classList.contains('on')){const k=e.key;const st=18;if(k==='ArrowLeft')pan(st,0);if(k==='ArrowRight')pan(-st,0);if(k==='ArrowUp')pan(0,st);if(k==='ArrowDown')pan(0,-st);if(k==='+'||k==='=')dist=Math.max(140,dist*.9);if(k==='-')dist=Math.min(4200,dist*1.1);if(k==='PageUp')phi=Math.max(.08,phi-.08);if(k==='PageDown')phi=Math.min(1.52,phi+.08);if(k.startsWith('Arrow')||k==='PageUp'||k==='PageDown')e.preventDefault();auto=false}});
   /* día / noche */
   const sky=new THREE.Color();
   function daylight(v){const t=v/100;const day=new THREE.Color(0x8fbce6),dusk=new THREE.Color(0xe0a070),night=new THREE.Color(0x141022);
@@ -866,11 +820,11 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const glow=t>.55;root.traverse(o=>{if(o.isMesh&&o.userData.pane){o.material.emissive.setHex(glow&&status(o.userData.unit)!=='vendido'?0xffb45a:0x000000);o.material.emissiveIntensity=glow?.9:0}});}
   $('#sun').oninput=e=>daylight(+e.target.value); daylight(22);
   function frameO(){const w=el.clientWidth,h=el.clientHeight;const half=Math.max(60,Math.min(1700,tv.dist*.42));camO.left=-half*w/h;camO.right=half*w/h;camO.top=half;camO.bottom=-half;camO.updateProjectionMatrix()}
-  function resize(){const w=el.clientWidth,h=el.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camP.aspect=w/h;camP.updateProjectionMatrix();camW.aspect=w/h;camW.updateProjectionMatrix()}frameO()}
+  function resize(){const w=el.clientWidth,h=el.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camP.aspect=w/h;camP.updateProjectionMatrix()}frameO()}
   $('#home3').onclick=()=>{theta=HOME.theta;phi=HOME.phi;dist=HOME.dist;targetT.set(0,45,0);auto=false};
   $('#iso3').onclick=e=>{iso=!iso;e.target.classList.toggle('on',iso);cam=iso?camO:camP;if(iso){phi=.96;theta=Math.PI/4+Math.PI;}auto=false;frameO()};
   new ResizeObserver(resize).observe(el);
-  (function loop(){requestAnimationFrame(loop);if(!$('#v-edificio').classList.contains('on'))return;resize();if(walk){explode();walkStep()}else{if(auto)theta+=.002;explode();place()}renderer.render(scene,cam)})();
+  (function loop(){requestAnimationFrame(loop);if(!$('#v-edificio').classList.contains('on'))return;resize();if(auto)theta+=.002;explode();place();renderer.render(scene,cam)})();
   paint();
 })();
 </script>
