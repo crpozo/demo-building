@@ -10,4 +10,4 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 - Recorrido visual por fachada, accesos, patio central, interiores y terraza comunal.
 - Plantas baja, alta y terraza con cada departamento clicable sobre el plano.
 - Fichas de los 10 departamentos con ambientes, áreas y filtros por dormitorios, planta y disponibilidad.
-- Vista 3D del edificio: modelo arquitectónico generado desde las plantas, isométrica o perspectiva, selector de piso, capa de disponibilidad, modo "separar plantas", día/noche, pantalla completa y recorrido en primera persona (joystick, flechas o WASD) con cambio de planta.
+- Vista 3D del edificio: muros extraídos automáticamente de los planos, pisos y mobiliario por departamento, autos en el estacionamiento, isométrica o perspectiva, selector de piso, disponibilidad, modo "separar plantas", día/noche, pantalla completa y recorrido en primera persona con entrada a cada departamento.
