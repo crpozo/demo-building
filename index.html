@@ -89,6 +89,18 @@ section.view.on{display:block}
 .quick a i{font-style:normal;color:var(--gold);font-size:1.3rem}
 .quick a:hover{border-color:var(--gold)}
 
+/* descarga */
+.dl{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center;margin-top:34px;background:var(--plum);color:#efe8dd;border-radius:var(--radius);overflow:hidden}
+.dl-txt{padding:clamp(22px,4vw,40px);display:flex;flex-direction:column;gap:14px}
+.dl-txt h2{color:#fff}
+.dl-txt p{font-weight:300;max-width:52ch}
+.dl-txt .muted{color:#cfc3d1;font-size:.8rem}
+.dl-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.dl-btns .btn{font-size:.8rem;padding:12px 18px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.dl-btns .btn:not(.gold):not(.ghost){background:#efe8dd;color:var(--plum);border-color:#efe8dd}
+.dl-btns .btn.ghost{color:#efe8dd;border-color:rgba(255,255,255,.35)}
+.dl-img{width:100%;height:100%;object-fit:cover;min-height:260px}
+@media (max-width:900px){.dl{grid-template-columns:1fr}.dl-img{order:-1;max-height:220px}}
 /* recorrido */
 .tour{display:grid;grid-template-columns:1fr 280px;gap:22px;align-items:start}
 .stage{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--plum);box-shadow:var(--shadow)}
@@ -283,6 +295,20 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <div><b>71–164</b><span>m² cubiertos</span></div>
       <div><b id="factDisp">10</b><span>Disponibles</span></div>
     </div>
+    <section class="dl" id="descargar">
+      <div class="dl-txt">
+        <div class="eyebrow">App de escritorio</div>
+        <h2>Alhelí Showroom para Mac y Windows</h2>
+        <p>La misma experiencia con el modo de calidad alta activado: iluminación ambiental, sombras en 4K y más resolución, usando la tarjeta gráfica del equipo. Ideal para la pantalla de la sala de ventas.</p>
+        <div class="dl-btns">
+          <a class="btn gold" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-mac-universal.dmg"> Descargar para Mac</a>
+          <a class="btn" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-win-x64.exe">⊞ Descargar para Windows</a>
+          <a class="btn ghost" href="https://github.com/crpozo/demo-building/releases/latest" target="_blank" rel="noopener">Todas las versiones</a>
+        </div>
+        <p class="muted dl-note">Versión 0.1.0 · instalador sin firma: en Mac, la primera vez abrir con clic derecho → Abrir.</p>
+      </div>
+      <img class="dl-img" src="img/r-patio.jpg" alt="Patio central de Alhelí">
+    </section>
     <div class="intro">
       <div class="txt">
         <div class="eyebrow">El proyecto</div>
@@ -299,7 +325,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         <a href="#recorrido"><img src="img/r-patio.jpg" alt=""><span><b>Recorrido visual</b><span>Fachada, accesos, patio central e interiores</span></span><i>›</i></a>
         <a href="#plantas"><img src="img/plan-pb.jpg" alt=""><span><b>Plantas interactivas</b><span>Toque un departamento sobre el plano</span></span><i>›</i></a>
         <a href="#departamentos"><img src="img/u9.jpg" alt=""><span><b>Departamentos</b><span>Filtre por dormitorios, planta y disponibilidad</span></span><i>›</i></a>
-        <a href="https://github.com/crpozo/demo-building/releases/latest" target="_blank" rel="noopener"><img src="img/r-terraza.jpg" alt=""><span><b>App para Mac y Windows</b><span>Descargue el showroom con render de alta calidad</span></span><i>⇩</i></a>
       </div>
     </div>
   </div>
