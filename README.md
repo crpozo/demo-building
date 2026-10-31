@@ -10,5 +10,5 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 - Recorrido visual por fachada, accesos, patio central, interiores y terraza comunal.
 - Plantas baja, alta y terraza con cada departamento clicable sobre el plano.
 - Fichas de los 10 departamentos con ambientes, áreas y filtros por dormitorios, planta y disponibilidad.
-- Comparador de hasta tres unidades.
+- Vista 3D del edificio: volúmenes por departamento sobre las plantas, orbitable, con selector de piso, modo "separar plantas" y control día/noche.
 - Modo constructor: precio por m², factor para patio/terraza, precio manual y estado (disponible / reservado / vendido) por unidad. Se guarda en el dispositivo.
