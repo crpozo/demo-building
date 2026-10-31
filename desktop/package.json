@@ -1,0 +1,29 @@
+{
+  "name": "alheli-showroom",
+  "productName": "Alhelí Showroom",
+  "version": "0.1.0",
+  "description": "Showroom 3D del proyecto Alhelí Residencias Boutique",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "prepare-app": "node prepare.js",
+    "start": "npm run prepare-app && electron .",
+    "dist:mac": "npm run prepare-app && electron-builder --mac --universal",
+    "dist:win": "npm run prepare-app && electron-builder --win",
+    "dist": "npm run prepare-app && electron-builder --mac --universal --win"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.alheli.showroom",
+    "productName": "Alhelí Showroom",
+    "artifactName": "Alheli-Showroom-${version}-${os}-${arch}.${ext}",
+    "files": ["main.js", "preload.js", "app/**/*"],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "mac": { "category": "public.app-category.business", "target": ["dmg", "zip"], "icon": "build/icon.png", "hardenedRuntime": false, "identity": null },
+    "win": { "target": ["nsis"], "icon": "build/icon.png" },
+    "dmg": { "title": "Alhelí Showroom" }
+  }
+}

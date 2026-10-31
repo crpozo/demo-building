@@ -1,5 +1,6 @@
 <title>Alhelí Residencias</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%232b1d2e%27/%3E%3Cpath d=%27M32 18v34M32 30c-8 0-11-3-11-8M32 40c7 0 10-2 11-7%27 stroke=%27%23d4b27a%27 stroke-width=%273.2%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%2732%27 cy=%2711%27 r=%274%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2719%27 cy=%2719%27 r=%273.4%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2745%27 cy=%2725%27 r=%273.4%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2723%27 cy=%2738%27 r=%272.8%27 fill=%27%23d4b27a%27/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap">
 <style>
 /* Layout: sticky brand bar + tabbed single-page showroom; plum/cream brand palette from the sales brochure */
@@ -98,12 +99,17 @@ section.view.on{display:block}
 .thumbs button img{aspect-ratio:84/50;object-fit:cover;border-radius:2px;width:84px}
 .thumbs button span{font-size:.8rem;line-height:1.3}
 .thumbs button small{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.thumbs button.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.thumbs button.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);background:color-mix(in srgb,var(--gold) 18%,var(--bg2))}
+.thumbs button.on span{font-weight:600}
+.thumbs button.on small::before{content:'▶ ';color:var(--gold)}
+.thumbs{scroll-behavior:smooth}
 
 /* plantas */
 .plan-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:1px solid var(--line);background:var(--bg2);color:var(--fg);border-radius:999px;padding:7px 14px;font-size:.78rem;letter-spacing:.04em}
 .chip.on{background:var(--plum);color:#efe8dd;border-color:var(--plum)}
+.chip small{font-size:.66rem;opacity:.65;margin-left:2px;font-variant-numeric:tabular-nums}
+.chip.off{opacity:.4;cursor:not-allowed;text-decoration:line-through}
 :root[data-theme="dark"] .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)} }
 .plan-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
@@ -288,6 +294,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         <a href="#recorrido"><img src="img/r-patio.jpg" alt=""><span><b>Recorrido visual</b><span>Fachada, accesos, patio central e interiores</span></span><i>›</i></a>
         <a href="#plantas"><img src="img/plan-pb.jpg" alt=""><span><b>Plantas interactivas</b><span>Toque un departamento sobre el plano</span></span><i>›</i></a>
         <a href="#departamentos"><img src="img/u9.jpg" alt=""><span><b>Departamentos</b><span>Filtre por dormitorios, planta y disponibilidad</span></span><i>›</i></a>
+        <a href="https://github.com/crpozo/demo-building/releases/latest" target="_blank" rel="noopener"><img src="img/r-terraza.jpg" alt=""><span><b>App para Mac y Windows</b><span>Descargue el showroom con render de alta calidad</span></span><i>⇩</i></a>
       </div>
     </div>
   </div>
@@ -343,6 +350,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
           <div class="chips"><button class="chip on" id="iso3">Isométrica</button><button class="chip" id="cut3">Abrir paredes</button><button class="chip" id="status3">Disponibilidad</button><button class="chip" id="explode3">Separar plantas</button></div>
           <div class="right">
             <label class="sun"><span aria-hidden="true">☀</span><input type="range" id="sun" min="0" max="100" value="22" aria-label="Hora del día"><span aria-hidden="true">☾</span></label>
+            <button class="chip" id="hq3" title="Render de alta calidad">Calidad</button>
             <button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">⌂</button>
             <button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">⛶</button>
           </div>
@@ -437,7 +445,7 @@ let ti=0;
 function renderTour(){
   const t=TOUR[ti]; $('#stageImg').src='img/'+t.src+'.jpg'; $('#stageImg').alt=t.t;
   $('#stageTitle').textContent=t.t; $('#stageKind').textContent=t.k; $('#stageN').textContent=(ti+1)+' / '+TOUR.length;
-  document.querySelectorAll('#thumbs button').forEach((b,i)=>b.classList.toggle('on',i===ti));
+  document.querySelectorAll('#thumbs button').forEach((b,i)=>{b.classList.toggle('on',i===ti);if(i===ti)b.scrollIntoView({block:'nearest',behavior:'smooth'})});
 }
 $('#thumbs').innerHTML=TOUR.map((t,i)=>`<button data-i="${i}"><img src="img/${t.src}.jpg" alt=""><span><small>${t.k}</small>${t.t}</span></button>`).join('');
 $('#thumbs').onclick=e=>{const b=e.target.closest('button');if(b){ti=+b.dataset.i;renderTour()}};
@@ -475,10 +483,12 @@ const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
 let f={dorm:'all',planta:'all',disp:false};
 $('#filters').onclick=e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.f==='disp'){f.disp=!f.disp}else{f[b.dataset.f]=b.dataset.val}
-  document.querySelectorAll('#filters .chip').forEach(c=>{if(c.dataset.f==='disp')c.classList.toggle('on',f.disp);else c.classList.toggle('on',f[c.dataset.f]===c.dataset.val)});
   renderUnits()};
+const matches=(ff)=>UNITS.filter(u=>(ff.dorm==='all'||u.dorm==+ff.dorm)&&(ff.planta==='all'||u.planta===ff.planta)&&(!ff.disp||status(u.n)==='disponible'));
+function renderFilters(){document.querySelectorAll('#filters .chip').forEach(c=>{const ff={...f};if(c.dataset.f==='disp')ff.disp=true;else ff[c.dataset.f]=c.dataset.val;const n=matches(ff).length;
+    const base=c.dataset.label||(c.dataset.label=c.textContent.trim());c.innerHTML=`${base} <small>${n}</small>`;const on=c.dataset.f==='disp'?f.disp:f[c.dataset.f]===c.dataset.val;c.classList.toggle('on',on);c.disabled=n===0&&!on;c.classList.toggle('off',n===0&&!on)})}
 function renderUnits(){
-  const list=UNITS.filter(u=>(f.dorm==='all'||u.dorm==+f.dorm)&&(f.planta==='all'||u.planta===f.planta)&&(!f.disp||status(u.n)==='disponible'));
+  const list=matches(f);renderFilters();
   $('#units').innerHTML=list.length?list.map(u=>`<article class="card">
     <div class="ph"><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}"></div>
     <div class="bd">
@@ -486,7 +496,7 @@ function renderUnits(){
       <div class="row"><h3>Departamento ${u.n}</h3><span class="muted" style="font-size:.8rem">${u.dorm} dorm.</span></div>
       <div class="spec"><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
          <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>
-    </div></article>`).join(''):'<p class="muted">Ningún departamento cumple estos filtros.</p>';
+    </div></article>`).join(''):'<p class="muted">Ningún departamento cumple estos filtros. <button class="btn ghost" id="clearF">Limpiar filtros</button></p>';if($('#clearF'))$('#clearF').onclick=()=>{f={dorm:'all',planta:'all',disp:false};renderUnits()};
   $('#factDisp').textContent=UNITS.filter(u=>status(u.n)==='disponible').length;
 }
 
@@ -519,6 +529,7 @@ renderAll(); route();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
 <script>
 /* ---- vista 3D: modelo arquitectónico procedural construido desde las plantas (coordenadas en px del plano 1125x598, 15 px ≈ 1 m) ---- */
 const LV={pb:0,pa:48,tc:96}, LIDX={pb:0,pa:1,tc:2}, FH=48, PW=1125, PH=598;
@@ -805,6 +816,15 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   addEventListener('keydown',e=>{if(e.key==='Escape'&&el.classList.contains('full'))$('#full3').click()});
 
   addEventListener('keydown',e=>{if($('#v-edificio').classList.contains('on')&&!$('#modal').classList.contains('on')){const k=e.key;const st=18;if(k==='ArrowLeft')pan(st,0);if(k==='ArrowRight')pan(-st,0);if(k==='ArrowUp')pan(0,st);if(k==='ArrowDown')pan(0,-st);if(k==='+'||k==='=')dist=Math.max(140,dist*.9);if(k==='-')dist=Math.min(4200,dist*1.1);if(k==='PageUp')phi=Math.max(.08,phi-.08);if(k==='PageDown')phi=Math.min(1.52,phi+.08);if(k.startsWith('Arrow')||k==='PageUp'||k==='PageDown')e.preventDefault();auto=false}});
+  /* calidad alta: iluminación ambiental PMREM, sombras 4K suaves y más resolución (la app de escritorio la activa sola) */
+  let hq=false,envTex=null;
+  function setHQ(on){hq=on;$('#hq3').classList.toggle('on',on);
+    if(on&&!envTex&&THREE.RoomEnvironment){const pm=new THREE.PMREMGenerator(renderer);envTex=pm.fromScene(new THREE.RoomEnvironment(),.04).texture;pm.dispose()}
+    scene.environment=on?envTex:null;
+    root.traverse(o=>{if(o.isMesh&&o.material&&'envMapIntensity' in o.material)o.material.envMapIntensity=on?.32:1});
+    sunL.shadow.mapSize.set(on?4096:2048,on?4096:2048);if(sunL.shadow.map){sunL.shadow.map.dispose();sunL.shadow.map=null}sunL.shadow.radius=on?3:1;
+    renderer.setPixelRatio(Math.min(devicePixelRatio,on?2.5:2));resize(true)}
+  $('#hq3').onclick=()=>setHQ(!hq);
   /* día / noche */
   const sky=new THREE.Color();
   function daylight(v){const t=v/100;const day=new THREE.Color(0x8fbce6),dusk=new THREE.Color(0xe0a070),night=new THREE.Color(0x141022);
@@ -814,8 +834,9 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     sunL.color.setHex(t<.4?0xfff2e0:t<.7?0xffb070:0x9ab0ff);sunL.position.set(-700+t*1400,1000-t*600,900);
     const glow=t>.55;root.traverse(o=>{if(o.isMesh&&o.userData.pane){o.material.emissive.setHex(glow&&status(o.userData.unit)!=='vendido'?0xffb45a:0x000000);o.material.emissiveIntensity=glow?.9:0}});}
   $('#sun').oninput=e=>daylight(+e.target.value); daylight(22);
+  if(window.ALHELI_DESKTOP)setTimeout(()=>setHQ(true),300);
   function frameO(){const w=el.clientWidth,h=el.clientHeight;const half=Math.max(60,Math.min(1700,tv.dist*.42));camO.left=-half*w/h;camO.right=half*w/h;camO.top=half;camO.bottom=-half;camO.updateProjectionMatrix()}
-  function resize(){const w=el.clientWidth,h=el.clientHeight;if(canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camP.aspect=w/h;camP.updateProjectionMatrix()}frameO()}
+  function resize(force){const w=el.clientWidth,h=el.clientHeight;if(force||canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camP.aspect=w/h;camP.updateProjectionMatrix();}frameO()}
   $('#home3').onclick=()=>{theta=HOME.theta;phi=HOME.phi;dist=HOME.dist;targetT.set(0,45,0);auto=false};
   $('#iso3').onclick=e=>{iso=!iso;e.target.classList.toggle('on',iso);cam=iso?camO:camP;if(iso){phi=.96;theta=Math.PI/4+Math.PI;}auto=false;frameO()};
   new ResizeObserver(resize).observe(el);
