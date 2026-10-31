@@ -701,7 +701,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   });
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
-  ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.glb',g=>{const grp=g.scene;grp.position.y=LV[lvl];grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
+  ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
     root.add(grp);if(floor!=='all')$('#floor3 .chip.on').click()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
