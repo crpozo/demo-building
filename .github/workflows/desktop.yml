@@ -30,9 +30,20 @@ jobs:
           p12-password: ${{ secrets.MAC_CERT_PASSWORD }}
         env:
           HAS_CERT: ${{ secrets.MAC_CERT_P12_BASE64 != '' }}
+      - name: Instalar certificados intermedios de Apple (Developer ID CA)
+        if: runner.os == 'macOS'
+        run: |
+          curl -sSLo DeveloperIDG2CA.cer https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          curl -sSLo DeveloperIDCA.cer https://www.apple.com/certificateauthority/DeveloperIDCA.cer
+          curl -sSLo AppleRootCA-G2.cer https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain AppleRootCA-G2.cer
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDG2CA.cer
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDCA.cer
+          security find-identity -v -p codesigning
       - run: npm run ${{ matrix.script }}
         working-directory: desktop
         env:
+          CSC_NAME: ${{ secrets.MAC_CERT_P12_BASE64 != '' && 'Developer ID Application' || '' }}
           # Firma y notarización de Apple: se activan solas cuando existen estos secretos en el repositorio.
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
