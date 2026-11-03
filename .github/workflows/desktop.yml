@@ -74,7 +74,7 @@ jobs:
         with:
           tag_name: ${{ steps.v.outputs.tag }}
           name: Alhelí Showroom ${{ steps.v.outputs.tag }}
-          body: Instalador del showroom 3D de Alhelí. En Mac, la primera vez abrir con clic derecho → Abrir.
+          body: Instalador del showroom 3D de Alhelí para Mac (firmado y notarizado por Apple) y Windows.
           files: |
             desktop/dist/*.dmg
             desktop/dist/*.zip
