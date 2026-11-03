@@ -36,9 +36,15 @@ jobs:
           curl -sSLo DeveloperIDG2CA.cer https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
           curl -sSLo DeveloperIDCA.cer https://www.apple.com/certificateauthority/DeveloperIDCA.cer
           curl -sSLo AppleRootCA-G2.cer https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
-          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain AppleRootCA-G2.cer
-          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDG2CA.cer
-          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDCA.cer
+          KC="$HOME/Library/Keychains/signing_temp.keychain-db"
+          if [ -f "$KC" ]; then
+            security import DeveloperIDG2CA.cer -k "$KC" -A || true
+            security import DeveloperIDCA.cer -k "$KC" -A || true
+            security import AppleRootCA-G2.cer -k "$KC" -A || true
+          fi
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain AppleRootCA-G2.cer || true
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDG2CA.cer || true
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDCA.cer || true
           security find-identity -v -p codesigning
       - run: npm run ${{ matrix.script }}
         working-directory: desktop
