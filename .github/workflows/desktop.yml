@@ -22,30 +22,34 @@ jobs:
         with: { node-version: 20 }
       - run: npm install
         working-directory: desktop
-      - name: Importar certificado Developer ID (solo Mac, si existe el secreto)
+      - name: Preparar llavero de firma (solo Mac, si existe el secreto)
         if: runner.os == 'macOS' && env.HAS_CERT == 'true'
-        uses: apple-actions/import-codesign-certs@v3
-        with:
-          p12-file-base64: ${{ secrets.MAC_CERT_P12_BASE64 }}
-          p12-password: ${{ secrets.MAC_CERT_PASSWORD }}
         env:
           HAS_CERT: ${{ secrets.MAC_CERT_P12_BASE64 != '' }}
-      - name: Instalar certificados intermedios de Apple (Developer ID CA)
-        if: runner.os == 'macOS'
+          P12_B64: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          P12_PASS: ${{ secrets.MAC_CERT_PASSWORD }}
         run: |
-          curl -sSLo DeveloperIDG2CA.cer https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
-          curl -sSLo DeveloperIDCA.cer https://www.apple.com/certificateauthority/DeveloperIDCA.cer
-          curl -sSLo AppleRootCA-G2.cer https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
-          KC="$HOME/Library/Keychains/signing_temp.keychain-db"
-          if [ -f "$KC" ]; then
-            security import DeveloperIDG2CA.cer -k "$KC" -A || true
-            security import DeveloperIDCA.cer -k "$KC" -A || true
-            security import AppleRootCA-G2.cer -k "$KC" -A || true
-          fi
-          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain AppleRootCA-G2.cer || true
-          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDG2CA.cer || true
-          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain DeveloperIDCA.cer || true
-          security find-identity -v -p codesigning
+          set -e
+          KC="$RUNNER_TEMP/signing.keychain-db"; KPASS="$(uuidgen)"
+          echo "$P12_B64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          curl -sSLo "$RUNNER_TEMP/DeveloperIDG2CA.cer" https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          curl -sSLo "$RUNNER_TEMP/DeveloperIDCA.cer" https://www.apple.com/certificateauthority/DeveloperIDCA.cer
+          curl -sSLo "$RUNNER_TEMP/AppleRootCA-G2.cer" https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
+          security create-keychain -p "$KPASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KPASS" "$KC"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KC" -P "$P12_PASS" -A -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productsign
+          security import "$RUNNER_TEMP/DeveloperIDG2CA.cer" -k "$KC" -A || true
+          security import "$RUNNER_TEMP/DeveloperIDCA.cer" -k "$KC" -A || true
+          security import "$RUNNER_TEMP/AppleRootCA-G2.cer" -k "$KC" -A || true
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KPASS" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" login.keychain-db
+          security default-keychain -s "$KC"
+          sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$RUNNER_TEMP/AppleRootCA-G2.cer" || true
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain "$RUNNER_TEMP/DeveloperIDG2CA.cer" || true
+          security find-identity -v -p codesigning "$KC"
+          echo "CSC_KEYCHAIN=$KC" >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/cert.p12"
       - run: npm run ${{ matrix.script }}
         working-directory: desktop
         env:
