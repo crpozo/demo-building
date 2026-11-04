@@ -709,9 +709,21 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   prism([[130,180],[340,180],[340,470],[255,470]],-.2,1.2,M.lawn);            // jardín oeste
   prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
   PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
-  prism([[700,160],[840,160],[840,340],[700,340]],-.2,1.2,M.lawn);            // patio central
-  prism([[720,230],[800,230],[800,300],[720,300]],.2,.5,M.water);             // espejo de agua
-  prism([[640,200],[700,200],[700,345],[640,345]],-.1,1,M.cobble);           // sendero del patio
+  /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
+  prism([[600,150],[700,150],[700,345],[600,345]],-.1,1,M.cobble);
+  const arc=(cx,cz,r,a0,a1,n=10)=>{const o=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+Math.cos(a)*r,cz+Math.sin(a)*r])}return o};
+  const BEDS_PB=[
+    [[626,345],[626,225],...arc(643,225,17,Math.PI,Math.PI*2),[660,345]],                  // macizo central con remate curvo
+    [[662,150],[700,150],[700,232],[690,232]],                                              // banda diagonal superior
+    [[662,250],[700,250],[700,268],[672,268],[662,262]],                                    // banda sobre el agua
+    [[640,322],[700,322],[700,345],[640,345]],                                              // flores junto al sendero bajo
+    [[182,170],[322,170],[322,205],[268,250],[182,250]],                                    // jardín oeste superior
+    [[250,245],[420,245],[420,350],[250,350]],                                              // jardín oeste central (árbol grande)
+    [[182,290],[258,290],[258,350],[182,350]],                                              // jardín oeste inferior
+  ];
+  BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn);const kerb=prism(b,.6,3.2,M.column);kerb.scale.set(1,1,1)});
+  prism([[672,268],[700,268],[700,325],[688,325]],1.2,.6,M.water);                           // espejo de agua
+  box(610,150,614,345,0,30,M.terra);                                                         // muro del patio de la unidad 1
   // muro perimetral bajo con seto, con vanos en el acceso peatonal y el vehicular
   {const P=[[108,22],[928,22],[1035,522],[252,522],[108,22]];
     for(let i=0;i<4;i++){const a=P[i],b=P[i+1];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const segs=Math.ceil(len/40);
@@ -769,8 +781,8 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     root.add(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
   const brick=new THREE.MeshStandardMaterial({color:0xa8583c,roughness:.9});
-  const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(4.2,2.2,3),brick,2*21*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<14;row++)for(let c=0;c<21;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(702+dd*3.2,2.2+row*2.9,165+c*8.2+(row%2?2.6:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
-  [[738,300,11],[790,286,8],[812,318,10]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x7a2a2a,roughness:.5,metalness:.3,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);
+  const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<14;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
+  [[668,300,7],[650,238,6],[685,310,6]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x7a2a2a,roughness:.5,metalness:.3,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);
     const w=new THREE.Mesh(new THREE.CircleGeometry(b[2]-.6,24),M.water);w.rotation.x=-Math.PI/2;w.position.set(b[0],5.6,b[1]);root.add(w);bowl.userData.level=w.userData.level='pb'});
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
@@ -779,7 +791,36 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   glazing([[335,195],[515,195],[515,300],[335,300]],'pa',LV.tc,{common:'Salón de la terraza comunal'});
   box(331,191,519,304,LV.tc+38,4,M.slab,{common:'Salón de la terraza comunal'});
   const terr=prism([[335,300],[515,300],[515,445],[335,445]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
-  [[335,300,342,445],[508,300,515,445],[335,438,515,445]].forEach(w=>box(w[0],w[1],w[2],w[3],LV.tc,8,M.planter,{common:'Terraza comunal abierta'}));
+  /* constructores de mobiliario exterior */
+  const fb=(w,h,d,mat,x,y,z,g)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;g.add(m);return m};
+  const F={
+    sofa:(g,w,d)=>{fb(w,7,d,M.fabric,0,4.5,0,g);fb(w,13,3,M.fabric,0,7.5,-d/2+1.5,g);fb(3,10,d,M.fabric,-w/2+1.5,6,0,g);fb(3,10,d,M.fabric,w/2-1.5,6,0,g)},
+    osofa:(g)=>{F.sofa(g,22,10);g.children.forEach(c=>{c.material=M.fabric2})},
+    ochair:(g)=>{F.sofa(g,9,9);g.children.forEach(c=>{c.material=M.fabric2})},
+    round:(g)=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(9,9,1.5,16),M.oak);t.position.y=11;t.castShadow=true;g.add(t);fb(3,10,3,M.oak,0,5,0,g);[[0,12],[0,-12],[12,0],[-12,0]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(3,3,8,10),M.fabric2);c.position.set(p[0],4,p[1]);g.add(c)})},
+    ochairs:(g)=>{[[-7,-7],[7,-7],[-7,7],[7,7]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(3.5,3.5,8,10),M.fabric2);c.position.set(p[0],4,p[1]);g.add(c)});fb(8,1.5,8,M.oak,0,9,0,g)},
+    counter:(g,w,d)=>{fb(w,13,d,M.oak,0,6.5,0,g);fb(w+1,1.5,d+1,M.stone,0,14,0,g)},
+  };
+  window.__outdoor=()=>{
+  /* elementos exteriores leídos del plano: terrazas, jardineras y terraza comunal */
+  const OUT={pa:[
+      ['sofa',612,172,28,11,0],['round',648,185],['ochair',690,178],                       // terraza unidad 5
+      ['osofa',262,450,0,0,0],['ochair',300,425],['round',225,425],                       // terraza unidad 6
+      ['ochairs',965,455],['osofa',960,480,0,0,270],                                      // terraza unidad 10
+      ['round',735,450],                                                                  // terraza unidad 9
+    ],tc:[
+      ['round',428,271],['round',459,271],['round',492,271],                               // mesas redondas
+      ['sofa',432,318,30,11,0],['sofa',492,318,30,11,0],['sofa',412,335,11,22,90],['sofa',512,335,11,22,270],
+      ['counter',456,375,110,9],                                                           // barra BBQ
+      ['sofa',365,205,30,11,0],['sofa',348,218,11,20,90],['counter',525,205,9,45],         // hall y cocina/bar
+    ]};
+  Object.entries(OUT).forEach(([lvl,items])=>items.forEach(it=>{const [t,cx,cy,w,d,rot]=it;const g=new THREE.Group();F[t](g,w||10,d||10);g.position.set(cx,LV[lvl]+1.6,cy);g.rotation.y=-(rot||0)*Math.PI/180;g.userData.level=lvl;g.userData.interior=true;root.add(g)}));
+  // jardineras de planta alta (triángulos junto al lindero este) y de la terraza comunal (banda perimetral)
+  [[[905,190],[950,190],[950,300],[935,300]],[[940,330],[960,330],[960,365],[950,365]]].forEach(p=>{prism(p,LV.pa,10,M.planter);const [x0,y0,x1,y1]=bbox(p);for(let i=0;i<6;i++){const f=new THREE.Mesh(new THREE.SphereGeometry(5,7,6),M.leaf[i%4]);f.position.set(x0+5+((i*31)%(x1-x0-8)),LV.pa+13,y0+5+((i*17)%(y1-y0-8)));f.userData.level='pa';root.add(f)}});
+  [[340,290,355,420],[545,190,560,420],[340,405,560,420]].forEach(b=>{box(b[0],b[1],b[2],b[3],LV.tc,10,M.planter);for(let x=b[0]+6;x<b[2];x+=14)for(let z=b[1]+6;z<b[3];z+=14){const f=new THREE.Mesh(new THREE.SphereGeometry(4.5,7,6),M.leaf[(x+z)%4]);f.position.set(x,LV.tc+13,z);f.userData.level='tc';root.add(f)}});
+  {const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1.2,34,8),M.column);m.position.set(353,LV.tc+17,375);m.userData.level='tc';root.add(m);const h=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),lampM);h.position.set(353,LV.tc+35,375);h.userData.level='tc';root.add(h)}
+  };
+  __outdoor();
   // columnas bajo los voladizos de planta alta
   [[240,350],[300,350],[360,350],[420,350],[240,440],[300,440],[360,440],[420,440],[720,360],[800,360],[880,360],[960,360],[720,430],[800,430],[880,430],[960,430]].forEach(p=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4,4,LV.pa,10),M.column);m.position.set(p[0],LV.pa/2,p[1]);m.castShadow=true;root.add(m)});
   // árboles tipo arce de tallo múltiple (como en los renders), palmas, helechos, flores y luces de sendero
@@ -809,7 +850,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const BLOCKS=[];UNITS.forEach(u=>ENC[u.n].forEach(pp=>BLOCKS.push(bbox(pp))));CORES.forEach(c=>BLOCKS.push(bbox(c)));
   const streetX=z=>115+z*(245-115)/598;
   const freeSpot=(x,z,placed)=>!BLOCKS.some(b=>x>b[0]-16&&x<b[2]+16&&z>b[1]-16&&z<b[3]+16)&&x>streetX(z)+14&&!placed.some(q=>Math.hypot(q[0]-x,q[1]-z)<34);
-  const placed=[];const want=TREES.concat([[730,192],[812,208],[742,322],[806,306]]);
+  const placed=[];const want=TREES.concat([[643,222],[648,292],[330,300],[300,210],[680,190]]);
   want.forEach((p,i)=>{let x=p[0],z=p[1],ok=freeSpot(x,z,placed);for(let t=0;!ok&&t<12;t++){x=p[0]+Math.cos(t*2.4)*(10+t*6);z=p[1]+Math.sin(t*2.4)*(10+t*6);ok=freeSpot(x,z,placed)}
     if(ok){placed.push([x,z]);maple(x,z,(i>=TREES.length?80:60)+((i*37)%36),i+1)}});
   if(window.__streetTrees)__streetTrees();
@@ -817,12 +858,12 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
   function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
     g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
-  const ZONES=[[258,190,335,340],[890,65,1000,460],[705,168,836,335],[215,32,895,64]];
+  const ZONES=[[255,250,415,345],[895,65,1000,460],[628,210,658,340],[664,152,698,228],[215,32,895,64],[185,175,315,245]];
   for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(!BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))palm(x,zz,.7+(i%3)*.35)}
   // flores moradas en los bordes de senderos
   const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
-    const beds=[[258,190,300,340],[640,205,700,345],[705,168,836,335],[890,65,1000,460],[215,32,895,64]];
+    const beds=[[185,295,255,345],[640,324,698,343],[628,210,658,340],[664,152,698,228],[895,65,1000,460],[215,32,895,64]];
     for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
   // luces bajas de sendero (se encienden de noche)
