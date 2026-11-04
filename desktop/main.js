@@ -1,8 +1,6 @@
 const {app,BrowserWindow,shell}=require('electron');
 const path=require('path');
 // Calidad de render: la app activa el modo alto y usa toda la GPU disponible.
-app.commandLine.appendSwitch('ignore-gpu-blocklist');
-app.commandLine.appendSwitch('enable-gpu-rasterization');
 function createWindow(){
   const win=new BrowserWindow({width:1600,height:1000,minWidth:1024,minHeight:700,title:'Alhelí Showroom',backgroundColor:'#2b1d2e',
     titleBarStyle:process.platform==='darwin'?'hiddenInset':'default',

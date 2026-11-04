@@ -1,6 +1,6 @@
 {
   "name": "alheli-showroom",
-  "productName": "Alhelí Showroom",
+  "productName": "Alheli Showroom",
   "version": "0.1.0",
   "description": "Showroom 3D del proyecto Alhelí Residencias Boutique",
   "main": "main.js",
@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.alheli.showroom",
-    "productName": "Alhelí Showroom",
+    "productName": "Alheli Showroom",
     "artifactName": "Alheli-Showroom-${version}-${os}-${arch}.${ext}",
     "files": [
       "main.js",
@@ -40,7 +40,11 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "notarize": false
+      "notarize": false,
+      "extendInfo": {
+        "CFBundleDisplayName": "Alhelí Showroom",
+        "CFBundleName": "Alheli Showroom"
+      }
     },
     "win": {
       "target": [
@@ -49,7 +53,7 @@
       "icon": "build/icon.png"
     },
     "dmg": {
-      "title": "Alhelí Showroom"
+      "title": "Alheli Showroom"
     }
   }
 }
