@@ -621,7 +621,7 @@ pa:[
  ['sala',671,126,0],['dining',711,125,22,26],['counter',739,126,13,33],['osofa',671,182,0],['sofa',803,179,40,12,180],['bed',852,111,29,33,0],['bed',887,215,33,29,0],['bed',896,272,29,26,0],['toilet',852,161],['basin',843,263],
  ['counter',735,360,44,19],['sala',720,417,0],['dining',772,413,20,28],['sofa',828,408,33,12,0],['round',745,461],['bed',933,384,30,29,0],['bed',933,432,30,29,0],['bed',918,326,29,37,0],['toilet',882,373],['toilet',893,457],['ochairs',975,455]],
 tc:[['round',425,240],['sofa',360,215,12,30,270],['sofa',360,262,12,30,270],['counter',470,240,10,40],['toilet',500,205],['osofa',365,330,90],['osofa',485,330,270],['round',425,345],['ochairs',425,400],['osofa',425,425,180]]};
-const CARS=[];for(let i=0;i<9;i++)CARS.push([262+i*42,388,0]);for(let i=0;i<7;i++)CARS.push([728+i*38,388,0]);[[870,322],[908,322],[948,322]].forEach(c=>CARS.push([c[0],c[1],0]));CARS.push([930,470,0],[970,470,0]);
+const CARS=[];for(let i=0;i<9;i++)CARS.push([262+i*42,388,0]);for(let i=0;i<7;i++)CARS.push([728+i*38,388,0]);[[870,322],[908,322],[948,322]].forEach(c=>CARS.push([c[0],c[1],0]));
 const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,hover:0xd4b27a};
 (function(){
   if(!window.THREE) return;
@@ -719,22 +719,20 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const mosaicM=new THREE.MeshStandardMaterial({map:ctex((x,s)=>{x.fillStyle='#55565c';x.fillRect(0,0,s,s);for(let i=0;i<s;i+=10)for(let j=0;j<s;j+=10){x.fillStyle=`hsl(225,5%,${26+Math.random()*18}%)`;x.fillRect(i+1,j+1,8,8)}},256,6),roughness:1});
   prism([[600,150],[700,150],[700,345],[600,345]],-.1,1,mosaicM);
   const arc=(cx,cz,r,a0,a1,n=10)=>{const o=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+Math.cos(a)*r,cz+Math.sin(a)*r])}return o};
+  const PATIO_CELLS=[[596,155],[599,155],[602,155],[605,155],[608,155],[611,155],[614,155],[617,155],[620,155],[623,155],[632,155],[635,155],[644,155],[647,155],[650,155],[653,155],[656,155],[686,155],[689,155],[692,155],[695,155],[698,155],[701,155],[596,158],[599,158],[602,158],[605,158],[608,158],[611,158],[614,158],[617,158],[620,158],[623,158],[626,158],[632,158],[635,158],[644,158],[647,158],[650,158],[653,158],[656,158],[686,158],[689,158],[692,158],[695,158],[698,158],[701,158],[596,161],[599,161],[602,161],[605,161],[608,161],[611,161],[614,161],[617,161],[620,161],[623,161],[626,161],[632,161],[635,161],[641,161],[644,161],[647,161],[650,161],[653,161],[656,161],[686,161],[689,161],[692,161],[695,161],[698,161],[701,161],[596,164],[599,164],[602,164],[605,164],[608,164],[611,164],[641,164],[644,164],[647,164],[650,164],[653,164],[656,164],[686,164],[689,164],[692,164],[695,164],[698,164],[701,164],[596,167],[599,167],[602,167],[605,167],[608,167],[611,167],[614,167],[650,167],[653,167],[656,167],[686,167],[689,167],[692,167],[695,167],[698,167],[701,167],[596,170],[599,170],[602,170],[605,170],[608,170],[611,170],[614,170],[653,170],[656,170],[686,170],[689,170],[692,170],[695,170],[698,170],[701,170],[596,173],[599,173],[602,173],[605,173],[608,173],[611,173],[641,173],[644,173],[647,173],[650,173],[653,173],[656,173],[686,173],[689,173],[692,173],[695,173],[698,173],[701,173],[596,176],[599,176],[602,176],[605,176],[608,176],[626,176],[629,176],[635,176],[644,176],[647,176],[650,176],[653,176],[656,176],[686,176],[689,176],[698,176],[701,176],[596,179],[599,179],[602,179],[605,179],[608,179],[611,179],[626,179],[629,179],[635,179],[638,179],[647,179],[650,179],[653,179],[686,179],[689,179],[596,182],[599,182],[602,182],[605,182],[608,182],[611,182],[614,182],[617,182],[626,182],[635,182],[638,182],[641,182],[647,182],[650,182],[698,185],[701,185],[701,188],[686,191],[689,191],[692,191],[695,191],[701,191],[686,194],[689,194],[692,194],[695,194],[698,194],[701,194],[686,197],[689,197],[692,197],[695,197],[698,197],[701,197],[689,200],[692,200],[695,200],[698,200],[701,200],[689,203],[692,203],[695,203],[698,203],[701,203],[692,206],[695,206],[698,206],[701,206],[608,209],[611,209],[614,209],[617,209],[620,209],[623,209],[626,209],[629,209],[632,209],[635,209],[638,209],[695,209],[698,209],[701,209],[596,212],[599,212],[602,212],[608,212],[611,212],[614,212],[617,212],[620,212],[623,212],[626,212],[629,212],[632,212],[635,212],[638,212],[641,212],[644,212],[698,212],[701,212],[596,215],[599,215],[602,215],[608,215],[611,215],[614,215],[617,215],[620,215],[623,215],[626,215],[629,215],[632,215],[635,215],[638,215],[641,215],[644,215],[647,215],[650,215],[596,218],[599,218],[602,218],[608,218],[611,218],[614,218],[617,218],[620,218],[623,218],[626,218],[629,218],[632,218],[635,218],[638,218],[641,218],[644,218],[647,218],[650,218],[596,221],[599,221],[602,221],[608,221],[611,221],[614,221],[617,221],[620,221],[623,221],[626,221],[629,221],[632,221],[635,221],[638,221],[641,221],[644,221],[647,221],[650,221],[653,221],[596,224],[599,224],[602,224],[608,224],[611,224],[614,224],[617,224],[620,224],[623,224],[626,224],[629,224],[632,224],[635,224],[638,224],[641,224],[644,224],[647,224],[650,224],[653,224],[656,224],[596,227],[599,227],[602,227],[608,227],[611,227],[614,227],[617,227],[620,227],[623,227],[626,227],[629,227],[632,227],[635,227],[638,227],[641,227],[644,227],[647,227],[650,227],[653,227],[656,227],[596,230],[599,230],[602,230],[608,230],[611,230],[614,230],[617,230],[620,230],[623,230],[626,230],[629,230],[632,230],[635,230],[638,230],[641,230],[644,230],[647,230],[650,230],[653,230],[656,230],[596,233],[599,233],[602,233],[608,233],[611,233],[614,233],[617,233],[620,233],[623,233],[626,233],[629,233],[632,233],[635,233],[638,233],[641,233],[644,233],[647,233],[650,233],[653,233],[656,233],[596,236],[599,236],[602,236],[608,236],[611,236],[614,236],[617,236],[620,236],[623,236],[626,236],[629,236],[632,236],[635,236],[638,236],[641,236],[644,236],[647,236],[650,236],[653,236],[656,236],[596,239],[599,239],[602,239],[608,239],[611,239],[614,239],[617,239],[620,239],[623,239],[626,239],[629,239],[632,239],[635,239],[638,239],[641,239],[644,239],[647,239],[650,239],[653,239],[656,239],[596,242],[599,242],[602,242],[608,242],[611,242],[614,242],[617,242],[620,242],[623,242],[626,242],[629,242],[632,242],[635,242],[638,242],[641,242],[644,242],[647,242],[650,242],[653,242],[656,242],[596,245],[599,245],[602,245],[608,245],[611,245],[614,245],[617,245],[620,245],[623,245],[626,245],[629,245],[632,245],[635,245],[641,245],[644,245],[647,245],[650,245],[656,245],[698,245],[701,245],[596,248],[599,248],[602,248],[608,248],[611,248],[614,248],[617,248],[620,248],[623,248],[626,248],[629,248],[632,248],[635,248],[644,248],[647,248],[650,248],[656,248],[692,248],[695,248],[698,248],[701,248],[596,251],[599,251],[602,251],[608,251],[611,251],[614,251],[617,251],[620,251],[623,251],[626,251],[629,251],[632,251],[635,251],[638,251],[644,251],[647,251],[656,251],[689,251],[692,251],[695,251],[698,251],[701,251],[596,254],[599,254],[602,254],[608,254],[611,254],[614,254],[617,254],[620,254],[623,254],[626,254],[629,254],[632,254],[635,254],[638,254],[647,254],[653,254],[656,254],[689,254],[692,254],[695,254],[698,254],[701,254],[596,257],[599,257],[602,257],[608,257],[611,257],[653,257],[656,257],[686,257],[689,257],[692,257],[695,257],[698,257],[701,257],[596,260],[599,260],[602,260],[686,260],[689,260],[695,260],[698,260],[701,260],[596,263],[599,263],[602,263],[686,263],[689,263],[596,266],[599,266],[602,266],[656,266],[596,269],[599,269],[602,269],[638,269],[641,269],[647,269],[656,269],[596,272],[599,272],[602,272],[635,272],[638,272],[641,272],[647,272],[650,272],[698,272],[596,275],[599,275],[602,275],[608,275],[632,275],[635,275],[638,275],[641,275],[647,275],[650,275],[686,275],[689,275],[692,275],[596,278],[599,278],[602,278],[608,278],[611,278],[632,278],[635,278],[638,278],[650,278],[656,278],[686,278],[689,278],[692,278],[695,278],[596,281],[599,281],[602,281],[608,281],[611,281],[614,281],[617,281],[620,281],[623,281],[626,281],[629,281],[632,281],[635,281],[638,281],[641,281],[644,281],[656,281],[686,281],[689,281],[692,281],[695,281],[596,284],[599,284],[602,284],[608,284],[611,284],[614,284],[617,284],[620,284],[623,284],[626,284],[629,284],[632,284],[635,284],[638,284],[686,284],[689,284],[692,284],[695,284],[596,287],[599,287],[602,287],[608,287],[611,287],[614,287],[617,287],[620,287],[623,287],[626,287],[629,287],[632,287],[635,287],[638,287],[656,287],[686,287],[689,287],[692,287],[695,287],[596,290],[599,290],[602,290],[608,290],[611,290],[614,290],[617,290],[620,290],[623,290],[626,290],[629,290],[632,290],[635,290],[638,290],[641,290],[644,290],[686,290],[689,290],[692,290],[695,290],[596,293],[599,293],[602,293],[608,293],[611,293],[614,293],[617,293],[620,293],[623,293],[626,293],[629,293],[632,293],[635,293],[638,293],[641,293],[647,293],[653,293],[656,293],[686,293],[689,293],[692,293],[695,293],[596,296],[599,296],[602,296],[608,296],[611,296],[614,296],[617,296],[620,296],[623,296],[626,296],[629,296],[632,296],[635,296],[638,296],[641,296],[644,296],[647,296],[653,296],[656,296],[686,296],[689,296],[692,296],[695,296],[596,299],[599,299],[602,299],[608,299],[611,299],[614,299],[617,299],[620,299],[623,299],[626,299],[629,299],[632,299],[635,299],[638,299],[641,299],[644,299],[647,299],[650,299],[653,299],[656,299],[686,299],[689,299],[692,299],[695,299],[596,302],[599,302],[602,302],[608,302],[611,302],[614,302],[617,302],[620,302],[623,302],[626,302],[629,302],[632,302],[635,302],[638,302],[641,302],[644,302],[647,302],[650,302],[653,302],[656,302],[686,302],[689,302],[692,302],[695,302],[596,305],[599,305],[602,305],[608,305],[611,305],[614,305],[617,305],[620,305],[623,305],[626,305],[629,305],[632,305],[635,305],[638,305],[641,305],[644,305],[647,305],[650,305],[653,305],[656,305],[686,305],[689,305],[692,305],[695,305],[596,308],[599,308],[602,308],[608,308],[611,308],[614,308],[617,308],[620,308],[623,308],[626,308],[629,308],[632,308],[635,308],[638,308],[641,308],[644,308],[647,308],[650,308],[653,308],[656,308],[686,308],[689,308],[692,308],[695,308],[596,311],[599,311],[602,311],[608,311],[611,311],[614,311],[617,311],[620,311],[623,311],[626,311],[629,311],[632,311],[635,311],[638,311],[641,311],[644,311],[647,311],[650,311],[653,311],[656,311],[686,311],[689,311],[692,311],[596,314],[599,314],[602,314],[608,314],[611,314],[614,314],[617,314],[620,314],[623,314],[626,314],[629,314],[632,314],[635,314],[638,314],[641,314],[644,314],[647,314],[650,314],[653,314],[656,314],[686,314],[689,314],[692,314],[596,317],[599,317],[602,317],[608,317],[611,317],[614,317],[617,317],[620,317],[623,317],[626,317],[629,317],[632,317],[635,317],[638,317],[641,317],[644,317],[647,317],[650,317],[653,317],[656,317],[686,317],[689,317],[692,317],[596,320],[599,320],[602,320],[608,320],[611,320],[614,320],[617,320],[620,320],[623,320],[626,320],[629,320],[632,320],[635,320],[638,320],[641,320],[644,320],[647,320],[650,320],[653,320],[656,320],[596,323],[599,323],[602,323],[608,323],[611,323],[614,323],[617,323],[620,323],[623,323],[626,323],[629,323],[638,323],[641,323],[644,323],[647,323],[650,323],[653,323],[656,323],[596,326],[599,326],[602,326],[608,326],[611,326],[614,326],[617,326],[620,326],[623,326],[626,326],[629,326],[644,326],[647,326],[650,326],[653,326],[656,326],[596,329],[599,329],[602,329],[608,329],[611,329],[614,329],[617,329],[620,329],[623,329],[626,329],[644,329],[647,329],[650,329],[653,329],[656,329],[596,332],[599,332],[602,332],[608,332],[611,332],[614,332],[617,332],[620,332],[623,332],[626,332],[641,332],[644,332],[647,332],[650,332],[653,332],[656,332],[596,335],[599,335],[602,335],[608,335],[611,335],[614,335],[617,335],[620,335],[623,335],[626,335],[641,335],[644,335],[647,335],[650,335],[653,335],[656,335],[686,335],[596,338],[599,338],[602,338],[608,338],[611,338],[614,338],[617,338],[620,338],[623,338],[626,338],[629,338],[632,338],[635,338],[641,338],[644,338],[647,338],[650,338],[653,338],[656,338],[644,341],[647,341],[650,341],[653,341],[656,341],[644,344],[647,344],[650,344],[653,344],[656,344],[647,347],[650,347],[653,347],[656,347]];   // celdas de 3x3 con vegetación, leídas del relleno verde del plano
   const BEDS_PB=[
-    [[626,345],[626,225],...arc(643,225,17,Math.PI,Math.PI*2),[660,345]],                  // macizo central con remate curvo
-    [[662,150],[700,150],[700,232],[690,232]],                                              // banda diagonal superior
-    [[662,250],[700,250],[700,268],[672,268],[662,262]],                                    // banda sobre el agua
-    [[640,322],[700,322],[700,345],[640,345]],                                              // flores junto al sendero bajo
     [[160,170],[322,170],[322,205],[268,250],[178,250]],                                    // jardín oeste superior
     [[250,245],[420,245],[420,350],[250,350]],                                              // jardín oeste central (árbol grande)
     [[190,290],[258,290],[258,350],[190,350]],                                              // jardín oeste inferior
   ];
-  BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn);const kerb=prism(b,.6,3.2,M.column);kerb.scale.set(1,1,1)});
-  prism([[672,268],[700,268],[700,325],[688,325]],1.2,.6,M.water);                           // espejo de agua
+  BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn)});
+  {const cg=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.6,3),M.lawn,PATIO_CELLS.length);const mm=new THREE.Matrix4();PATIO_CELLS.forEach((c,i)=>{mm.makeTranslation(c[0]+1.5,1.3,c[1]+1.5);cg.setMatrixAt(i,mm)});cg.receiveShadow=true;cg.userData.level='pb';root.add(cg)}
   box(610,150,614,345,0,8,M.terra);                                                          // zócalo del muro del patio (sobre él va la celosía)
   // muro perimetral bajo con seto, con vanos en el acceso peatonal y el vehicular
   {const P=[[108,22],[928,22],[1035,522],[252,522],[108,22]];
     for(let i=0;i<4;i++){const a=P[i],b=P[i+1];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const segs=Math.ceil(len/40);
       for(let k=0;k<segs;k++){const t0=k/segs,t1=(k+1)/segs;const mx=a[0]+(b[0]-a[0])*(t0+t1)/2,mz=a[1]+(b[1]-a[1])*(t0+t1)/2;
+        if(i===2)continue;
         if(i===3&&((mz>168&&mz<236)||(mz>420&&mz<505)))continue;
         const w=new THREE.Mesh(new THREE.BoxGeometry(len/segs+1,14,4),M.terra);w.position.set(mx,7,mz);w.rotation.y=-Math.atan2(b[1]-a[1],b[0]-a[0]);w.castShadow=true;root.add(w);
         const hg=new THREE.Mesh(new THREE.BoxGeometry(len/segs+1,9,6),M.planter);hg.position.set(mx,18,mz);hg.rotation.y=w.rotation.y;root.add(hg)}}}
@@ -773,7 +771,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     // losa superior con voladizo
     const [x0,y0,x1,y1]=bbox(FOOT[u.n]);const slab=box(x0-4,y0-4,x1+4,y1+4,y+FH-5,5,M.slab,data);meshes.push(slab);
     if(u.planta==='pa'){ // jardín de cubierta
-      box(x0,y0,x1,y0+7,y+FH,5,M.planter,data);box(x0,y1-7,x1,y1,y+FH,5,M.planter,data);
+      box(x0,y0,x1,y0+8,y+FH,3,M.planter,data);box(x0,y1-8,x1,y1,y+FH,3,M.planter,data);box(x0,y0,x0+8,y1,y+FH,3,M.planter,data);box(x1-8,y0,x1,y1,y+FH,3,M.planter,data);
     }
     // overlay translúcido de la unidad + etiqueta
     const ov=prism(FOOT[u.n],y+.3,FH-.6,new THREE.MeshBasicMaterial({color:COL.disponible,transparent:true,opacity:0,depthWrite:false}),data);ov.castShadow=ov.receiveShadow=false;ov.renderOrder=3;overlays[u.n]=ov;ov.userData.target=0;
@@ -784,6 +782,19 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:mkLabel(u.n,false),depthTest:false,depthWrite:false,transparent:true}));sp.renderOrder=20;sp.userData.tex=sp.material.map;sp.userData.texSel=mkLabel(u.n,true);sp.userData.mk=mkLabel;sp.scale.set(34,34,1);sp.position.set((x0+x1)/2,y+FH+16,(y0+y1)/2);Object.assign(sp.userData,data,{sprite:true});root.add(sp);labels.push(sp);meshes.push(sp);
     units[u.n]={y,cx:(x0+x1)/2,cz:(y0+y1)/2};
   });
+  /* frente sur (fachada principal del render): césped abierto hasta la vereda, senda de acceso, luces bajas y la calle principal */
+  prism([[252,522],[1035,522],[1035,578],[238,578]],-.2,1.4,M.lawn);
+  prism([[600,522],[640,522],[640,578],[600,578]],-.1,1.6,M.cobble);                     // senda peatonal al ingreso
+  {const roadT2=ctex((x,s)=>{noise(x,s,'#45464a',.1,2500);x.fillStyle='#d8d2b8';for(let i=0;i<s;i+=64)x.fillRect(i,s/2-2,34,4);x.fillStyle='#e8e4d8';x.fillRect(0,4,s,3);x.fillRect(0,s-7,s,3)},256,1);roadT2.repeat.set(30,1);
+    const rd=new THREE.Mesh(new THREE.BoxGeometry(5600,1,104),new THREE.MeshStandardMaterial({map:roadT2,roughness:1}));rd.position.set(560,-.45,640);rd.receiveShadow=true;root.add(rd);
+    [330,420,760,850,940,1120,1260,1400,-150,-40,60].forEach((x,i)=>{const g=new THREE.Group();const body=M.carBody[(i+1)%4];
+      const fb=(w,h,dd,mat,px,py,pz)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),mat);m.position.set(px,py,pz);m.castShadow=true;g.add(m)};
+      fb(38,7,17,body,0,5.5,0);fb(19,6,14,body,-1,12,0);const gl=new THREE.Mesh(new THREE.BoxGeometry(19.4,4,14.4),M.glass);gl.position.set(-1,12.5,0);g.add(gl);
+      [[-12,-8],[12,-8],[-12,8],[12,8]].forEach(q=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(3,3,2.5,12),M.tire);w.rotation.x=Math.PI/2;w.position.set(q[0],3,q[1]);g.add(w)});
+      g.position.set(x,0,602);g.userData.level='pb';root.add(g)});
+    for(let x=-400;x<1700;x+=140){const pole=new THREE.Mesh(new THREE.CylinderGeometry(1,1.3,46,8),M.column);pole.position.set(x,23,700);root.add(pole);const head=new THREE.Mesh(new THREE.BoxGeometry(10,2,6),lampM);head.position.set(x,46,696);root.add(head)}
+    window.__southTrees=()=>{let k=0;for(let x=-360;x<1700;x+=120){maple(x,708,52+(k%3)*8,200+k);k++}};
+  }
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
@@ -797,10 +808,15 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
   prism(CORES[0],LV.tc,26,M.terra,{core:1});prism(CORES[2],LV.tc,26,M.terra,{core:1});
-  const salon=prism([[335,195],[515,195],[515,300],[335,300]],LV.tc,38,M.wood,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salon);
-  glazing([[335,195],[515,195],[515,300],[335,300]],'pa',LV.tc,{common:'Salón de la terraza comunal'});
-  box(331,191,519,304,LV.tc+38,4,M.slab,{common:'Salón de la terraza comunal'});
+  const salonRoof=box(328,158,562,252,LV.tc+40,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
+  glazing([[335,252],[555,252]],'pa',LV.tc,{common:'Salón de la terraza comunal'});
   const terr=prism([[335,300],[515,300],[515,445],[335,445]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
+  // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
+  {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(338,252,548,432,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);
+    const under=box(339,253,547,431,LV.tc+33.4,.6,M.wood,{common:'Terraza comunal techada'});under.userData.level='tc';
+    [[345,425],[460,425],[541,425],[541,340],[345,340]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,34,8),new THREE.MeshStandardMaterial({color:0x2b2b2b,roughness:.6}));c.position.set(p[0],LV.tc+17,p[1]);c.userData.level='tc';c.castShadow=true;root.add(c)});
+    [[390,340],[490,340],[390,400],[490,400]].forEach(p=>{const hub=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,3,8),new THREE.MeshStandardMaterial({color:0x222222}));hub.position.set(p[0],LV.tc+31,p[1]);hub.userData.level='tc';root.add(hub);
+      for(let k=0;k<6;k++){const bl=new THREE.Mesh(new THREE.BoxGeometry(14,.4,2),new THREE.MeshStandardMaterial({color:0x222222}));bl.position.set(p[0],LV.tc+30,p[1]);bl.rotation.y=k*Math.PI/3;bl.userData.level='tc';root.add(bl)}});}
   /* constructores de mobiliario exterior */
   const fb=(w,h,d,mat,x,y,z,g)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;g.add(m);return m};
   const F={
@@ -832,7 +848,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   };
   __outdoor();
   // columnas bajo los voladizos de planta alta
-  [[240,350],[300,350],[360,350],[420,350],[240,440],[300,440],[360,440],[420,440],[720,360],[800,360],[880,360],[960,360],[720,430],[800,430],[880,430],[960,430]].forEach(p=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4,4,LV.pa,10),M.column);m.position.set(p[0],LV.pa/2,p[1]);m.castShadow=true;root.add(m)});
+  [[300,310],[360,310],[420,310],[300,450],[360,450],[420,450],[700,310],[760,310],[840,310],[700,470],[760,470],[840,470],[920,470],[980,470]].forEach(p=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(3,3,LV.pa,10),M.column);m.position.set(p[0],LV.pa/2,p[1]);m.castShadow=true;root.add(m)});
   // árboles tipo arce de tallo múltiple (como en los renders), palmas, helechos, flores y luces de sendero
   const leafTex=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
     for(let i=0;i<70;i++){const px=40+Math.random()*176,py=40+Math.random()*176,r=10+Math.random()*16;x.save();x.translate(px,py);x.rotate(Math.random()*6.3);
@@ -861,10 +877,11 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const BLOCKS=[];UNITS.forEach(u=>ENC[u.n].forEach(pp=>BLOCKS.push(bbox(pp))));CORES.forEach(c=>BLOCKS.push(bbox(c)));
   const streetX=z=>115+z*(245-115)/598;
   const freeSpot=(x,z,placed)=>!BLOCKS.some(b=>x>b[0]-16&&x<b[2]+16&&z>b[1]-16&&z<b[3]+16)&&x>streetX(z)+14&&!placed.some(q=>Math.hypot(q[0]-x,q[1]-z)<34);
-  const placed=[];const want=TREES.concat([[643,222],[648,292],[330,300],[300,210],[680,190]]);
+  const placed=[];const want=TREES.concat([[640,175],[648,262],[650,292],[330,300],[300,210],[690,320]]);
   want.forEach((p,i)=>{let x=p[0],z=p[1],ok=freeSpot(x,z,placed);for(let t=0;!ok&&t<12;t++){x=p[0]+Math.cos(t*2.4)*(10+t*6);z=p[1]+Math.sin(t*2.4)*(10+t*6);ok=freeSpot(x,z,placed)}
     if(ok){placed.push([x,z]);maple(x,z,(i>=TREES.length?80:60)+((i*37)%36),i+1)}});
   if(window.__streetTrees)__streetTrees();
+  if(window.__southTrees)__southTrees();
   if(window.__yards)__yards.forEach((y,i)=>{if(i%2===0)maple(y[0],y[1],46+(i%4)*8,100+i)});
   // palmas y helechos en los macizos
   const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
@@ -882,26 +899,26 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
   // patio central como en el render: helechos y palmas densos dentro de los macizos, espigas moradas en los bordes
-  const fronds=new THREE.InstancedMesh(frondGeo,M.leaf[1],4000);{const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
-    const PATIO_BEDS=BEDS_PB.slice(0,3).concat([BEDS_PB[4],BEDS_PB[5],BEDS_PB[6]]);window.__PATIO_BEDS=PATIO_BEDS;
-    PATIO_BEDS.forEach(poly=>{const [x0,y0,x1,y1]=bbox(poly);
-      for(let x=x0+4;x<x1;x+=7)for(let z=y0+4;z<y1;z+=7){if(!inside([x,z],poly))continue;const n=5+((x*z)%3);
-        for(let f=0;f<n&&k<4000;f++){const a=f/n*6.28+(x%7)*.4;const tilt=.55+((x+z+f)%3)*.15;q.setFromEuler(new THREE.Euler(tilt*Math.cos(a),0,-tilt*Math.sin(a)));const sc=.8+((x*3+f)%4)*.15;
-          mm.compose(new THREE.Vector3(x,.5,z),q,new THREE.Vector3(sc,sc,sc));fronds.setMatrixAt(k,mm);fronds.setColorAt(k,col.setHex([0x5f8f3a,0x6fa045,0x4f7f30,0x7fb050][(x+f)%4]));k++}}});
+  const fronds=new THREE.InstancedMesh(frondGeo,M.leaf[1],6000);{const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
+    const PATIO_BEDS=BEDS_PB;window.__PATIO_BEDS=PATIO_BEDS;
+    const pts=PATIO_CELLS.filter((c,i)=>i%4===0).map(c=>[c[0]+1.5,c[1]+1.5]);PATIO_BEDS.forEach(poly=>{const [x0,y0,x1,y1]=bbox(poly);for(let x=x0+4;x<x1;x+=7)for(let z=y0+4;z<y1;z+=7)if(inside([x,z],poly))pts.push([x,z])});
+    pts.forEach(([x,z])=>{{const n=5+((x*z)%3);
+        for(let f=0;f<n&&k<6000;f++){const a=f/n*6.28+(x%7)*.4;const tilt=.55+((x+z+f)%3)*.15;q.setFromEuler(new THREE.Euler(tilt*Math.cos(a),0,-tilt*Math.sin(a)));const sc=.8+((x*3+f)%4)*.15;
+          mm.compose(new THREE.Vector3(x,.5,z),q,new THREE.Vector3(sc,sc,sc));fronds.setMatrixAt(k,mm);fronds.setColorAt(k,col.setHex([0x5f8f3a,0x6fa045,0x4f7f30,0x7fb050][(Math.round(x)+f)%4]));k++}}});
     fronds.count=k;fronds.castShadow=true;fronds.userData.level='pb';root.add(fronds)}
 
   const spikeM=[0x6a2f9c,0x8a4ac0,0xb060d8].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const spikes=new THREE.InstancedMesh(new THREE.ConeGeometry(1.4,7,6),spikeM[0],1400);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
-    __PATIO_BEDS.forEach(poly=>{const n=poly.length;for(let i=0;i<n&&k<1400;i++){const a=poly[i],b=poly[(i+1)%n];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const steps=Math.max(2,Math.floor(len/4));
-      for(let t=0;t<steps&&k<1400;t++){const u=(t+.5)/steps;const x=a[0]+(b[0]-a[0])*u,z=a[1]+(b[1]-a[1])*u;const cx=(a[0]+b[0])/2,cz=(a[1]+b[1])/2;
-        for(let j=0;j<2&&k<1400;j++){const ix=x+((k*13)%5)-2,iz=z+((k*7)%5)-2;if(!inside([ix,iz],poly))continue;mm.makeTranslation(ix,5+(k%3),iz);spikes.setMatrixAt(k,mm);spikes.setColorAt(k,col.setHex([0x6a2f9c,0x8a4ac0,0xb060d8][k%3]));k++}}}});
+    const cset=new Set(PATIO_CELLS.map(c=>c[0]+','+c[1]));PATIO_CELLS.forEach(c=>{const edge=[[3,0],[-3,0],[0,3],[0,-3]].some(d=>!cset.has((c[0]+d[0])+','+(c[1]+d[1])));if(!edge||k>=1400)return;for(let j=0;j<2&&k<1400;j++){mm.makeTranslation(c[0]+((k*13)%3),5+(k%3),c[1]+((k*7)%3));spikes.setMatrixAt(k,mm);spikes.setColorAt(k,col.setHex([0x6a2f9c,0x8a4ac0,0xb060d8][k%3]));k++}});
     spikes.count=k;spikes.userData.level='pb';root.add(spikes)}
   // luces bajas de sendero (se encienden de noche)
-  const lamps=new THREE.InstancedMesh(new THREE.SphereGeometry(1.6,8,6),lampM,60);{const mm=new THREE.Matrix4();let k=0;
+  const lamps=new THREE.InstancedMesh(new THREE.SphereGeometry(1.6,8,6),lampM,140);{const mm=new THREE.Matrix4();let k=0;
     for(let i=0;i<26;i++){mm.makeTranslation(258,3,195+i*10);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<18;i++){mm.makeTranslation(660+(i%2)*38,3,210+i*7);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<16;i++){mm.makeTranslation(230+i*42,3,36);lamps.setMatrixAt(k++,mm)}
-    [[622,215],[622,260],[622,305],[664,240],[664,300],[690,160],[660,335]].forEach(p=>{if(k<60){mm.makeTranslation(p[0],3,p[1]);lamps.setMatrixAt(k++,mm)}})
+    [[622,215],[622,260],[622,305],[664,240],[664,300],[690,160],[660,335]].forEach(p=>{if(k<140){mm.makeTranslation(p[0],3,p[1]);lamps.setMatrixAt(k++,mm)}});
+    for(let x=280;x<1030;x+=48){if(k<140){mm.makeTranslation(x,5,548);lamps.setMatrixAt(k++,mm)}}
+    lamps.count=k;
     lamps.userData.level='pb';root.add(lamps)}
   /* vecindario alineado con el proyecto: retícula ortogonal de calles con veredas; la avenida diagonal del plano la atraviesa */
   {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(33,6);
@@ -914,7 +931,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const RW=90,SW=18,BLK=420,X0=-2600,X1=3000,Z0=-2100,Z1=2500;
     const ZS=[];for(let z=-110;z>Z0;z-=BLK)ZS.unshift(z);for(let z=640;z<Z1;z+=BLK)ZS.push(z);
     const XS=[];for(let x=1140;x<X1;x+=BLK)XS.push(x);for(let x=-200;x>X0;x-=BLK)XS.unshift(x);
-    ZS.forEach(z=>P(parts.road,(X0+X1)/2,-.75,z,X1-X0,1,RW));XS.forEach(x=>P(parts.road,x,-.75,(Z0+Z1)/2,RW,1,Z1-Z0));
+    ZS.forEach(z=>{if(z!==640)P(parts.road,(X0+X1)/2,-.75,z,X1-X0,1,RW)});XS.forEach(x=>P(parts.road,x,-.75,(Z0+Z1)/2,RW,1,Z1-Z0));
     const inLotPlan=(x,z)=>inside([x,z],[[40,-60],[1000,-60],[1120,600],[180,600]]);
     const yards=[];let idx=0;
     const house=(cx,cz,i,side)=>{ // side: +1 = fachada hacia +z (calle al sur), -1 = hacia -z

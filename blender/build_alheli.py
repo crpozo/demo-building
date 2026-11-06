@@ -149,7 +149,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     clear()
     z0=0  # cada GLB se posiciona en su nivel desde Three.js
     # muros
-    h=20 if lvl=='tc' else 40
+    h=38 if lvl=='tc' else 40
     V=[];Fc=[]
     for i,r in enumerate(WALLS[lvl]):
         outside=lvl=='pb' and (r[1]>350 or r[0]<200 or r[0]>910 or r[1]<55)
@@ -165,7 +165,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         if lvl!=('pb' if int(n)<=4 else 'pa'): continue
         for k,pts in enumerate(polys): polygon('floor_u%s_%d'%(n,k),pts,z0+.4,1.2,M['floor']())
     if lvl=='tc':
-        polygon('floor_salon',[[335,195],[515,195],[515,300],[335,300]],z0+.4,1.2,M['floor']())
+        polygon('floor_salon',[[330,160],[560,160],[560,432],[330,432]],z0+.4,1.2,M['floor']())
     # mobiliario
     def wall_dist(cx,cy,dx,dy,maxd=40):
         best=maxd
