@@ -63,6 +63,8 @@ nav.tabs a.on{color:#fff;border-bottom-color:var(--gold2)}
 /* sections */
 section.view{display:none;padding-block:28px 56px}
 #v-edificio.view{padding-block:0}
+#v-experiencia.view{padding-block:0}
+.exp-frame{display:block;width:100%;border:0;background:#171b1e;height:calc(100vh - 61px - env(safe-area-inset-top,0px));height:calc(100dvh - 61px - env(safe-area-inset-top,0px))}
 .wrap3{max-width:none;padding:0}
 section.view.on{display:block}
 .sec-head{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
@@ -250,7 +252,7 @@ td .best{color:var(--ok);font-weight:600}
 .sheet .admin label{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sheet .admin input{width:120px;text-align:right;font:inherit;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg)}
 
-body:has(#v-edificio.on) footer{display:none}
+body:has(#v-edificio.on) footer,body:has(#v-experiencia.on) footer{display:none}
 footer{border-top:1px solid var(--line);padding-block:24px;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#efe8dd;padding:10px 18px;border-radius:999px;font-size:.8rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
@@ -281,6 +283,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <a href="#recorrido" data-v="recorrido">Recorrido</a>
       <a href="#plantas" data-v="plantas">Plantas</a>
       <a href="#edificio" data-v="edificio">Vista 3D</a>
+      <a href="#experiencia" data-v="experiencia">Experiencia</a>
       <a href="#departamentos" data-v="departamentos">Departamentos</a>
     </nav>
   </div>
@@ -397,6 +400,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   </div>
 </section>
 
+<!-- EXPERIENCIA: selector interactivo sobre la fachada (carpeta experiencia/, se carga al abrir la sección) -->
+<section class="view" id="v-experiencia">
+  <iframe class="exp-frame" id="expFrame" data-src="experiencia/index.html" title="Experiencia interactiva: elija un departamento sobre la fachada" allow="autoplay; fullscreen"></iframe>
+</section>
+
 <!-- DEPARTAMENTOS -->
 <section class="view" id="v-departamentos">
   <div class="wrap">
@@ -467,11 +475,15 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clea
   mB.hidden=wB.hidden=false;[mB,wB].forEach(b=>b.classList.remove('gold','ghost'));(isWin?wB:mB).classList.add('gold');(isWin?mB:wB).classList.add('ghost');
   if(isWin)wB.parentNode.insertBefore(wB,mB);nt.textContent=isWin?'Versión 0.1.0 · Windows 10 y 11 (64 bits). La versión de Mac está firmada y notarizada por Apple.':'Versión 0.1.0 · Mac firmada y notarizada por Apple, se instala con doble clic. También disponible para Windows 10 y 11.'})();
 /* ---- navegación por hash ---- */
-const VIEWS=['proyecto','recorrido','plantas','edificio','departamentos'];
+const VIEWS=['proyecto','recorrido','plantas','edificio','experiencia','departamentos'];
 function route(){
   const h=(location.hash||'#proyecto').slice(1); const v=VIEWS.includes(h)?h:'proyecto';
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  // Experiencia: carga diferida del iframe; al salir de la sección se detiene y vuelve a su portada.
+  const ef=document.getElementById('expFrame');
+  if(v==='experiencia'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
+  else if(ef.getAttribute('src')&&ef.contentWindow)ef.contentWindow.postMessage({type:'alheli:reset'},'*');
   window.scrollTo({top:0});
 }
 addEventListener('hashchange',route);

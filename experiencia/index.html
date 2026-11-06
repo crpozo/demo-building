@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171b1e">
+  <meta name="description" content="Descubre Alhelí Residencias. Recorre sus departamentos a través de una experiencia arquitectónica inmersiva.">
+  <title>Alhelí Residencias | Recorrido interactivo</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="floors.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main id="cover" class="cover" aria-label="Recorrido interactivo de Alhelí Residencias">
+    <div class="scene">
+      <img class="building" src="assets/portada.png" alt="Vista exterior de Alhelí Residencias al atardecer" draggable="false">
+      <svg id="hotspots" class="hotspots" viewBox="0 0 1024 572" preserveAspectRatio="xMidYMid slice" aria-label="Departamentos disponibles"></svg>
+    </div>
+    <div class="shade" aria-hidden="true"></div>
+
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <div>
+        <p class="eyebrow">Arquitectura para vivir</p>
+        <h1>Alhelí <span>Residencias</span></h1>
+      </div>
+    </header>
+    <div class="live-badge"><span></span> Experiencia interactiva</div>
+
+    <section class="welcome" aria-labelledby="welcome-title">
+      <p class="eyebrow welcome-eyebrow">Un lugar para sentirte en casa</p>
+      <h2 id="welcome-title">Descubre tu próximo <br>espacio.</h2>
+      <p class="intro">Selecciona un departamento y recorre su interior.</p>
+      <div class="instruction"><span class="mouse-icon" aria-hidden="true"></span> Pasa el cursor sobre el edificio</div>
+    </section>
+
+    <aside class="apartment-panel" aria-label="Lista de departamentos">
+      <div class="panel-heading">
+        <span>Explora los espacios</span>
+        <span class="count" id="available-count"></span>
+      </div>
+      <div id="apartment-list" class="apartment-list"></div>
+    </aside>
+    <div id="tooltip" class="tooltip" role="status" aria-hidden="true"></div>
+    <footer class="cover-footer"><span>Diseño contemporáneo · Espacios que conectan</span><span>01 / Vista exterior</span></footer>
+  </main>
+
+  <section id="experience" class="experience" data-phase="none" inert aria-hidden="true" aria-label="Recorrido del departamento">
+    <div id="media" class="media">
+      <!-- Los videos de ida se crean desde app.js al pasar el cursor sobre cada zona. -->
+      <img id="final-image" class="layer final-image" alt="" draggable="false">
+      <video id="reverse-video" class="layer reverse-video" muted playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video>
+    </div>
+    <div class="experience-shade ui ui-always" aria-hidden="true"></div>
+    <header class="experience-header ui ui-always">
+      <div class="mini-brand">Alhelí <span>Residencias</span></div>
+      <div class="header-actions">
+        <button id="sound-button" class="glass-button icon-button" type="button" aria-pressed="false" aria-label="Activar sonido" title="Activar sonido">
+          <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+          <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.2 6.5a8 8 0 0 1 0 11"/></svg>
+        </button>
+        <button id="back-button" class="glass-button" type="button" aria-label="Volver a la vista exterior"><span aria-hidden="true">←</span> Volver <kbd>Esc</kbd></button>
+      </div>
+    </header>
+    <div id="loading" class="loading" aria-hidden="true"><span class="loading-ring"></span><span>Preparando tu recorrido</span></div>
+    <div id="video-caption" class="video-caption ui ui-video ui-reverse"><span class="live-dot"></span><span id="tour-label"></span></div>
+    <div id="interior-caption" class="interior-caption ui ui-interior">
+      <p class="eyebrow" id="interior-level"></p>
+      <h2 id="interior-name"></h2>
+      <p id="interior-description"></p>
+      <div class="caption-line"></div>
+      <span class="interior-detail">Bienvenido a tu nuevo hogar</span>
+    </div>
+    <button id="skip-button" class="skip-button ui ui-video" type="button">Ver el interior <span aria-hidden="true">→</span></button>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

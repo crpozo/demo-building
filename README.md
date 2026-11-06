@@ -4,6 +4,7 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 
 - `index.html` — versión independiente (abrir en cualquier navegador o servir con GitHub Pages).
 - `app.html` — la misma página en el formato que usa el Artifact de Claude.
+- `experiencia/` — selector interactivo sobre la fachada (pestaña Experiencia): videos de acercamiento, regreso en reversa e imagen final de cada ambiente. Las zonas se editan en `experiencia/tools/map_floors.py` y los videos invertidos se generan con `experiencia/tools/make_reverse.py` (requiere ffmpeg).
 - `img/` — renders, plantas y planos de cada departamento, extraídos del brochure ALHELI_SEP_2026.
 
 ## Funciones
