@@ -685,28 +685,11 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   /* terreno */
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:T.field,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-2;ground.receiveShadow=true;scene.add(ground);
   prism([[108,22],[928,22],[1035,522],[252,522]],-1.5,1.5,M.pave);
-  /* calle real: vía larga con señalización, veredas, bordillos, autos estacionados, postes y árboles de acera */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(33,6);
-    const at=(sv,u)=>({x:O.x+d.x*sv+nrm.x*u,z:O.y+d.y*sv+nrm.y*u});const ang=Math.atan2(d.x,d.y);
-    const strip=(len,w,u,y,h,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,len),mat);const c=at(300,u);m.position.set(c.x,y,c.z);m.rotation.y=ang;m.receiveShadow=true;root.add(m);return m};
-    const roadT=ctex((x,s)=>{noise(x,s,'#45464a',.1,2500);x.fillStyle='#d8d2b8';for(let i=0;i<s;i+=64)x.fillRect(s/2-2,i,4,34);x.fillStyle='#e8e4d8';x.fillRect(4,0,3,s);x.fillRect(s-7,0,3,s)},256,1);roadT.repeat.set(1,24);
-    const road=strip(2400,104,0,-.6,1,new THREE.MeshStandardMaterial({map:roadT,roughness:1}));
-    strip(2400,20,-62,0,2.6,M.pave);strip(2400,20,62,0,2.6,M.pave);              // veredas
-    strip(2400,2,-52,0,3.2,M.column);strip(2400,2,52,0,3.2,M.column);             // bordillos
-    // autos estacionados junto a la acera del proyecto
-    [-150,-80,40,110,320,400,560,640,760].forEach((sv,i)=>{const c=at(sv,40);const g=new THREE.Group();const body=M.carBody[i%4];
-      const fb=(w,h,dd,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),mat);m.position.set(x,y,z);m.castShadow=true;g.add(m)};
-      fb(17,7,38,body,0,5.5,0);fb(14,6,19,body,0,12,-1);const gl=new THREE.Mesh(new THREE.BoxGeometry(14.4,4,19.4),M.glass);gl.position.set(0,12.5,-1);g.add(gl);
-      [[-8,12],[8,12],[-8,-12],[8,-12]].forEach(q=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(3,3,2.5,12),M.tire);w.rotation.z=Math.PI/2;w.position.set(q[0],3,q[1]);g.add(w)});
-      g.position.set(c.x,0,c.z);g.rotation.y=ang+(i%2?Math.PI:0);root.add(g)});
-    // postes de luz en la acera de enfrente y árboles de calle
-    for(let sv=-500;sv<1100;sv+=140){const c=at(sv,-70);const pole=new THREE.Mesh(new THREE.CylinderGeometry(1,1.3,46,8),M.column);pole.position.set(c.x,23,c.z);root.add(pole);
-      const head=new THREE.Mesh(new THREE.BoxGeometry(6,2,10),lampM);head.position.set(c.x+nrm.x*4,46,c.z+nrm.y*4);root.add(head)}
-    window.__streetTrees=()=>{let k=0;for(let sv=-460;sv<1100;sv+=120){const c=at(sv+40,-78);maple(c.x,c.z,52+(k%3)*8,40+k);k++}};
-  }
+  window.__streetTrees=null;
   prism([[232,345],[640,345],[640,432],[232,432]],-.3,.6,M.cobble);           // estacionamiento
   prism([[700,350],[980,350],[980,432],[700,432]],-.3,.6,M.cobble);
   prism([[250,432],[990,432],[1000,500],[260,500]],-.3,.6,M.cobble);           // circulación vehicular
+  prism([[108,22],[252,522],[238,578],[60,578],[60,22]],-.3,1.0,M.lawn);      // franja oeste del lote hasta la calle
   prism([[152,180],[340,180],[340,470],[255,470]],-.2,1.2,M.lawn);            // jardín oeste
   prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
   PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
@@ -866,16 +849,16 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   function maple(px,pz,h,seed){const g=new THREE.Group();const stems=1+(seed%3);
     for(let i=0;i<stems;i++){const a=i/stems*6.28+seed;const lean=stems>1?.14:.04;branch(g,Math.cos(a)*2,0,Math.sin(a)*2,Math.cos(a)*lean,1,Math.sin(a)*lean,h*.45,1.6+(h/70),3,seed+i*7)}
     g.position.set(px,0,pz);g.rotation.y=seed;g.userData.level='pb';root.add(g)}
+  const inLotPlanTree=(x,z)=>inside([x,z],[[40,-60],[1000,-60],[1120,600],[180,600]]);
   // posiciones validadas: fuera del edificio (margen 16) y a más de 34 entre sí
   const BLOCKS=[];UNITS.forEach(u=>ENC[u.n].forEach(pp=>BLOCKS.push(bbox(pp))));CORES.forEach(c=>BLOCKS.push(bbox(c)));
-  const streetX=z=>115+z*(245-115)/598;
-  const freeSpot=(x,z,placed)=>!BLOCKS.some(b=>x>b[0]-16&&x<b[2]+16&&z>b[1]-16&&z<b[3]+16)&&x>streetX(z)+14&&!placed.some(q=>Math.hypot(q[0]-x,q[1]-z)<34);
+    const freeSpot=(x,z,placed)=>!BLOCKS.some(b=>x>b[0]-16&&x<b[2]+16&&z>b[1]-16&&z<b[3]+16)&&!placed.some(q=>Math.hypot(q[0]-x,q[1]-z)<34);
   const placed=[];const want=TREES.concat([[640,175],[648,262],[650,292],[330,300],[300,210],[690,320]]);
   want.forEach((p,i)=>{let x=p[0],z=p[1],ok=freeSpot(x,z,placed);for(let t=0;!ok&&t<12;t++){x=p[0]+Math.cos(t*2.4)*(10+t*6);z=p[1]+Math.sin(t*2.4)*(10+t*6);ok=freeSpot(x,z,placed)}
     if(ok){placed.push([x,z]);maple(x,z,(i>=TREES.length?80:60)+((i*37)%36),i+1)}});
   if(window.__streetTrees)__streetTrees();
   if(window.__southTrees)__southTrees();
-  if(window.__yards)__yards.forEach((y,i)=>{if(i%2===0)maple(y[0],y[1],46+(i%4)*8,100+i)});
+  if(window.__yards)__yards.forEach((y,i)=>{if(y[2]>=900||i%2===0){if(!inLotPlanTree(y[0],y[1]))maple(y[0],y[1],46+(i%4)*8,100+i)}});
   // palmas y helechos en los macizos
   const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
   function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
@@ -921,14 +904,14 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const roadM=new THREE.MeshStandardMaterial({color:0x4a4b4f,roughness:1});
     const bx=new THREE.BoxGeometry(1,1,1);const parts={road:[],walk:[],terra:[],sand:[],slab:[],glass:[],frame:[],roofg:[],lawn:[],wall:[],hedge:[],drive:[]};
     const P=(arr,x,y,z,w,h,dd)=>{const m=new THREE.Matrix4();m.compose(new THREE.Vector3(x,y,z),new THREE.Quaternion(),new THREE.Vector3(w,h,dd));arr.push(m)};
-    const RW=90,SW=18,BLK=420,X0=-2600,X1=3000,Z0=-2100,Z1=2500;
+    const RW=70,SW=16,BLK=420,X0=-2600,X1=3000,Z0=-2100,Z1=2500;
     const ZS=[];for(let z=-110;z>Z0;z-=BLK)ZS.unshift(z);for(let z=640;z<Z1;z+=BLK)ZS.push(z);
-    const XS=[];for(let x=1140;x<X1;x+=BLK)XS.push(x);for(let x=-200;x>X0;x-=BLK)XS.unshift(x);
+    const XS=[];for(let x=1140;x<X1;x+=BLK)XS.push(x);for(let x=-10;x>X0;x-=BLK)XS.unshift(x);
     ZS.forEach(z=>{if(z!==640)P(parts.road,(X0+X1)/2,-.75,z,X1-X0,1,RW)});XS.forEach(x=>P(parts.road,x,-.75,(Z0+Z1)/2,RW,1,Z1-Z0));
     const inLotPlan=(x,z)=>inside([x,z],[[40,-60],[1000,-60],[1120,600],[180,600]]);
     const yards=[];let idx=0;
     const house=(cx,cz,i,side)=>{ // side: +1 = fachada hacia +z (calle al sur), -1 = hacia -z
-      if(inLotPlan(cx,cz)||distAve(cx,cz)<150)return;const r=rnd(i);const nearLot=cx>-150&&cx<1300&&cz>-300&&cz<800;const two=!nearLot&&rnd(i+2)>.35;const W=72+r*30,D=58+rnd(i+1)*26;
+      if(inLotPlan(cx,cz))return;const r=rnd(i);const nearLot=cx>-150&&cx<1300&&cz>-300&&cz<800;const two=!nearLot&&rnd(i+2)>.35;const W=72+r*30,D=58+rnd(i+1)*26;
       const LW=W+50,LD=D+70;P(parts.lawn,cx,.4,cz,LW,1,LD);
       P(parts.wall,cx,5,cz+side*LD/2,LW,10,3);P(parts.hedge,cx,13,cz+side*LD/2,LW,7,5);P(parts.drive,cx+LW*.3,.9,cz+side*(D/2+LD/4-D/4),22,.6,LD/2-D/2);
       const mainM=rnd(i+3)>.5?parts.terra:parts.sand;const upM=mainM===parts.terra?parts.sand:parts.terra;
@@ -942,11 +925,12 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     // manzanas: entre calles consecutivas; dos filas de casas, cada una mirando a su calle
     const allZ=[Z0].concat(ZS,[Z1]),allX=[X0].concat(XS,[X1]);
     for(let a=0;a<allX.length-1;a++)for(let b=0;b<allZ.length-1;b++){const x0=allX[a]+RW/2+SW,x1=allX[a+1]-RW/2-SW,z0=allZ[b]+RW/2+SW,z1=allZ[b+1]-RW/2-SW;if(x1-x0<120||z1-z0<120)continue;
-      const lotCell=x0<1040&&x1>100&&z0<530&&z1>10; if(lotCell)continue;
+      const lotCell=x0<1040&&x1>60&&z0<600&&z1>-20; if(lotCell){P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);continue}
+      P(parts.lawn,(x0+x1)/2,.2,(z0+z1)/2,x1-x0,.8,z1-z0);
       // veredas de la manzana (si no la cruza la avenida)
-      const crossed=[[x0,z0],[x1,z0],[x0,z1],[x1,z1]].some(c=>distAve(c[0],c[1])<RW)||((x0-O.x)*nrm.x+(z0-O.y)*nrm.y)*((x1-O.x)*nrm.x+(z1-O.y)*nrm.y)<0||((x1-O.x)*nrm.x+(z0-O.y)*nrm.y)*((x0-O.x)*nrm.x+(z1-O.y)*nrm.y)<0;
-      if(!crossed){P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,(x0+x1)/2,-.2,z1+SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0)}
-      const n=Math.max(1,Math.round((x1-x0)/150));for(let k=0;k<n;k++){const cx=x0+(x1-x0)*(k+.5)/n;house(cx,z0+72,idx++,-1);if(z1-z0>260)house(cx,z1-72,idx++,1)}}
+      {P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,(x0+x1)/2,-.2,z1+SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0)}
+      const n=Math.max(1,Math.round((x1-x0)/150));for(let k=0;k<n;k++){const cx=x0+(x1-x0)*(k+.5)/n;house(cx,z0+72,idx++,-1);if(z1-z0>260)house(cx,z1-72,idx++,1)}
+      for(let x=x0+40;x<x1;x+=130){yards.push([x,z0-SW-6,900+idx+x]);yards.push([x,z1+SW+6,901+idx+x])}}
     const mats={road:roadM,walk:M.pave,terra:M.terra,sand:M.sand,slab:M.slab,glass:M.glass,frame:M.wood,roofg:M.planter,lawn:M.lawn,wall:M.terra,hedge:M.planter,drive:M.cobble};
     window.__hoodMats=[];Object.entries(parts).forEach(([k,ms])=>{if(!ms.length)return;const mat=['lawn','drive','road','walk'].includes(k)?mats[k]:mats[k].clone();if(mat!==mats[k]){mat.transparent=true;mat.opacity=1;window.__hoodMats.push(mat)}const im=new THREE.InstancedMesh(bx,mat,ms.length);ms.forEach((m,i)=>im.setMatrixAt(i,m));im.castShadow=!['lawn','drive','road','walk'].includes(k);im.receiveShadow=true;G.add(im)});
     window.__yards=yards.map(y=>[y[0],y[1],y[2]]);
