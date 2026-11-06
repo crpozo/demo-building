@@ -104,8 +104,8 @@ def dining(p,w,d):
     n=3 if max(w,d)>24 else 2
     for i in range(n):
         t=(i-(n-1)/2)*(max(w,d)*.3)
-        if d>w: chair(p,-w*.4,t,-math.pi/2); chair(p,w*.4,t,math.pi/2)
-        else: chair(p,t,d*.4,0); chair(p,t,-d*.4,math.pi)
+        if d>w: chair(p,-(w*.31+4),t,math.pi/2); chair(p,(w*.31+4),t,-math.pi/2)
+        else: chair(p,t,(d*.3+4),0); chair(p,t,-(d*.3+4),math.pi)
 def counter(p,w,d):
     box('body',w,d,13,0,0,0,M['oak'](),.3,parent=p); box('top',w+1,d+1,1.6,0,0,13,M['stone'](),.3,parent=p)
     L=max(w,d); along=(w>=d)
@@ -124,11 +124,11 @@ def washer(p,*_):
     box('w',8,8,12,0,0,0,M['white'](),.5,parent=p); cyl('door',2.6,.6,0,-4,5,M['dark'](),parent=p,rx=math.pi/2)
 def round_(p,*_):
     cyl('top',9,1.4,0,0,10.5,M['oak'](),parent=p); cyl('leg',1.4,10.5,0,0,0,M['dark'](),parent=p)
-    for (x,y,rz) in ((0,12,math.pi),(0,-12,0),(12,0,math.pi/2),(-12,0,-math.pi/2)): chair(p,x,y,rz)
+    for (x,y,rz) in ((0,12,0),(0,-12,math.pi),(12,0,-math.pi/2),(-12,0,math.pi/2)): chair(p,x,y,rz)
 def osofa(p,*_): sofa(p,22,10,m=M['fabric2']())
 def ochair(p,*_): sofa(p,9,9,m=M['fabric2']())
 def ochairs(p,*_):
-    for (x,y,rz) in ((-7,-7,0),(7,-7,0),(-7,7,math.pi),(7,7,math.pi)): chair(p,x,y,rz)
+    for (x,y,rz) in ((-7,-7,math.pi),(7,-7,math.pi),(-7,7,0),(7,7,0)): chair(p,x,y,rz)
     cyl('t',4.5,1.2,0,0,9,M['oak'](),parent=p); cyl('tl',1,9,0,0,0,M['dark'](),parent=p)
 def sofa_item(p,w,d): sofa(p,w,d)
 def closet(p,w,d):
@@ -184,7 +184,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         t,cx,cy=it[0],it[1],it[2]; w=it[3] if len(it)>3 and it[3] else 10; d=it[4] if len(it)>4 and it[4] else 10; rot=it[5] if len(it)>5 else 0
         if t=='bed':
             # cabecera (plan -y con rot 0) contra el muro más cercano entre las cuatro direcciones
-            cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,90:wall_dist(cx,cy,-1,0)-w/2,270:wall_dist(cx,cy,1,0)-w/2}
+            cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,270:wall_dist(cx,cy,-1,0)-w/2,90:wall_dist(cx,cy,1,0)-w/2}
             rot=min(cands,key=cands.get)
             if rot in (90,270): w,d=d,w
         p=empty('f_'+t,cx,-cy,z0+1.6,-math.radians(rot or 0))

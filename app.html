@@ -29,6 +29,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 img{max-width:100%;display:block}
 button{font:inherit;cursor:pointer}
 h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.1;margin:0;text-wrap:balance}
+.price,.specs b,.card h3,.kv .tot,.hot{font-variant-numeric:lining-nums tabular-nums}
 h1{font-size:clamp(2.4rem,6vw,4.4rem);letter-spacing:.14em;text-transform:uppercase}
 h2{font-size:clamp(1.8rem,3.4vw,2.6rem)}
 h3{font-size:1.45rem}
@@ -69,10 +70,11 @@ section.view.on{display:block}
 .hero .cap p{font-weight:400;color:#f4eee4}
 .hero .cap p{max-width:46ch;font-weight:300}
 .hero .cap .eyebrow{color:var(--gold2)}
-.specs{display:flex;flex-wrap:wrap;gap:8px 0;margin:22px 0 0;font-size:.95rem;color:var(--muted);font-weight:300}
-.specs span{padding-right:18px;margin-right:18px;border-right:1px solid var(--line)}
-.specs span:last-child{border:0}
-.specs b{font-family:var(--display);font-weight:600;font-size:1.35rem;color:var(--fg);margin-right:4px;font-variant-numeric:tabular-nums}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;margin:28px 0 0;padding:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.specs span{display:flex;flex-direction:column;gap:2px;padding:18px 20px 16px;border-right:1px solid var(--line);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.specs span:last-child{border-right:0}
+.specs b{font-family:var(--display);font-weight:500;font-size:2rem;line-height:1;color:var(--fg);font-variant-numeric:lining-nums tabular-nums;letter-spacing:0}
+@media (max-width:700px){.specs span{border-right:0;border-bottom:1px solid var(--line)}.specs span:last-child{border-bottom:0}}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:22px;border-radius:var(--radius);overflow:hidden}
 .facts div{background:var(--bg2);padding:16px 18px}
 .facts b{display:block;font-family:var(--display);font-size:2rem;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
@@ -135,7 +137,7 @@ section.view.on{display:block}
 .plan-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
 .plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 .plan img{width:100%;aspect-ratio:1125/598}
-.hot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:var(--plum);color:#fff;font-family:var(--display);font-size:1.1rem;font-weight:600;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.35);padding:0;transition:transform .15s}
+.hot{position:absolute;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:var(--plum);color:#fff;font-family:var(--display);font-size:1.15rem;font-weight:600;line-height:1;font-variant-numeric:lining-nums tabular-nums;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.35);padding:0;transition:transform .15s}
 .hot:hover,.hot.on{transform:translate(-50%,-50%) scale(1.18);background:var(--gold)}
 .hot.st-reservado{background:var(--warn)}
 .hot.st-vendido{background:#8a8a8a;color:#eee}
@@ -291,7 +293,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         <p>Donde una historia vuelve a florecer. Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
       </div>
     </div>
-    <p class="specs"><span><b>10</b> departamentos</span><span><b>2</b> plantas y terraza comunal</span><span><b>1, 2 y 3</b> dormitorios</span><span><b>71 a 164</b> m² cubiertos</span><span><b id="factDisp">10</b> disponibles</span></p>
+    <p class="specs"><span><b>10</b>departamentos</span><span><b>2</b>plantas y terraza</span><span><b>1 · 2 · 3</b>dormitorios</span><span><b>71–164</b>m² cubiertos</span><span><b id="factDisp">10</b>disponibles</span></p>
     <section class="dl" id="descargar">
       <div class="dl-txt">
         <div class="eyebrow">App de escritorio</div>
@@ -300,7 +302,6 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         <div class="dl-btns">
           <a class="btn gold" id="dlMac" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-mac-universal.dmg"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.8-1.7 0-3.2 1-4.1 2.5-1.8 3.1-.5 7.6 1.3 10.1.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.2 3.1-2.5.9-1.4 1.3-2.7 1.4-2.8-.1 0-2.9-1.1-2.9-4.1zM14 5.3c.7-.9 1.2-2 1-3.3-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z"/></svg> Descargar para Mac</a>
           <a class="btn gold" id="dlWin" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-win-x64.exe" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 11 4.4v7.2H3zm0 13 8 1.1v-7.1H3zm9 1.2L22 21v-8.4h-10zm0-16.4V11.6h10V2z"/></svg> Descargar para Windows</a>
-          <button class="btn ghost" id="dlSwap" type="button">¿Usas Windows?</button>
         </div>
         <p class="muted dl-note" id="dlNote">Versión 0.1.0 · firmada y notarizada por Apple: se instala con doble clic.</p>
       </div>
@@ -457,9 +458,9 @@ const $=s=>document.querySelector(s);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800)}
 
 /* ---- descarga según sistema ---- */
-(function(){const isWin=/Windows/i.test(navigator.userAgent);let mac=!isWin;const mB=document.getElementById('dlMac'),wB=document.getElementById('dlWin'),sw=document.getElementById('dlSwap'),nt=document.getElementById('dlNote');
-  function paintDl(){mB.hidden=!mac;wB.hidden=mac;sw.textContent=mac?'¿Usas Windows?':'¿Usas Mac?';nt.textContent=mac?'Versión 0.1.0 · firmada y notarizada por Apple: se instala con doble clic.':'Versión 0.1.0 · instalador para Windows 10 y 11 (64 bits).'}
-  sw.onclick=()=>{mac=!mac;paintDl()};paintDl()})();
+(function(){const isWin=/Windows/i.test(navigator.userAgent);const mB=document.getElementById('dlMac'),wB=document.getElementById('dlWin'),nt=document.getElementById('dlNote');
+  mB.hidden=wB.hidden=false;[mB,wB].forEach(b=>b.classList.remove('gold','ghost'));(isWin?wB:mB).classList.add('gold');(isWin?mB:wB).classList.add('ghost');
+  if(isWin)wB.parentNode.insertBefore(wB,mB);nt.textContent=isWin?'Versión 0.1.0 · Windows 10 y 11 (64 bits). La versión de Mac está firmada y notarizada por Apple.':'Versión 0.1.0 · Mac firmada y notarizada por Apple, se instala con doble clic. También disponible para Windows 10 y 11.'})();
 /* ---- navegación por hash ---- */
 const VIEWS=['proyecto','recorrido','plantas','edificio','departamentos'];
 function route(){
@@ -685,7 +686,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:T.field,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-2;ground.receiveShadow=true;scene.add(ground);
   prism([[108,22],[928,22],[1035,522],[252,522]],-1.5,1.5,M.pave);
   /* calle real: vía larga con señalización, veredas, bordillos, autos estacionados, postes y árboles de acera */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(62,0);
+  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(10,11);
     const at=(sv,u)=>({x:O.x+d.x*sv+nrm.x*u,z:O.y+d.y*sv+nrm.y*u});const ang=Math.atan2(d.x,d.y);
     const strip=(len,w,u,y,h,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,len),mat);const c=at(300,u);m.position.set(c.x,y,c.z);m.rotation.y=ang;m.receiveShadow=true;root.add(m);return m};
     const roadT=ctex((x,s)=>{noise(x,s,'#45464a',.1,2500);x.fillStyle='#d8d2b8';for(let i=0;i<s;i+=64)x.fillRect(s/2-2,i,4,34);x.fillStyle='#e8e4d8';x.fillRect(4,0,3,s);x.fillRect(s-7,0,3,s)},256,1);roadT.repeat.set(1,24);
@@ -693,7 +694,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     strip(2400,20,-62,0,2.6,M.pave);strip(2400,20,62,0,2.6,M.pave);              // veredas
     strip(2400,2,-52,0,3.2,M.column);strip(2400,2,52,0,3.2,M.column);             // bordillos
     // autos estacionados junto a la acera del proyecto
-    [-150,-80,40,110,320,400,560,640,760].forEach((sv,i)=>{const c=at(sv,38);const g=new THREE.Group();const body=M.carBody[i%4];
+    [-150,-80,40,110,320,400,560,640,760].forEach((sv,i)=>{const c=at(sv,40);const g=new THREE.Group();const body=M.carBody[i%4];
       const fb=(w,h,dd,mat,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),mat);m.position.set(x,y,z);m.castShadow=true;g.add(m)};
       fb(17,7,38,body,0,5.5,0);fb(14,6,19,body,0,12,-1);const gl=new THREE.Mesh(new THREE.BoxGeometry(14.4,4,19.4),M.glass);gl.position.set(0,12.5,-1);g.add(gl);
       [[-8,12],[8,12],[-8,-12],[8,-12]].forEach(q=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(3,3,2.5,12),M.tire);w.rotation.z=Math.PI/2;w.position.set(q[0],3,q[1]);g.add(w)});
@@ -835,6 +836,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t})();
   const leafMats=[0x6f9a3c,0x5f8a34,0x7fa848,0x557f30].map(c=>new THREE.MeshLambertMaterial({map:leafTex,color:c,transparent:true,alphaTest:.45,side:THREE.DoubleSide,depthWrite:true}));
   const barkM=new THREE.MeshStandardMaterial({color:0x6b5a4a,roughness:1});
+  const frondGeo=new THREE.ConeGeometry(1.6,12,5);frondGeo.translate(0,6,0);
   const leafQuad=new THREE.PlaneGeometry(1,1);
   const treeLeaves=[];
   function branch(g,x,y,z,dx,dy,dz,len,rad,depth,seed){
@@ -864,7 +866,10 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
     g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
   const ZONES=[[895,65,1000,460],[215,32,895,64]];
-  for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(!BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))palm(x,zz,.7+(i%3)*.35)}
+  {const fr2=new THREE.InstancedMesh(frondGeo,M.leaf[1],1200);const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
+    for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))continue;
+      for(let f=0;f<7&&k<1200;f++){const a=f/7*6.28+i;const tilt=.6+(f%3)*.12;q.setFromEuler(new THREE.Euler(tilt*Math.cos(a),0,-tilt*Math.sin(a)));const sc=1+(i%3)*.35;mm.compose(new THREE.Vector3(x,.5,zz),q,new THREE.Vector3(sc,sc*1.3,sc));fr2.setMatrixAt(k,mm);fr2.setColorAt(k,col.setHex([0x5f8f3a,0x6fa045,0x4f7f30][f%3]));k++}}
+    fr2.count=k;fr2.castShadow=true;fr2.userData.level='pb';root.add(fr2)}
   // flores moradas en los bordes de senderos
   const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
@@ -872,7 +877,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
   // patio central como en el render: helechos y palmas densos dentro de los macizos, espigas moradas en los bordes
-  const frondGeo=new THREE.ConeGeometry(1.6,12,5);frondGeo.translate(0,6,0);
   const fronds=new THREE.InstancedMesh(frondGeo,M.leaf[1],4000);{const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
     const PATIO_BEDS=BEDS_PB.slice(0,3).concat([BEDS_PB[4],BEDS_PB[5],BEDS_PB[6]]);window.__PATIO_BEDS=PATIO_BEDS;
     PATIO_BEDS.forEach(poly=>{const [x0,y0,x1,y1]=bbox(poly);
@@ -895,7 +899,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     [[622,215],[622,260],[622,305],[664,240],[664,300],[690,160],[660,335]].forEach(p=>{if(k<60){mm.makeTranslation(p[0],3,p[1]);lamps.setMatrixAt(k++,mm)}})
     lamps.userData.level='pb';root.add(lamps)}
   /* vecindario alineado con el proyecto: retícula ortogonal de calles con veredas; la avenida diagonal del plano la atraviesa */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(62,0);
+  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(10,11);
     const distAve=(x,z)=>Math.abs((x-O.x)*nrm.x+(z-O.y)*nrm.y);           // distancia (en plan) a la avenida diagonal
     const rnd=(i)=>{const t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
     const G=new THREE.Group();G.name='vecindario';G.position.set(-PW/2,0,-PH/2);scene.add(G);
