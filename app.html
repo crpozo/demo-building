@@ -704,7 +704,8 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
   PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
   /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
-  prism([[600,150],[700,150],[700,345],[600,345]],-.1,1,M.cobble);
+  const mosaicM=new THREE.MeshStandardMaterial({map:ctex((x,s)=>{x.fillStyle='#55565c';x.fillRect(0,0,s,s);for(let i=0;i<s;i+=10)for(let j=0;j<s;j+=10){x.fillStyle=`hsl(225,5%,${26+Math.random()*18}%)`;x.fillRect(i+1,j+1,8,8)}},256,6),roughness:1});
+  prism([[600,150],[700,150],[700,345],[600,345]],-.1,1,mosaicM);
   const arc=(cx,cz,r,a0,a1,n=10)=>{const o=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+Math.cos(a)*r,cz+Math.sin(a)*r])}return o};
   const BEDS_PB=[
     [[626,345],[626,225],...arc(643,225,17,Math.PI,Math.PI*2),[660,345]],                  // macizo central con remate curvo
@@ -717,7 +718,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   ];
   BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn);const kerb=prism(b,.6,3.2,M.column);kerb.scale.set(1,1,1)});
   prism([[672,268],[700,268],[700,325],[688,325]],1.2,.6,M.water);                           // espejo de agua
-  box(610,150,614,345,0,30,M.terra);                                                         // muro del patio de la unidad 1
+  box(610,150,614,345,0,8,M.terra);                                                          // zócalo del muro del patio (sobre él va la celosía)
   // muro perimetral bajo con seto, con vanos en el acceso peatonal y el vehicular
   {const P=[[108,22],[928,22],[1035,522],[252,522],[108,22]];
     for(let i=0;i<4;i++){const a=P[i],b=P[i+1];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const segs=Math.ceil(len/40);
@@ -774,9 +775,9 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
     root.add(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
-  const brick=new THREE.MeshStandardMaterial({color:0xa8583c,roughness:.9});
-  const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<14;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
-  [[668,300,7],[650,238,6],[685,310,6]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x7a2a2a,roughness:.5,metalness:.3,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);
+  const brick=new THREE.MeshStandardMaterial({color:0x9e4f36,roughness:.9});
+  const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<8;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
+  [[668,300,7],[650,238,6],[685,310,6]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x8e2f2a,roughness:.35,metalness:.2,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);const sp=new THREE.Mesh(new THREE.SphereGeometry(1.6,8,6),M.white);sp.position.set(b[0],6.5,b[1]);root.add(sp);sp.userData.level='pb';
     const w=new THREE.Mesh(new THREE.CircleGeometry(b[2]-.6,24),M.water);w.rotation.x=-Math.PI/2;w.position.set(b[0],5.6,b[1]);root.add(w);bowl.userData.level=w.userData.level='pb'});
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
@@ -853,24 +854,41 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const frondM=new THREE.MeshLambertMaterial({map:leafTex,color:0x4f8a3a,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
   function palm(px,pz,sc){const g=new THREE.Group();for(let k=0;k<7;k++){const f=new THREE.Mesh(leafQuad,frondM);f.scale.set(10*sc,4*sc,1);const a=k/7*6.28;f.position.set(Math.cos(a)*4*sc,5*sc+(k%2)*1.5,Math.sin(a)*4*sc);f.rotation.set(-.5,-a+1.57,0);g.add(f)}
     g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
-  const ZONES=[[255,250,415,345],[895,65,1000,460],[628,210,658,340],[664,152,698,228],[215,32,895,64],[185,175,315,245]];
+  const ZONES=[[895,65,1000,460],[215,32,895,64]];
   for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(!BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))palm(x,zz,.7+(i%3)*.35)}
   // flores moradas en los bordes de senderos
   const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
-    const beds=[[185,295,255,345],[640,324,698,343],[628,210,658,340],[664,152,698,228],[895,65,1000,460],[215,32,895,64]];
+    const beds=[[895,65,1000,460],[215,32,895,64]];
     for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
+  // patio central como en el render: helechos y palmas densos dentro de los macizos, espigas moradas en los bordes
+  const frondGeo=new THREE.ConeGeometry(1.6,12,5);frondGeo.translate(0,6,0);
+  const fronds=new THREE.InstancedMesh(frondGeo,M.leaf[1],4000);{const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
+    const PATIO_BEDS=BEDS_PB.slice(0,3).concat([BEDS_PB[4],BEDS_PB[5],BEDS_PB[6]]);window.__PATIO_BEDS=PATIO_BEDS;
+    PATIO_BEDS.forEach(poly=>{const [x0,y0,x1,y1]=bbox(poly);
+      for(let x=x0+4;x<x1;x+=7)for(let z=y0+4;z<y1;z+=7){if(!inside([x,z],poly))continue;const n=5+((x*z)%3);
+        for(let f=0;f<n&&k<4000;f++){const a=f/n*6.28+(x%7)*.4;const tilt=.55+((x+z+f)%3)*.15;q.setFromEuler(new THREE.Euler(tilt*Math.cos(a),0,-tilt*Math.sin(a)));const sc=.8+((x*3+f)%4)*.15;
+          mm.compose(new THREE.Vector3(x,.5,z),q,new THREE.Vector3(sc,sc,sc));fronds.setMatrixAt(k,mm);fronds.setColorAt(k,col.setHex([0x5f8f3a,0x6fa045,0x4f7f30,0x7fb050][(x+f)%4]));k++}}});
+    fronds.count=k;fronds.castShadow=true;fronds.userData.level='pb';root.add(fronds)}
+
+  const spikeM=[0x6a2f9c,0x8a4ac0,0xb060d8].map(c=>new THREE.MeshLambertMaterial({color:c}));
+  const spikes=new THREE.InstancedMesh(new THREE.ConeGeometry(1.4,7,6),spikeM[0],1400);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
+    __PATIO_BEDS.forEach(poly=>{const n=poly.length;for(let i=0;i<n&&k<1400;i++){const a=poly[i],b=poly[(i+1)%n];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const steps=Math.max(2,Math.floor(len/4));
+      for(let t=0;t<steps&&k<1400;t++){const u=(t+.5)/steps;const x=a[0]+(b[0]-a[0])*u,z=a[1]+(b[1]-a[1])*u;const cx=(a[0]+b[0])/2,cz=(a[1]+b[1])/2;
+        for(let j=0;j<2&&k<1400;j++){const ix=x+((k*13)%5)-2,iz=z+((k*7)%5)-2;if(!inside([ix,iz],poly))continue;mm.makeTranslation(ix,5+(k%3),iz);spikes.setMatrixAt(k,mm);spikes.setColorAt(k,col.setHex([0x6a2f9c,0x8a4ac0,0xb060d8][k%3]));k++}}}});
+    spikes.count=k;spikes.userData.level='pb';root.add(spikes)}
   // luces bajas de sendero (se encienden de noche)
   const lamps=new THREE.InstancedMesh(new THREE.SphereGeometry(1.6,8,6),lampM,60);{const mm=new THREE.Matrix4();let k=0;
     for(let i=0;i<26;i++){mm.makeTranslation(258,3,195+i*10);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<18;i++){mm.makeTranslation(660+(i%2)*38,3,210+i*7);lamps.setMatrixAt(k++,mm)}
     for(let i=0;i<16;i++){mm.makeTranslation(230+i*42,3,36);lamps.setMatrixAt(k++,mm)}
+    [[622,215],[622,260],[622,305],[664,240],[664,300],[690,160],[660,335]].forEach(p=>{if(k<60){mm.makeTranslation(p[0],3,p[1]);lamps.setMatrixAt(k++,mm)}})
     lamps.userData.level='pb';root.add(lamps)}
   /* vecindario: retícula de calles paralelas y transversales a la vía principal, manzanas con casas, patios y árboles */
   {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(62,0);const ang=Math.atan2(d.x,d.y);
     const at=(sv,u)=>({x:O.x+d.x*sv+nrm.x*u,z:O.y+d.y*sv+nrm.y*u});
-    const inLot=(x,z)=>x>60&&x<1080&&z>-40&&z<580;
+    const LOTP=[[40,-60],[1000,-60],[1120,600],[180,600]];const inLot=(x,z)=>inside([x+PW/2,z+PH/2],LOTP);
     const rnd=(i)=>{const t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
     const G=new THREE.Group();G.name='vecindario';scene.add(G);
     const roadM=new THREE.MeshStandardMaterial({color:0x4a4b4f,roughness:1}),walkM=M.pave,wallCols=[0xe9e2d4,0xd9c6ad,0xc9a98a,0xb98466,0xe3d9c9,0xd6cfc4,0xa98c74],winM=new THREE.MeshStandardMaterial({color:0x3b4f5c,roughness:.2,metalness:.2}),roofM=new THREE.MeshStandardMaterial({color:0xcfc6b6,roughness:1});
