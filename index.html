@@ -691,7 +691,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:T.field,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-2;ground.receiveShadow=true;scene.add(ground);
   prism([[108,22],[928,22],[1035,522],[252,522]],-1.5,1.5,M.pave);
   /* calle real: vía larga con señalización, veredas, bordillos, autos estacionados, postes y árboles de acera */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(10,11);
+  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(33,6);
     const at=(sv,u)=>({x:O.x+d.x*sv+nrm.x*u,z:O.y+d.y*sv+nrm.y*u});const ang=Math.atan2(d.x,d.y);
     const strip=(len,w,u,y,h,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,len),mat);const c=at(300,u);m.position.set(c.x,y,c.z);m.rotation.y=ang;m.receiveShadow=true;root.add(m);return m};
     const roadT=ctex((x,s)=>{noise(x,s,'#45464a',.1,2500);x.fillStyle='#d8d2b8';for(let i=0;i<s;i+=64)x.fillRect(s/2-2,i,4,34);x.fillStyle='#e8e4d8';x.fillRect(4,0,3,s);x.fillRect(s-7,0,3,s)},256,1);roadT.repeat.set(1,24);
@@ -712,7 +712,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   prism([[232,345],[640,345],[640,432],[232,432]],-.3,.6,M.cobble);           // estacionamiento
   prism([[700,350],[980,350],[980,432],[700,432]],-.3,.6,M.cobble);
   prism([[250,432],[990,432],[1000,500],[260,500]],-.3,.6,M.cobble);           // circulación vehicular
-  prism([[130,180],[340,180],[340,470],[255,470]],-.2,1.2,M.lawn);            // jardín oeste
+  prism([[152,180],[340,180],[340,470],[255,470]],-.2,1.2,M.lawn);            // jardín oeste
   prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
   PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
   /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
@@ -724,9 +724,9 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     [[662,150],[700,150],[700,232],[690,232]],                                              // banda diagonal superior
     [[662,250],[700,250],[700,268],[672,268],[662,262]],                                    // banda sobre el agua
     [[640,322],[700,322],[700,345],[640,345]],                                              // flores junto al sendero bajo
-    [[182,170],[322,170],[322,205],[268,250],[182,250]],                                    // jardín oeste superior
+    [[160,170],[322,170],[322,205],[268,250],[178,250]],                                    // jardín oeste superior
     [[250,245],[420,245],[420,350],[250,350]],                                              // jardín oeste central (árbol grande)
-    [[182,290],[258,290],[258,350],[182,350]],                                              // jardín oeste inferior
+    [[190,290],[258,290],[258,350],[190,350]],                                              // jardín oeste inferior
   ];
   BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn);const kerb=prism(b,.6,3.2,M.column);kerb.scale.set(1,1,1)});
   prism([[672,268],[700,268],[700,325],[688,325]],1.2,.6,M.water);                           // espejo de agua
@@ -904,7 +904,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     [[622,215],[622,260],[622,305],[664,240],[664,300],[690,160],[660,335]].forEach(p=>{if(k<60){mm.makeTranslation(p[0],3,p[1]);lamps.setMatrixAt(k++,mm)}})
     lamps.userData.level='pb';root.add(lamps)}
   /* vecindario alineado con el proyecto: retícula ortogonal de calles con veredas; la avenida diagonal del plano la atraviesa */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(10,11);
+  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(33,6);
     const distAve=(x,z)=>Math.abs((x-O.x)*nrm.x+(z-O.y)*nrm.y);           // distancia (en plan) a la avenida diagonal
     const rnd=(i)=>{const t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
     const G=new THREE.Group();G.name='vecindario';G.position.set(-PW/2,0,-PH/2);scene.add(G);
