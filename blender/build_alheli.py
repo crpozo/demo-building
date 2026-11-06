@@ -72,6 +72,8 @@ def polygon(name,pts,z,h,m):
 
 # ---------- mobiliario (locales: x derecha, y "norte" = +y, z arriba) ----------
 def bed(p,w,d):
+    for sx in (-1,1):
+        box('nightstand',7,7,9,sx*(w/2+5),d/2-4,0,M['oak'](),.4,parent=p); box('lamp',3,3,5,sx*(w/2+5),d/2-4,9,M['white'](),.6,parent=p)
     box('bed_base',w,d,4,0,0,0,M['oak'](),.6,parent=p)
     box('mattress',w-2,d-2,5,0,0,4,M['fabric'](),1.2,parent=p,smooth=True)
     box('headboard',w,2.2,16,0,d/2-1.1,0,M['oak'](),.4,parent=p)
@@ -106,8 +108,14 @@ def dining(p,w,d):
         else: chair(p,t,d*.4,0); chair(p,t,-d*.4,math.pi)
 def counter(p,w,d):
     box('body',w,d,13,0,0,0,M['oak'](),.3,parent=p); box('top',w+1,d+1,1.6,0,0,13,M['stone'](),.3,parent=p)
-    if max(w,d)>30:
-        box('sink',min(w,d)*.6,min(w,d)*.6,.8,0,0,14.6,M['dark'](),.2,parent=p)
+    L=max(w,d); along=(w>=d)
+    if L>30:
+        s_=min(w,d)*.6
+        sx,sy=((-L*.25,0) if along else (0,-L*.25)); box('sink',s_,s_,.8,sx,sy,14.6,M['dark'](),.2,parent=p)
+        hx,hy=((L*.2,0) if along else (0,L*.2)); box('hob',s_,s_,.6,hx,hy,14.6,M['dark'](),.2,parent=p)
+        for k in range(4): box('burner',2,2,.4,hx+(k%2-.5)*4,hy+(k//2-.5)*4,15.2,M['white'](),.2,parent=p)
+    if L>38:
+        box('hood',s_+4,min(w,d),3,hx,hy,26,M['white'](),.3,parent=p)
 def toilet(p,*_):
     box('tank',5,2.2,10,0,2.6,0,M['white'](),.5,parent=p,smooth=True); box('bowl',5,6,6,0,-1.5,0,M['white'](),1.5,parent=p,smooth=True)
 def basin(p,*_):
@@ -123,7 +131,11 @@ def ochairs(p,*_):
     for (x,y,rz) in ((-7,-7,0),(7,-7,0),(-7,7,math.pi),(7,7,math.pi)): chair(p,x,y,rz)
     cyl('t',4.5,1.2,0,0,9,M['oak'](),parent=p); cyl('tl',1,9,0,0,0,M['dark'](),parent=p)
 def sofa_item(p,w,d): sofa(p,w,d)
-BUILD=dict(bed=bed,sofa=sofa_item,sala=sala,dining=dining,counter=counter,toilet=toilet,basin=basin,washer=washer,round=round_,osofa=osofa,ochair=ochair,ochairs=ochairs)
+def closet(p,w,d):
+    box('closet',w,d,36,0,0,0,M['oak'](),.4,parent=p); box('door_line',w*.02+.6,d+.4,30,0,0,3,M['dark'](),0,parent=p)
+def fridge(p,*_):
+    box('fridge',9,9,26,0,0,0,M['white'](),.8,parent=p,smooth=True); box('handle',.8,.8,10,-3.5,-4.8,12,M['dark'](),0,parent=p)
+BUILD=dict(closet=closet,fridge=fridge,bed=bed,sofa=sofa_item,sala=sala,dining=dining,counter=counter,toilet=toilet,basin=basin,washer=washer,round=round_,osofa=osofa,ochair=ochair,ochairs=ochairs)
 
 def car(p,i):
     m=mat('car%d'%(i%4),CARCOL[i%4],.35,.6)
@@ -155,8 +167,26 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     if lvl=='tc':
         polygon('floor_salon',[[335,195],[515,195],[515,300],[335,300]],z0+.4,1.2,M['floor']())
     # mobiliario
+    def wall_dist(cx,cy,dx,dy,maxd=40):
+        best=maxd
+        for r in WALLS[lvl]:
+            x0,y0,x1,y1=r
+            if dx: # moving along x
+                if y0-2<=cy<=y1+2:
+                    if dx>0 and x0>=cx: best=min(best,x0-cx)
+                    if dx<0 and x1<=cx: best=min(best,cx-x1)
+            else:
+                if x0-2<=cx<=x1+2:
+                    if dy>0 and y0>=cy: best=min(best,y0-cy)
+                    if dy<0 and y1<=cy: best=min(best,cy-y1)
+        return best
     for it in FURN[lvl]:
         t,cx,cy=it[0],it[1],it[2]; w=it[3] if len(it)>3 and it[3] else 10; d=it[4] if len(it)>4 and it[4] else 10; rot=it[5] if len(it)>5 else 0
+        if t=='bed':
+            # cabecera (plan -y con rot 0) contra el muro más cercano entre las cuatro direcciones
+            cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,90:wall_dist(cx,cy,-1,0)-w/2,270:wall_dist(cx,cy,1,0)-w/2}
+            rot=min(cands,key=cands.get)
+            if rot in (90,270): w,d=d,w
         p=empty('f_'+t,cx,-cy,z0+1.6,-math.radians(rot or 0))
         BUILD[t](p,w,d)
     if lvl=='pb':
