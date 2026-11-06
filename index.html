@@ -847,8 +847,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   {const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1.2,34,8),M.column);m.position.set(353,LV.tc+17,375);m.userData.level='tc';root.add(m);const h=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),lampM);h.position.set(353,LV.tc+35,375);h.userData.level='tc';root.add(h)}
   };
   __outdoor();
-  // columnas bajo los voladizos de planta alta
-  [[300,310],[360,310],[420,310],[300,450],[360,450],[420,450],[700,310],[760,310],[840,310],[700,470],[760,470],[840,470],[920,470],[980,470]].forEach(p=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(3,3,LV.pa,10),M.column);m.position.set(p[0],LV.pa/2,p[1]);m.castShadow=true;root.add(m)});
+  // (sin columnas: el plano no las muestra en el estacionamiento)
   // árboles tipo arce de tallo múltiple (como en los renders), palmas, helechos, flores y luces de sendero
   const leafTex=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
     for(let i=0;i<70;i++){const px=40+Math.random()*176,py=40+Math.random()*176,r=10+Math.random()*16;x.save();x.translate(px,py);x.rotate(Math.random()*6.3);
