@@ -153,7 +153,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     clear()
     z0=0  # cada GLB se posiciona en su nivel desde Three.js
     # muros
-    h=38 if lvl=='tc' else 40
+    h=33 if lvl=='tc' else 40
     V=[];Fc=[]
     for i,r in enumerate(WALLS[lvl]):
         outside=lvl=='pb' and (r[1]>350 or r[0]<200 or r[0]>910 or r[1]<55)

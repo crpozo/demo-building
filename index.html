@@ -791,7 +791,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
   prism(CORES[0],LV.tc,26,M.terra,{core:1});prism(CORES[2],LV.tc,26,M.terra,{core:1});
-  const salonRoof=box(320,128,566,252,LV.tc+36,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
+  const salonRoof=box(320,128,566,251,LV.tc+33.4,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
   glazing([[335,252],[555,252]],'pa',LV.tc-6,{common:'Salón de la terraza comunal'});
   const terr=prism([[335,300],[515,300],[515,445],[335,445]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
   // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
