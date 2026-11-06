@@ -141,7 +141,20 @@ def closet(p,w,d):
     box('closet',w,d,36,0,0,0,M['oak'](),.4,parent=p); box('door_line',w*.02+.6,d+.4,30,0,0,3,M['dark'](),0,parent=p)
 def fridge(p,*_):
     box('fridge',9,9,26,0,0,0,M['white'](),.8,parent=p,smooth=True); box('handle',.8,.8,10,-3.5,-4.8,12,M['dark'](),0,parent=p)
-BUILD=dict(closet=closet,fridge=fridge,bed=bed,sofa=sofa_item,sala=sala,dining=dining,counter=counter,toilet=toilet,basin=basin,washer=washer,round=round_,osofa=osofa,ochair=ochair,ochairs=ochairs)
+def ctable(p,w,d):
+    box('top',w,d,1.4,0,0,7,M['oak'](),.3,parent=p); box('base',w*.6,d*.6,7,0,0,0,M['dark'](),0,parent=p)
+def dtable(p,w,d):
+    box('top',w,d,1.4,0,0,10.5,M['oak'](),.4,parent=p)
+    for sx in (-1,1):
+        for sy in (-1,1): box('leg',1.2,1.2,10.5,sx*(w/2-1.5),sy*(d/2-1.5),0,M['oak'](),0,parent=p)
+    L=max(w,d); n=max(1,int(L//8)); along_y=d>w
+    for i in range(n):
+        t_=(i-(n-1)/2)*(L/n)
+        if along_y: chair(p,-(w/2+3.5),t_,math.pi/2); chair(p,(w/2+3.5),t_,-math.pi/2)
+        else: chair(p,t_,(d/2+3.5),0); chair(p,t_,-(d/2+3.5),math.pi)
+    if along_y: chair(p,0,(d/2+3.5),0); chair(p,0,-(d/2+3.5),math.pi)
+    else: chair(p,-(w/2+3.5),0,math.pi/2); chair(p,(w/2+3.5),0,-math.pi/2)
+BUILD=dict(ctable=ctable,dtable=dtable,closet=closet,fridge=fridge,bed=bed,sofa=sofa_item,sala=sala,dining=dining,counter=counter,toilet=toilet,basin=basin,washer=washer,round=round_,osofa=osofa,ochair=ochair,ochairs=ochairs)
 
 def car(p,i):
     m=mat('car%d'%(i%4),CARCOL[i%4],.35,.6)
@@ -184,10 +197,11 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         return c
     def to_plan(cx,cy,rot,lx,ly):
         rz=-math.radians(rot); bx=cx+lx*math.cos(rz)-ly*math.sin(rz); by=-cy+lx*math.sin(rz)+ly*math.cos(rz); return (bx,-by)
-    FP={'sala':(17,17),'round':(14,14),'ochairs':(12,12),'osofa':(11,5),'ochair':(5,5),'toilet':(2.5,4),'basin':(4,2.5),'washer':(4,4),'fridge':(4.5,4.5)}
+    FP={'sala':(18,19),'ochair':(4.5,4.5),'round':(14,14),'ochairs':(12,12),'osofa':(11,5),'ochair':(5,5),'toilet':(2.5,4),'basin':(4,2.5),'washer':(4,4),'fridge':(4.5,4.5)}
     def half(t,w,d):
         if t in FP: return FP[t]
-        if t=='dining': return (w*.31+7,d*.3+7) if d>w else (w*.31+7,d*.3+7)
+        if t=='dining': return (w*.31+7,d*.3+7)
+        if t=='dtable': return (w/2+6,d/2+6)
         return (w/2,d/2)
     def fits(cx,cy,rot,hw,hd):
         cs=[to_plan(cx,cy,rot,sx*hw,sy*hd) for sx in (-1,1) for sy in (-1,1)]
@@ -213,14 +227,15 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         return best
     for it in FURN[lvl]:
         t,cx,cy=it[0],it[1],it[2]; w=it[3] if len(it)>3 and it[3] else 10; d=it[4] if len(it)>4 and it[4] else 10; rot=it[5] if len(it)>5 else 0
-        if t in ('toilet','basin','washer','fridge'):
+        if t in ('toilet','basin','washer','fridge') and rot<0:
             cands={0:wall_dist(cx,cy,0,-1),180:wall_dist(cx,cy,0,1),270:wall_dist(cx,cy,-1,0),90:wall_dist(cx,cy,1,0)}
             rot=min(cands,key=cands.get)
-        if t=='bed':
+        if t=='bed' and rot<0:
             # cabecera (plan -y con rot 0) contra el muro más cercano entre las cuatro direcciones
             cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,270:wall_dist(cx,cy,-1,0)-w/2,90:wall_dist(cx,cy,1,0)-w/2}
             rot=min(cands,key=cands.get)
             if rot in (90,270): w,d=d,w
+        rot=max(rot,0)
         if lvl in ('pb','pa'):
             hw,hd=half(t,w,d); placed=None
             for ox,oy in OFFS:
@@ -230,6 +245,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
             if t=='bed':
                 NS_OK=tuple(pt_free(*to_plan(cx,cy,rot or 0,sx*(w/2+5),d/2-4)) and pt_free(*to_plan(cx,cy,rot or 0,sx*(w/2+8.5),d/2-4)) for sx in (-1,1))
                 globals()['NS_OK']=NS_OK
+        rot=max(rot,0)
         p=empty('f_'+t,cx,-cy,z0+1.6,-math.radians(rot or 0))
         BUILD[t](p,w,d); globals()['NS_OK']=(True,True)
     if lvl=='pb':
