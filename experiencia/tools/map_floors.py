@@ -2,7 +2,7 @@
 """Edita las zonas clicables de Alhelí y genera floors.js y una vista previa.
 Uso: python tools/map_floors.py
 "videoReverse" es el video invertido que se usa al volver; se crea con tools/make_reverse.py.
-Las coordenadas corresponden a portada.png, de 1024 x 572 píxeles.
+Las coordenadas usan la escala 1024 x 572; portada.jpg mide 2560 x 1430 (la misma proporción).
 Requiere Pillow únicamente para generar la vista previa: pip install Pillow
 """
 import json
@@ -43,7 +43,7 @@ FLOORS = [
         "points": [[447,294],[493,287],[538,289],[639,291],[639,366],[577,370],[512,363],[447,355]],
         "video": "assets/v01_d1_sala_fwd.mp4",
         "videoReverse": "assets/v01_d1_sala_fwd_rev.mp4",
-        "image": "assets/d1_sala.png",
+        "image": "assets/d1_sala.jpg",
         "status": "available"
     },
     {
@@ -93,7 +93,7 @@ def export_preview():
     except ImportError:
         print("Vista previa omitida. Instala Pillow con: pip install Pillow")
         return
-    image = Image.open(ASSETS / "portada.png").convert("RGBA")
+    image = Image.open(ASSETS / "portada.jpg").convert("RGBA").resize((1024, 572), Image.LANCZOS)
     overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
     font = ImageFont.load_default(size=18)

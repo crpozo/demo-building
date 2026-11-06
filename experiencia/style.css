@@ -24,10 +24,10 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--gold-l
 .hotspot.soon:hover .zone, .hotspot.soon:focus-visible .zone { fill: rgba(224, 230, 234, .13); stroke: rgba(246, 241, 232, .72); filter: drop-shadow(0 0 6px rgba(255,255,255,.7)); }
 .shade { position: absolute; z-index: 3; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(6,11,14,.68) 0%, rgba(6,11,14,.14) 40%, transparent 60%, rgba(6,11,14,.22) 100%), linear-gradient(0deg, rgba(6,11,14,.75) 0%, transparent 35%, rgba(6,11,14,.18) 75%, rgba(6,11,14,.42) 100%); }
 .brand { position: absolute; z-index: 4; top: 38px; left: 48px; display: flex; align-items: center; gap: 15px; }
-.brand-mark { width: 48px; height: 54px; border: 1px solid rgba(233,201,148,.75); display: grid; place-items: center; color: var(--gold); font: italic 32px Georgia, serif; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background: rgba(17,22,25,.25); }
+.brand-mark { width: 48px; height: 54px; border: 1px solid rgba(233,201,148,.75); display: grid; place-items: center; color: var(--gold); font: normal 32px Georgia, serif; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background: rgba(17,22,25,.25); }
 .eyebrow { margin: 0 0 9px; color: var(--gold); font-size: 10px; line-height: 1.4; letter-spacing: .24em; text-transform: uppercase; font-weight: 600; }
 h1 { margin: 0; font: 500 29px/1.05 Georgia, 'Times New Roman', serif; letter-spacing: .01em; }
-h1 span, .mini-brand span { font-style: italic; font-weight: normal; }
+h1 span, .mini-brand span { font-style: normal; font-weight: normal; }
 .live-badge { position: absolute; z-index: 4; top: 43px; right: 48px; padding: 10px 15px; border: 1px solid var(--line); border-radius: 30px; font-size: 10px; letter-spacing: .08em; background: rgba(16,22,27,.4); backdrop-filter: blur(12px); }
 .live-badge span { display: inline-block; width: 5px; height: 5px; margin: 0 7px 1px 0; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 .welcome { position: absolute; z-index: 4; left: 4%; top: auto; bottom: 48px; max-width: 560px; transform: none; pointer-events: none; }
@@ -44,7 +44,7 @@ h1 span, .mini-brand span { font-style: italic; font-weight: normal; }
 .apartment-item { width: 100%; display: flex; align-items: center; gap: 13px; color: inherit; text-align: left; border: 0; border-bottom: 1px solid rgba(255,255,255,.10); background: none; padding: 14px 1px; cursor: pointer; transition: background .2s, padding .2s; }
 .apartment-item:last-child { border: 0; }
 .apartment-item:hover, .apartment-item.active { background: rgba(233,201,148,.07); padding-left: 6px; }
-.apartment-number { font: italic 24px Georgia, serif; color: var(--gold); width: 28px; flex: 0 0 28px; }
+.apartment-number { font: normal 22px Georgia, serif; letter-spacing: .02em; color: var(--gold); width: 28px; flex: 0 0 28px; }
 .apartment-copy { min-width: 0; flex: 1; }
 .apartment-name { font: 15px Georgia, serif; display: block; margin-bottom: 5px; }
 .apartment-level { font-size: 9px; letter-spacing: .07em; color: var(--muted); text-transform: uppercase; }

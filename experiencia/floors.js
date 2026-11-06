@@ -106,7 +106,7 @@ window.FLOORS = [
     ],
     "video": "assets/v01_d1_sala_fwd.mp4",
     "videoReverse": "assets/v01_d1_sala_fwd_rev.mp4",
-    "image": "assets/d1_sala.png",
+    "image": "assets/d1_sala.jpg",
     "status": "available"
   },
   {
