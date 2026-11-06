@@ -71,8 +71,10 @@ def polygon(name,pts,z,h,m):
     bpy.ops.object.modifier_apply(modifier='solid'); return o
 
 # ---------- mobiliario (locales: x derecha, y "norte" = +y, z arriba) ----------
+NS_OK=(True,True)
 def bed(p,w,d):
-    for sx in (-1,1):
+    for k,sx in enumerate((-1,1)):
+        if not NS_OK[k]: continue
         box('nightstand',7,7,9,sx*(w/2+5),d/2-4,0,M['oak'](),.4,parent=p); box('lamp',3,3,5,sx*(w/2+5),d/2-4,9,M['white'](),.6,parent=p)
     box('bed_base',w,d,4,0,0,0,M['oak'](),.6,parent=p)
     box('mattress',w-2,d-2,5,0,0,4,M['fabric'](),1.2,parent=p,smooth=True)
@@ -90,9 +92,9 @@ def sofa(p,w,d,m=None,x=0,y=0,rz=0):
 def sala(p,*_):
     # símbolo del plano: sofá de dos cuerpos al oeste mirando al este, dos sillones al norte y dos al sur, mesa de centro cuadrada
     box('rug',40,40,.6,2,0,0,M['rug'](),0,parent=p)
-    sofa(p,22,10,x=-14,y=0,rz=-math.pi/2)
-    sofa(p,9,9,x=-2,y=14,rz=math.pi); sofa(p,9,9,x=9,y=14,rz=math.pi)
-    sofa(p,9,9,x=-2,y=-14,rz=0); sofa(p,9,9,x=9,y=-14,rz=0)
+    sofa(p,22,10,x=-14,y=0,rz=math.pi/2)
+    sofa(p,9,9,x=-2,y=14,rz=0); sofa(p,9,9,x=9,y=14,rz=0)
+    sofa(p,9,9,x=-2,y=-14,rz=math.pi); sofa(p,9,9,x=9,y=-14,rz=math.pi)
     box('coffee',9,9,1.4,3,0,7,M['oak'](),.3,parent=p); box('coffee_base',6,6,7,3,0,0,M['dark'](),0,parent=p)
 def chair(p,x,y,rz):
     e=empty('chair',x,y,0,rz); e.parent=p
@@ -171,6 +173,31 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     if lvl=='tc':
         polygon('floor_salon',[[316,128],[531,128],[531,411],[316,411]],z0+.4,1.2,M['floor']())
     # mobiliario
+    # ---- validación: cada mueble cabe completo en su departamento/terraza y no cruza muros ----
+    LVU={'pb':[1,2,3,4],'pa':[5,6,7,8,9,10]}.get(lvl,[])
+    HOST=[pp for u in LVU for pp in ENC[str(u)]+DATA['TER'].get(str(u),[])]
+    def pin(pt,poly):
+        x,y=pt;c=False;n=len(poly)
+        for i in range(n):
+            a=poly[i];b=poly[(i-1)%n]
+            if (a[1]>y)!=(b[1]>y) and x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]: c=not c
+        return c
+    def to_plan(cx,cy,rot,lx,ly):
+        rz=-math.radians(rot); bx=cx+lx*math.cos(rz)-ly*math.sin(rz); by=-cy+lx*math.sin(rz)+ly*math.cos(rz); return (bx,-by)
+    FP={'sala':(17,17),'round':(14,14),'ochairs':(12,12),'osofa':(11,5),'ochair':(5,5),'toilet':(2.5,4),'basin':(4,2.5),'washer':(4,4),'fridge':(4.5,4.5)}
+    def half(t,w,d):
+        if t in FP: return FP[t]
+        if t=='dining': return (w*.31+7,d*.3+7) if d>w else (w*.31+7,d*.3+7)
+        return (w/2,d/2)
+    def fits(cx,cy,rot,hw,hd):
+        cs=[to_plan(cx,cy,rot,sx*hw,sy*hd) for sx in (-1,1) for sy in (-1,1)]
+        if not any(all(pin(c,pp) for c in cs) for pp in HOST): return False
+        x0=min(c[0] for c in cs)+1.5;x1=max(c[0] for c in cs)-1.5;y0=min(c[1] for c in cs)+1.5;y1=max(c[1] for c in cs)-1.5
+        return not any(r[0]<x1 and r[2]>x0 and r[1]<y1 and r[3]>y0 for r in WALLS[lvl])
+    def pt_free(x,y):
+        return any(pin((x,y),pp) for pp in HOST) and not any(r[0]-1<x<r[2]+1 and r[1]-1<y<r[3]+1 for r in WALLS[lvl])
+    OFFS=sorted([(dx,dy) for dx in range(-16,17,2) for dy in range(-16,17,2)],key=lambda o:o[0]*o[0]+o[1]*o[1])
+    stats={'ok':0,'moved':0,'dropped':0}
     def wall_dist(cx,cy,dx,dy,maxd=40):
         best=maxd
         for r in WALLS[lvl]:
@@ -194,8 +221,17 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
             cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,270:wall_dist(cx,cy,-1,0)-w/2,90:wall_dist(cx,cy,1,0)-w/2}
             rot=min(cands,key=cands.get)
             if rot in (90,270): w,d=d,w
+        if lvl in ('pb','pa'):
+            hw,hd=half(t,w,d); placed=None
+            for ox,oy in OFFS:
+                if fits(cx+ox,cy+oy,rot or 0,hw,hd): placed=(cx+ox,cy+oy); break
+            if not placed: stats['dropped']+=1; continue
+            stats['moved' if placed!=(cx,cy) else 'ok']+=1; cx,cy=placed
+            if t=='bed':
+                NS_OK=tuple(pt_free(*to_plan(cx,cy,rot or 0,sx*(w/2+5),d/2-4)) and pt_free(*to_plan(cx,cy,rot or 0,sx*(w/2+8.5),d/2-4)) for sx in (-1,1))
+                globals()['NS_OK']=NS_OK
         p=empty('f_'+t,cx,-cy,z0+1.6,-math.radians(rot or 0))
-        BUILD[t](p,w,d)
+        BUILD[t](p,w,d); globals()['NS_OK']=(True,True)
     if lvl=='pb':
         for i,c in enumerate(CARS):
             p=empty('car',c[0],-c[1],z0,-math.radians(c[2])); car(p,i)
@@ -210,4 +246,4 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
     out=os.path.join(OUT,'alheli-%s.glb'%lvl)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=out,export_format='GLB',export_apply=True,export_yup=True,use_selection=True,export_draco_mesh_compression_enable=False)
-    print('exportado',out,len(bpy.data.objects),'objetos')
+    print('exportado',out,len(bpy.data.objects),'objetos'); print('muebles',lvl,stats if lvl in ('pb','pa') else '')

@@ -690,7 +690,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   prism([[700,350],[980,350],[980,432],[700,432]],-.3,.6,M.cobble);
   prism([[250,432],[990,432],[1000,500],[260,500]],-.3,.6,M.cobble);           // circulación vehicular
   prism([[108,22],[252,522],[238,578],[60,578],[60,22]],-.3,1.0,M.lawn);      // franja oeste del lote hasta la calle
-  prism([[152,180],[340,180],[340,470],[255,470]],-.2,1.2,M.lawn);            // jardín oeste
   prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
   PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
   /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
@@ -834,9 +833,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     G(treadmill,651,62,0);G(treadmill,666,62,0);G(bike,652,100);G(bike,666,100);G(rack,690,132,90);G(mat,660,138);G(wbench,676,112);G(mirror,642.5,110)}
   /* elementos exteriores leídos del plano: terrazas, jardineras y terraza comunal */
   const OUT={pa:[
-      ['sofa',612,172,28,11,0],['round',648,185],['ochair',690,178],                       // terraza unidad 5
-      ['osofa',262,450,0,0,0],['ochair',300,425],['round',225,425],                       // terraza unidad 6
-      ['ochairs',965,455],['osofa',960,480,0,0,270],                                      // terraza unidad 10
     ],tc:[
       ['pingpong',363,166],['stairs',425,154],                                            // hall: ping-pong y escalera
       ['sofa',430,209,30,9,0],['ochair',409,222,0,0,270],['ochair',451,222,0,0,90],['ctable',430,221,18,7],   // sala del hall
