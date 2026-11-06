@@ -169,7 +169,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         if lvl!=('pb' if int(n)<=4 else 'pa'): continue
         for k,pts in enumerate(polys): polygon('floor_u%s_%d'%(n,k),pts,z0+.4,1.2,M['floor']())
     if lvl=='tc':
-        polygon('floor_salon',[[322,128],[564,128],[564,432],[322,432]],z0+.4,1.2,M['floor']())
+        polygon('floor_salon',[[316,128],[531,128],[531,411],[316,411]],z0+.4,1.2,M['floor']())
     # mobiliario
     def wall_dist(cx,cy,dx,dy,maxd=40):
         best=maxd
@@ -186,6 +186,9 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         return best
     for it in FURN[lvl]:
         t,cx,cy=it[0],it[1],it[2]; w=it[3] if len(it)>3 and it[3] else 10; d=it[4] if len(it)>4 and it[4] else 10; rot=it[5] if len(it)>5 else 0
+        if t in ('toilet','basin','washer','fridge'):
+            cands={0:wall_dist(cx,cy,0,-1),180:wall_dist(cx,cy,0,1),270:wall_dist(cx,cy,-1,0),90:wall_dist(cx,cy,1,0)}
+            rot=min(cands,key=cands.get)
         if t=='bed':
             # cabecera (plan -y con rot 0) contra el muro más cercano entre las cuatro direcciones
             cands={0:wall_dist(cx,cy,0,-1)-d/2,180:wall_dist(cx,cy,0,1)-d/2,270:wall_dist(cx,cy,-1,0)-w/2,90:wall_dist(cx,cy,1,0)-w/2}
