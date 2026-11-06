@@ -632,9 +632,9 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   renderer.outputEncoding=THREE.sRGBEncoding;
   const scene=new THREE.Scene();
   scene.fog=new THREE.Fog(0xcfe0f2,3200,7500);
-  const camP=new THREE.PerspectiveCamera(38,1,10,20000);const camO=new THREE.OrthographicCamera(-1,1,1,-1,-5000,8000);let cam=camO,iso=true;
+  const camP=new THREE.PerspectiveCamera(38,1,40,12000);const camO=new THREE.OrthographicCamera(-1,1,1,-1,-2200,4200);let cam=camO,iso=true;
   const sunL=new THREE.DirectionalLight(0xfff2e0,1.1); sunL.position.set(-700,1000,900); sunL.castShadow=true;
-  sunL.shadow.mapSize.set(2048,2048); Object.assign(sunL.shadow.camera,{left:-900,right:900,top:900,bottom:-900,near:100,far:3500}); sunL.shadow.bias=-0.0008;
+  sunL.shadow.mapSize.set(2048,2048); Object.assign(sunL.shadow.camera,{left:-900,right:900,top:900,bottom:-900,near:100,far:3500}); sunL.shadow.bias=-0.0005;sunL.shadow.normalBias=1.5;
   scene.add(sunL);
   const amb=new THREE.HemisphereLight(0xcfe4ff,0x8a7a5c,.7); scene.add(amb);
   const root=new THREE.Group(); root.position.set(-PW/2,0,-PH/2); scene.add(root);
@@ -657,7 +657,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     terra:new THREE.MeshStandardMaterial({color:0xb5704e,roughness:.95}),
     sand:new THREE.MeshStandardMaterial({color:0xd6b995,roughness:.95}),
     plaster:new THREE.MeshStandardMaterial({color:0xe9dfcd,roughness:.9}),
-    slab:new THREE.MeshStandardMaterial({color:0xd9d0c0,roughness:1}),
+    slab:new THREE.MeshStandardMaterial({color:0xd9d0c0,roughness:1,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1}),
     glass:new THREE.MeshPhysicalMaterial({color:0x5d7f96,metalness:.1,roughness:.15,transparent:true,opacity:.72,emissive:0x000000}),
     wood:new THREE.MeshStandardMaterial({map:T.wood,roughness:.8}),
     lawn:new THREE.MeshStandardMaterial({map:T.lawn,roughness:1}),
@@ -667,7 +667,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     water:new THREE.MeshPhysicalMaterial({color:0x3f8fb0,roughness:.05,metalness:.2,transparent:true,opacity:.9}),
     leaf:[0x5f8a3f,0x6f9a48,0x4f7a3a,0x7fa352].map(c=>new THREE.MeshLambertMaterial({color:c})),
     trunk:new THREE.MeshStandardMaterial({color:0x5a4030,roughness:1}),
-    planter:new THREE.MeshLambertMaterial({color:0x6c8f45}),
+    planter:new THREE.MeshLambertMaterial({color:0x6c8f45,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}),
     deck:new THREE.MeshStandardMaterial({color:0xcbb8a0,roughness:.9}),
     column:new THREE.MeshStandardMaterial({color:0xb8aa94,roughness:.9}),
     floor:new THREE.MeshStandardMaterial({map:ctex((x,s)=>{x.fillStyle='#d9cdb8';x.fillRect(0,0,s,s);for(let i=0;i<s;i+=64){x.strokeStyle='rgba(90,70,50,.18)';x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}for(let i=0;i<900;i++){x.fillStyle=`rgba(120,95,70,${Math.random()*.12})`;x.fillRect(Math.random()*s,Math.random()*s,3,1)}},256,4),roughness:.6}),
@@ -809,7 +809,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
   prism(CORES[0],LV.tc,26,M.terra,{core:1});prism(CORES[2],LV.tc,26,M.terra,{core:1});
   const salonRoof=box(328,158,562,252,LV.tc+40,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
-  glazing([[335,252],[555,252]],'pa',LV.tc,{common:'Salón de la terraza comunal'});
+  glazing([[335,252],[555,252]],'pa',LV.tc-6,{common:'Salón de la terraza comunal'});
   const terr=prism([[335,300],[515,300],[515,445],[335,445]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
   // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
   {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(338,252,548,432,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);

@@ -88,11 +88,12 @@ def sofa(p,w,d,m=None,x=0,y=0,rz=0):
     for i in range(n): box('cushion',(w-7)/n-1,d-5,2.5,-(w-7)/2+(w-7)/n*(i+.5),-1,7,m,1,parent=e,smooth=True)
     return e
 def sala(p,*_):
-    box('rug',48,36,.6,0,-4,0,M['rug'](),0,parent=p)
-    sofa(p,34,11,x=0,y=14)
-    sofa(p,11,11,x=-16,y=-4,rz=-math.pi/2); sofa(p,11,11,x=16,y=-4,rz=math.pi/2)
-    cyl('coffee',6.5,1.5,0,-4,7,M['stone'](),parent=p); cyl('coffee_leg',1.2,7,0,-4,0,M['dark'](),parent=p)
-    box('book',5,4,1,2,-4,8.5,M['oak'](),0,parent=p)
+    # símbolo del plano: sofá de dos cuerpos al oeste mirando al este, dos sillones al norte y dos al sur, mesa de centro cuadrada
+    box('rug',40,40,.6,2,0,0,M['rug'](),0,parent=p)
+    sofa(p,22,10,x=-14,y=0,rz=-math.pi/2)
+    sofa(p,9,9,x=-2,y=14,rz=math.pi); sofa(p,9,9,x=9,y=14,rz=math.pi)
+    sofa(p,9,9,x=-2,y=-14,rz=0); sofa(p,9,9,x=9,y=-14,rz=0)
+    box('coffee',9,9,1.4,3,0,7,M['oak'](),.3,parent=p); box('coffee_base',6,6,7,3,0,0,M['dark'](),0,parent=p)
 def chair(p,x,y,rz):
     e=empty('chair',x,y,0,rz); e.parent=p
     box('seat',5,5,1.2,0,0,7,M['fabric2'](),.4,parent=e); box('back',5,.8,7,0,2.3,8.2,M['oak'](),.2,parent=e)
@@ -106,6 +107,9 @@ def dining(p,w,d):
         t=(i-(n-1)/2)*(max(w,d)*.3)
         if d>w: chair(p,-(w*.31+4),t,math.pi/2); chair(p,(w*.31+4),t,-math.pi/2)
         else: chair(p,t,(d*.3+4),0); chair(p,t,-(d*.3+4),math.pi)
+    if n==3:
+        if d>w: chair(p,0,(d*.3+4),0); chair(p,0,-(d*.3+4),math.pi)
+        else: chair(p,-(w*.31+4),0,math.pi/2); chair(p,(w*.31+4),0,-math.pi/2)
 def counter(p,w,d):
     box('body',w,d,13,0,0,0,M['oak'](),.3,parent=p); box('top',w+1,d+1,1.6,0,0,13,M['stone'](),.3,parent=p)
     L=max(w,d); along=(w>=d)
