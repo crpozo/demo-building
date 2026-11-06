@@ -169,7 +169,7 @@ for lvl in (sys.argv[1:] or ('pb','pa','tc')):
         if lvl!=('pb' if int(n)<=4 else 'pa'): continue
         for k,pts in enumerate(polys): polygon('floor_u%s_%d'%(n,k),pts,z0+.4,1.2,M['floor']())
     if lvl=='tc':
-        polygon('floor_salon',[[330,160],[560,160],[560,432],[330,432]],z0+.4,1.2,M['floor']())
+        polygon('floor_salon',[[322,128],[564,128],[564,432],[322,432]],z0+.4,1.2,M['floor']())
     # mobiliario
     def wall_dist(cx,cy,dx,dy,maxd=40):
         best=maxd

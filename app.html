@@ -786,12 +786,12 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   // núcleos, salón de terraza, cubierta
   CORES.forEach(c=>{prism(c,0,FH-5,M.terra,{core:1});prism(c,LV.pa,FH-5,M.terra,{core:1});});
   prism(CORES[0],LV.tc,26,M.terra,{core:1});prism(CORES[2],LV.tc,26,M.terra,{core:1});
-  const salonRoof=box(328,158,562,252,LV.tc+40,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
+  const salonRoof=box(320,128,566,252,LV.tc+36,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
   glazing([[335,252],[555,252]],'pa',LV.tc-6,{common:'Salón de la terraza comunal'});
   const terr=prism([[335,300],[515,300],[515,445],[335,445]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
   // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
-  {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(338,252,548,432,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);
-    const under=box(339,253,547,431,LV.tc+33.4,.6,M.wood,{common:'Terraza comunal techada'});under.userData.level='tc';
+  {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(334,252,566,434,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);
+    const under=box(336,252,564,432,LV.tc+33.2,.6,M.wood,{common:'Terraza comunal techada'});under.userData.level='tc';
     [[345,425],[460,425],[541,425],[541,340],[345,340]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,34,8),new THREE.MeshStandardMaterial({color:0x2b2b2b,roughness:.6}));c.position.set(p[0],LV.tc+17,p[1]);c.userData.level='tc';c.castShadow=true;root.add(c)});
     [[390,340],[490,340],[390,400],[490,400]].forEach(p=>{const hub=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,3,8),new THREE.MeshStandardMaterial({color:0x222222}));hub.position.set(p[0],LV.tc+31,p[1]);hub.userData.level='tc';root.add(hub);
       for(let k=0;k<6;k++){const bl=new THREE.Mesh(new THREE.BoxGeometry(14,.4,2),new THREE.MeshStandardMaterial({color:0x222222}));bl.position.set(p[0],LV.tc+30,p[1]);bl.rotation.y=k*Math.PI/3;bl.userData.level='tc';root.add(bl)}});}
@@ -925,6 +925,11 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     // manzanas: entre calles consecutivas; dos filas de casas, cada una mirando a su calle
     const allZ=[Z0].concat(ZS,[Z1]),allX=[X0].concat(XS,[X1]);
     for(let a=0;a<allX.length-1;a++)for(let b=0;b<allZ.length-1;b++){const x0=allX[a]+RW/2+SW,x1=allX[a+1]-RW/2-SW,z0=allZ[b]+RW/2+SW,z1=allZ[b+1]-RW/2-SW;if(x1-x0<120||z1-z0<120)continue;
+      const parkCell=x0<1140&&x1>-10&&z0>600&&z0<720; if(parkCell){P(parts.lawn,(x0+x1)/2,.2,(z0+z1)/2,x1-x0,.8,z1-z0);P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,(x0+x1)/2,-.2,z1+SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);
+        P(parts.walk,(x0+x1)/2,.4,(z0+z1)/2,x1-x0-40,.6,14);P(parts.walk,(x0+x1)/2,.4,(z0+z1)/2,14,.6,z1-z0-40);
+        for(let k=0;k<22;k++){yards.push([x0+30+rnd(k*3+x0)*(x1-x0-60),z0+30+rnd(k*7+z0)*(z1-z0-60),950+k])}
+        for(let k=0;k<6;k++){const bx=x0+60+k*(x1-x0-120)/5;P(parts.frame,bx,2,(z0+z1)/2+14,16,2,6);P(parts.frame,bx,5,(z0+z1)/2+17,16,6,1.5)}
+        continue}
       const lotCell=x0<1040&&x1>60&&z0<600&&z1>-20; if(lotCell){P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);continue}
       P(parts.lawn,(x0+x1)/2,.2,(z0+z1)/2,x1-x0,.8,z1-z0);
       // veredas de la manzana (si no la cruza la avenida)
@@ -997,7 +1002,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     document.querySelectorAll('#floor3 .chip').forEach(c=>c.classList.toggle('on',c===b));
     const order=['pb','pa','tc'];const idx=floor==='all'?2:order.indexOf(floor);
     root.children.forEach(o=>{if(o.userData.level)o.visible=order.indexOf(o.userData.level)<=idx});labels.forEach(l=>l.visible=floor==='all'||l.userData.level===floor);
-    Object.values(slabs).forEach(s=>s.visible=gapT>0&&s.visible);if(cut)applyCut()};
+    Object.values(slabs).forEach(s=>s.visible=gapT>0&&s.visible);Object.entries(slabs).forEach(([k,sl])=>sl.material.opacity=(floor==='all'||k===floor)?1:.3);if(cut)applyCut();applyExplodeOpacity()};
   /* abrir paredes: oculta la envolvente y baja los tabiques para ver los interiores */
   let cut=false;
   function applyCut(){root.traverse(o=>{
@@ -1011,8 +1016,14 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     
     const order=['pb','pa','tc'];const idx=floor==='all'?2:order.indexOf(floor);
     Object.entries(slabs).forEach(([k,s])=>s.visible=gapT>0&&order.indexOf(k)<=idx);
-    root.traverse(o=>{if(o.isMesh&&o.material&&!o.userData.pane&&!o.isSprite&&!o.isInstancedMesh&&!o.userData.floor&&!(o.parent&&o.parent.userData.interior)&&o.material!==M.lawn&&o.material!==M.cobble&&o.material!==M.pave){if(gapT){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.35;o.castShadow=false}else{o.material.transparent=o.userData.wasT||false;o.material.opacity=1;o.castShadow=true}}});
-    overlays&&Object.values(overlays).forEach(o=>{o.material.transparent=true});paint()};
+    root.traverse(o=>{if(o.isMesh&&o.material&&!o.userData.pane&&!o.isSprite&&!o.isInstancedMesh&&!o.userData.floor&&!(o.parent&&o.parent.userData.interior)&&o.material!==M.lawn&&o.material!==M.cobble&&o.material!==M.pave){if(gapT){if(!o.userData.mat0){o.userData.mat0=o.material;o.material=o.material.clone();o.material.transparent=true}o.castShadow=false}else if(o.userData.mat0){o.material=o.userData.mat0;delete o.userData.mat0;o.castShadow=true}}});
+    overlays&&Object.values(overlays).forEach(o=>{o.material.transparent=true});applyExplodeOpacity();paint()};
+  function lvlOf(o){let p=o;while(p&&!p.userData.level)p=p.parent;return p&&p.userData.level}
+  const hiddenLids=[];
+  function applyExplodeOpacity(){hiddenLids.splice(0).forEach(o=>o.visible=true);if(!gapT)return;
+    root.traverse(o=>{if(o.isMesh&&o.userData.mat0){const l=lvlOf(o);o.material.opacity=floor==='all'?.55:(l===floor?1:.12);o.material.depthWrite=o.material.opacity>.5;
+      const lid=o.userData.mat0===M.slab||o.userData.mat0===M.planter||o.userData.common==='Terraza comunal techada';
+      if(floor!=='all'&&l===floor&&lid&&o.visible){o.visible=false;hiddenLids.push(o)}}})}
   function explode(){gap+=(gapT-gap)*.08;root.children.forEach(o=>{if(o.userData.level)o.position.y=o.userData.baseY+LIDX[o.userData.level]*gap})}
   /* pantalla completa */
   $('#full3').onclick=()=>{const on=!el.classList.contains('full');el.classList.toggle('full',on);$('#full3').classList.toggle('on',on);
