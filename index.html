@@ -64,6 +64,7 @@ nav.tabs a.on{color:#fff;border-bottom-color:var(--gold2)}
 section.view{display:none;padding-block:28px 56px}
 #v-edificio.view{padding-block:0}
 #v-experiencia.view{padding-block:0}
+#v-showroom.view{padding-block:0}
 .exp-frame{display:block;width:100%;border:0;background:#171b1e;height:calc(100vh - 61px - env(safe-area-inset-top,0px));height:calc(100dvh - 61px - env(safe-area-inset-top,0px))}
 .wrap3{max-width:none;padding:0}
 section.view.on{display:block}
@@ -252,7 +253,7 @@ td .best{color:var(--ok);font-weight:600}
 .sheet .admin label{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sheet .admin input{width:120px;text-align:right;font:inherit;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg)}
 
-body:has(#v-edificio.on) footer,body:has(#v-experiencia.on) footer{display:none}
+body:has(#v-edificio.on) footer,body:has(#v-experiencia.on) footer,body:has(#v-showroom.on) footer{display:none}
 footer{border-top:1px solid var(--line);padding-block:24px;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#efe8dd;padding:10px 18px;border-radius:999px;font-size:.8rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
@@ -284,6 +285,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <a href="#plantas" data-v="plantas">Plantas</a>
       <a href="#edificio" data-v="edificio">Vista 3D</a>
       <a href="#experiencia" data-v="experiencia">Experiencia</a>
+      <a href="#showroom" data-v="showroom">Showroom</a>
       <a href="#departamentos" data-v="departamentos">Departamentos</a>
     </nav>
   </div>
@@ -405,6 +407,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   <iframe class="exp-frame" id="expFrame" data-src="experiencia/index.html" title="Experiencia interactiva: elija un departamento sobre la fachada" allow="autoplay; fullscreen"></iframe>
 </section>
 
+<!-- SHOWROOM: vista aérea desde los planos, recorrido con transiciones, plantas 3D y fichas (carpeta showroom/, se carga al abrir la sección) -->
+<section class="view" id="v-showroom">
+  <iframe class="exp-frame" id="srFrame" data-src="showroom/index.html" title="Showroom de Alhelí: vista aérea, recorrido, plantas y departamentos" allow="autoplay; fullscreen"></iframe>
+</section>
+
 <!-- DEPARTAMENTOS -->
 <section class="view" id="v-departamentos">
   <div class="wrap">
@@ -475,7 +482,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clea
   mB.hidden=wB.hidden=false;[mB,wB].forEach(b=>b.classList.remove('gold','ghost'));(isWin?wB:mB).classList.add('gold');(isWin?mB:wB).classList.add('ghost');
   if(isWin)wB.parentNode.insertBefore(wB,mB);nt.textContent=isWin?'Versión 0.1.0 · Windows 10 y 11 (64 bits). La versión de Mac está firmada y notarizada por Apple.':'Versión 0.1.0 · Mac firmada y notarizada por Apple, se instala con doble clic. También disponible para Windows 10 y 11.'})();
 /* ---- navegación por hash ---- */
-const VIEWS=['proyecto','recorrido','plantas','edificio','experiencia','departamentos'];
+const VIEWS=['proyecto','recorrido','plantas','edificio','experiencia','showroom','departamentos'];
 function route(){
   const h=(location.hash||'#proyecto').slice(1); const v=VIEWS.includes(h)?h:'proyecto';
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
@@ -484,6 +491,9 @@ function route(){
   const ef=document.getElementById('expFrame');
   if(v==='experiencia'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
   else if(ef.getAttribute('src')&&ef.contentWindow)ef.contentWindow.postMessage({type:'alheli:reset'},'*');
+  // Showroom: el iframe se carga recién la primera vez que se abre la sección.
+  const sf=document.getElementById('srFrame');
+  if(v==='showroom'&&!sf.getAttribute('src'))sf.src=sf.dataset.src;
   window.scrollTo({top:0});
 }
 addEventListener('hashchange',route);
@@ -558,7 +568,7 @@ function openUnit(n){
     <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
     <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
     <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
-    <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a></div>
+    <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a><a class="btn ghost" href="#showroom" data-sr="${n}">Ver en showroom</a></div>
   </div>`;
   $('#modal').classList.add('on'); $('#sheet .close').focus();
 }
@@ -569,6 +579,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 /* ---- delegación global ---- */
 document.addEventListener('click',e=>{
   const o=e.target.closest('[data-open]'); if(o){openUnit(+o.dataset.open);return}
+  const sr=e.target.closest('[data-sr]'); if(sr){closeModal();$('#srFrame').src=$('#srFrame').dataset.src+'?depto='+sr.dataset.sr;return}
   const s3=e.target.closest('[data-sel3]'); if(s3){closeModal();if(window.select3D)select3D(+s3.dataset.sel3);return}
   const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
 });
