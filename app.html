@@ -458,19 +458,6 @@ a.btn{text-decoration:none;display:inline-block}
       </div>
       <img src="img/r-jardines.jpg" alt="Acceso secundario y jardines de Alhelí">
     </div>
-    <section class="dl" id="descargar">
-      <div class="dl-txt">
-        <div class="eyebrow">App de escritorio</div>
-        <h2>Alhelí Showroom para Mac y Windows</h2>
-        <p>La misma experiencia con el modo de calidad alta activado: iluminación ambiental, sombras en 4K y más resolución, usando la tarjeta gráfica del equipo. Ideal para la pantalla de la sala de ventas.</p>
-        <div class="dl-btns">
-          <a class="btn gold" id="dlMac" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-mac-universal.dmg"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.7c0-2.5 2-3.7 2.1-3.8-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.8-1.7 0-3.2 1-4.1 2.5-1.8 3.1-.5 7.6 1.3 10.1.9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.2 3.1-2.5.9-1.4 1.3-2.7 1.4-2.8-.1 0-2.9-1.1-2.9-4.1zM14 5.3c.7-.9 1.2-2 1-3.3-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z"/></svg> Descargar para Mac</a>
-          <a class="btn gold" id="dlWin" href="https://github.com/crpozo/demo-building/releases/latest/download/Alheli-Showroom-0.1.0-win-x64.exe" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5 11 4.4v7.2H3zm0 13 8 1.1v-7.1H3zm9 1.2L22 21v-8.4h-10zm0-16.4V11.6h10V2z"/></svg> Descargar para Windows</a>
-        </div>
-        <p class="muted dl-note" id="dlNote">Versión 0.1.0 · firmada y notarizada por Apple: se instala con doble clic.</p>
-      </div>
-      <img class="dl-img" src="img/r-patio.jpg" alt="Patio central de Alhelí">
-    </section>
   </div>
 </section>
 
@@ -634,10 +621,6 @@ const m2=v=>v.toFixed(2).replace('.',',')+' m²';
 const $=s=>document.querySelector(s);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800)}
 
-/* ---- descarga según sistema ---- */
-(function(){const isWin=/Windows/i.test(navigator.userAgent);const mB=document.getElementById('dlMac'),wB=document.getElementById('dlWin'),nt=document.getElementById('dlNote');
-  mB.hidden=wB.hidden=false;[mB,wB].forEach(b=>b.classList.remove('gold','ghost'));(isWin?wB:mB).classList.add('gold');(isWin?mB:wB).classList.add('ghost');
-  if(isWin)wB.parentNode.insertBefore(wB,mB);nt.textContent=isWin?'Versión 0.1.0 · Windows 10 y 11 (64 bits). La versión de Mac está firmada y notarizada por Apple.':'Versión 0.1.0 · Mac firmada y notarizada por Apple, se instala con doble clic. También disponible para Windows 10 y 11.'})();
 /* ---- avance de obra (ejemplo: reemplazar con el avance real; ejemplo:false oculta el aviso) ---- */
 const OBRA={ejemplo:true,actualizado:'noviembre de 2026',fases:[
   {t:'Excavación y cimentación',p:100},{t:'Estructura',p:100},{t:'Mampostería',p:80},{t:'Instalaciones',p:45},{t:'Acabados',p:10}]};
