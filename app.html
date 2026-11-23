@@ -58,7 +58,7 @@ nav.tabs a.on{color:#fff;border-bottom-color:var(--gold2)}
 /* sections */
 section.view{display:none;padding-block:28px 56px}
 #v-edificio.view{padding-block:0}
-#v-experiencia.view{padding-block:0}
+#v-recorrido.view{padding-block:0}
 .exp-frame{display:block;width:100%;border:0;background:#171b1e;height:calc(100vh - 61px - env(safe-area-inset-top,0px));height:calc(100dvh - 61px - env(safe-area-inset-top,0px))}
 .wrap3{max-width:none;padding:0}
 section.view.on{display:block}
@@ -247,7 +247,7 @@ td .best{color:var(--ok);font-weight:600}
 .sheet .admin label{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .sheet .admin input{width:120px;text-align:right;font:inherit;padding:6px 8px;border-radius:4px;border:1px solid var(--line);background:var(--bg2);color:var(--fg)}
 
-body:has(#v-edificio.on) footer,body:has(#v-experiencia.on) footer{display:none}
+body:has(#v-edificio.on) footer,body:has(#v-recorrido.on) footer{display:none}
 footer{border-top:1px solid var(--line);padding-block:24px;font-size:.72rem;color:var(--muted);letter-spacing:.08em}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--plum);color:#efe8dd;padding:10px 18px;border-radius:999px;font-size:.8rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
@@ -265,38 +265,199 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   .hero .cap p{display:none}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+
+/* ===== navegación: barra mínima + menú a pantalla completa ===== */
+.top .wrap{flex-wrap:nowrap;max-width:none;padding-inline:clamp(16px,4vw,56px)}
+.crumb{display:flex;align-items:center;gap:10px;min-width:0;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#cfc3d1;padding-left:18px;border-left:1px solid rgba(255,255,255,.18)}
+.crumb a{color:inherit;text-decoration:none;white-space:nowrap}
+.crumb a:hover{color:#fff}
+.crumb b{color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb b::before{content:"/";margin-right:10px;color:var(--gold2)}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;border:1px solid #fff;background:#fff;color:#1e1420;padding:16px 30px;font:500 1rem var(--body);text-decoration:none;white-space:nowrap}
+.pill:hover{background:#f1e9dc;border-color:#f1e9dc}
+.pill.line{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.55);backdrop-filter:blur(6px)}
+.pill.line:hover{background:rgba(255,255,255,.24)}
+.pill.sm{padding:9px 18px;font-size:.76rem;letter-spacing:.04em}
+.menu-btn{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 16px;border-radius:999px;border:0;background:rgba(255,255,255,.16);color:#fff;font:500 .74rem var(--body);letter-spacing:.14em;text-transform:uppercase;backdrop-filter:blur(6px)}
+.menu-btn:hover{background:rgba(255,255,255,.28)}
+.menu-btn i{display:grid;place-content:center;gap:4px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22)}
+.menu-btn i span{display:block;height:1.6px;width:15px;background:#fff;border-radius:2px}
+.menu-btn i span:nth-child(2){width:9px}
+body.home .top{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);background:transparent;border-bottom-color:transparent;transition:background .3s,border-color .3s}
+body.home .top.solid{background:var(--plum);border-bottom-color:rgba(212,178,122,.25)}
+body.home::before{background:transparent}
+.menu{position:fixed;inset:0;z-index:40;background:#221626;color:#efe8dd;overflow:auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) clamp(18px,5vw,72px) 28px}
+.menu-top{display:flex;align-items:center;justify-content:space-between;min-height:48px}
+.menu-top .eyebrow{color:var(--gold2)}
+.menu-x{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1.5rem;line-height:1}
+.menu-x:hover{background:rgba(255,255,255,.28)}
+.menu-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,4vw,60px);margin-block:auto;padding-block:28px}
+.menu-cols h4{margin:0 0 6px;font:600 .68rem var(--body);letter-spacing:.22em;text-transform:uppercase;color:#d4b27a;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.14)}
+.menu-cols a{display:grid;grid-template-columns:34px 1fr;gap:6px;align-items:baseline;padding:14px 0;color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08)}
+.menu-cols a i{font:500 .72rem var(--body);font-style:normal;color:#b4a7b6;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.menu-cols a b{display:block;font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,2.4vw,2.1rem);line-height:1.1}
+.menu-cols a small{display:block;font-size:.82rem;color:#b4a7b6;margin-top:3px}
+.menu-cols a:hover b,.menu-cols a.on b{color:#d4b27a}
+.menu-cols a.on i::after{content:" ●";color:#d4b27a}
+.menu-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;font-size:.74rem;color:#b4a7b6;letter-spacing:.06em}
+
+/* ===== portada a pantalla completa ===== */
+#v-inicio.view{padding-top:0}
+.lux{position:relative;height:100vh;height:100dvh;min-height:540px;color:#fff;overflow:hidden;background:#1e1420}
+.lux>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 42%;transform:scale(1.05)}
+.lux::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,12,22,.6) 0%,rgba(20,12,22,.12) 26%,rgba(20,12,22,.12) 50%,rgba(20,12,22,.8) 100%),linear-gradient(270deg,rgba(20,12,22,.55),rgba(20,12,22,0) 60%)}
+.lux .in{position:relative;z-index:1;height:100%;display:grid;grid-template-rows:1fr auto;padding:96px clamp(20px,5vw,76px) clamp(28px,6vh,60px)}
+.lux h1{justify-self:end;align-self:center;max-width:11.5ch;font-size:clamp(2.7rem,6.4vw,5.8rem);font-weight:400;letter-spacing:-.01em;text-transform:none;line-height:1.02;text-shadow:0 2px 24px rgba(0,0,0,.45)}
+.lux-b{display:flex;flex-direction:column;gap:18px;align-items:flex-start;max-width:560px}
+.lux-b .eyebrow{color:#e6cfa3}
+.lux-b p{font-size:clamp(1.05rem,1.9vw,1.5rem);font-weight:300;line-height:1.35;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.lux-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hub-head{margin-top:54px}
+.hub-head p{max-width:60ch}
+.hub{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tile{display:flex;flex-direction:column;gap:4px;min-height:168px;padding:22px;border-radius:18px;background:var(--bg2);border:1px solid var(--line);color:inherit;text-decoration:none;transition:border-color .2s,transform .2s,box-shadow .2s}
+.tile:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow)}
+.tile .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--fg)}
+a.btn{text-decoration:none;display:inline-block}
+.tile .ic svg,.cta-bar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tile b{font-family:var(--display);font-weight:500;font-size:1.55rem;line-height:1.1;margin-top:14px}
+.tile small{color:var(--muted);font-size:.82rem}
+.tile em{font-style:normal;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-top:auto;padding-top:10px;font-variant-numeric:tabular-nums}
+.cta-bar{display:flex;width:100%;align-items:center;justify-content:center;gap:12px;margin-top:14px;padding:20px;border-radius:999px;border:0;background:var(--plum);color:#efe8dd;font:500 1.02rem var(--body)}
+.cta-bar:hover{background:var(--plum2)}
+.intro>img{width:100%;height:100%;min-height:260px;object-fit:cover;border-radius:18px}
+.next{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:34px;padding:18px 22px;border:1px solid var(--line);border-radius:18px;background:var(--bg2)}
+.next span{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.next b{display:block;font-family:var(--display);font-weight:500;font-size:1.4rem;letter-spacing:0;text-transform:none;color:var(--fg)}
+
+/* ===== avance de obra y métricas ===== */
+.note{font-size:.8rem;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--bg2);border-radius:0 6px 6px 0;margin-bottom:22px;max-width:80ch}
+.panel{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}
+.panel h3{margin-bottom:14px}
+.obra{display:grid;grid-template-columns:minmax(260px,1fr) 1.7fr;gap:16px;align-items:start}
+.ring{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.ring svg{width:200px;height:200px}
+.ring .trk{fill:none;stroke:var(--line);stroke-width:12}
+.ring .val{fill:none;stroke:var(--gold);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .8s}
+.ring text{font-family:var(--display);fill:var(--fg);font-variant-numeric:lining-nums}
+.fases{display:grid;gap:10px}
+.fase{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.fase .r{display:flex;justify-content:space-between;gap:10px;font-size:.92rem;font-weight:500}
+.fase .r span{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.fase .r span.done{color:var(--ok);font-weight:600}
+.meter{height:6px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:4px;background:var(--gold)}
+.meter i.done{background:var(--ok)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi b{font-family:var(--display);font-weight:500;font-size:2.5rem;line-height:1;font-variant-numeric:lining-nums tabular-nums}
+.kpi small{font-size:.78rem;color:var(--muted)}
+.mgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+.mgrid .col{display:grid;gap:16px;min-width:0}
+.ibar{display:grid;grid-template-columns:84px 1fr 28px;gap:12px;align-items:center;padding:7px 0;font-size:.86rem;border:0;background:none;color:inherit;width:100%;text-align:left;font-family:inherit}
+.ibar:hover .meter i{background:var(--fg)}
+.ibar .meter{margin:0;height:8px}
+.ibar b{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ibar small{grid-column:2/4;color:var(--muted);font-size:.72rem;margin-top:-6px}
+.ibar.zero{color:var(--muted)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:.88rem}
+.steps li i{font-style:normal;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--muted);display:grid;place-items:center;font-size:.7rem;color:transparent;margin-top:1px}
+.steps li.ok i{background:var(--ok);border-color:var(--ok);color:var(--bg2)}
+.steps li small{display:block;color:var(--muted);font-size:.76rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.86rem}
+.tbl th,.tbl td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tbl th{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sheet.solo{grid-template-columns:1fr;width:min(580px,100%)}
+.sheet.solo .bd{display:flex;flex-direction:column;gap:14px}
+.sheet.solo label{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:grid;gap:6px}
+.sheet.solo select{width:100%}
+.msg{font-size:.86rem;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--fg);white-space:pre-wrap}
+
+/* ===== 3D: elegir un departamento para visitarlo ===== */
+.visit3{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 24px);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;border-radius:999px;background:rgba(43,29,46,.72);backdrop-filter:blur(8px);color:#fff;z-index:2}
+.visit3>span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.visit3 div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.visit3 button{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;font:600 .82rem var(--body);font-variant-numeric:tabular-nums}
+.visit3 button:hover{background:rgba(255,255,255,.3)}
+.visit3 button.on{background:var(--gold);border-color:var(--gold);color:#1e1420}
+.visit3 button.st-vendido{opacity:.45;text-decoration:line-through}
+.visit3 button.st-reservado{border-style:dashed}
+
+@media (max-width:900px){
+  .hub{grid-template-columns:repeat(2,1fr)}
+  .menu-cols{grid-template-columns:1fr;margin-block:10px}
+  .obra,.mgrid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .lux .in{grid-template-rows:1fr auto auto;gap:18px}
+  .lux h1{justify-self:start;align-self:end;max-width:13ch}
+}
+@media (max-width:700px){
+  .top-r .pill{display:none}
+  .menu-btn{padding-left:6px}.menu-btn>span{display:none}
+  body:not(.home) .brand span{display:none}
+  .crumb{padding-left:12px}
+  .tile{min-height:150px;padding:16px;border-radius:14px}.tile b{font-size:1.3rem}
+  .pill{padding:14px 22px;font-size:.92rem}
+  .visit3>span{display:none}.visit3{padding-left:10px;z-index:3}
+  .kpi b{font-size:2rem}
+}
 </style>
 
-<header class="top">
+<header class="top" id="top">
   <div class="wrap">
-    <a class="brand" href="#proyecto">
+    <a class="brand" href="#inicio" aria-label="Alhelí, ir al inicio">
       <svg viewBox="0 0 26 34" aria-hidden="true"><path d="M13 8v26M13 16c-5 0-7-2-7-5M13 22c4 0 6-1 7-4" stroke="#d4b27a" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="4" r="2.2" fill="#d4b27a"/><circle cx="6" cy="9" r="1.8" fill="#d4b27a"/><circle cx="20" cy="12" r="1.8" fill="#d4b27a"/><circle cx="8" cy="19" r="1.5" fill="#d4b27a"/></svg>
       <span><b>Alhelí</b><small>Residencias boutique</small></span>
     </a>
-    <nav class="tabs" id="tabs">
-      <a href="#proyecto" data-v="proyecto">Proyecto</a>
-      <a href="#recorrido" data-v="recorrido">Recorrido</a>
-      <a href="#plantas" data-v="plantas">Plantas</a>
-      <a href="#edificio" data-v="edificio">Vista 3D</a>
-      <a href="#experiencia" data-v="experiencia">Experiencia</a>
-      <a href="#departamentos" data-v="departamentos">Departamentos</a>
-    </nav>
+    <div class="crumb" id="crumb" hidden><a href="#inicio">‹ Inicio</a><b id="here"></b></div>
+    <div class="top-r">
+      <button class="pill sm" data-asesor>Hablar con un asesor</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><span>Menú</span><i aria-hidden="true"><span></span><span></span><span></span></i></button>
+    </div>
   </div>
 </header>
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú del showroom" hidden>
+  <div class="menu-top"><div class="eyebrow">Alhelí · Showroom virtual</div><button class="menu-x" id="menuX" aria-label="Cerrar menú">×</button></div>
+  <nav class="menu-cols" id="menuCols"></nav>
+  <div class="menu-foot"><span>Diseño JGStudio · Construcción Conarmo</span><button class="pill sm" data-asesor>Hablar con un asesor</button></div>
+</div>
 
 <main>
-<!-- PROYECTO -->
-<section class="view" id="v-proyecto">
-  <div class="wrap">
-    <div class="hero">
-      <img src="img/r-hero.jpg" alt="Acceso principal de Alhelí al atardecer, acuarela">
-      <div class="cap">
-        <div class="eyebrow">Residencias boutique</div>
-        <h1>Alhelí</h1>
-        <p>Donde una historia vuelve a florecer. Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
+<!-- INICIO: portada + hub del showroom -->
+<section class="view" id="v-inicio">
+  <div class="lux">
+    <img src="img/r-fachada.jpg" alt="Fachada de Alhelí al atardecer">
+    <div class="in">
+      <h1>Donde una historia vuelve a florecer</h1>
+      <div class="lux-b">
+        <div class="eyebrow">Showroom virtual · <span id="heroDisp"></span></div>
+        <p>Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
+        <div class="lux-cta"><a class="pill" href="#departamentos">Explorar departamentos</a><a class="pill line" href="#edificio">Ver el edificio en 3D</a></div>
       </div>
     </div>
+  </div>
+  <div class="wrap">
+    <div class="sec-head hub-head"><div class="eyebrow">Showroom virtual</div><h2>Todo en una sola experiencia</h2><p class="muted">Elija su departamento, recórralo por dentro, ubíquelo en el edificio y siga el avance de la obra antes de hablar con un asesor.</p></div>
+    <div class="hub" id="hub"></div>
+    <button class="cta-bar" data-asesor><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hablar con un asesor</button>
     <p class="specs"><span><b>10</b>departamentos</span><span><b>2</b>plantas y terraza</span><span><b>1 · 2 · 3</b>dormitorios</span><span><b>71–164</b>m² cubiertos</span><span><b id="factDisp">10</b>disponibles</span></p>
+    <div class="intro">
+      <div class="txt">
+        <div class="eyebrow">El proyecto</div>
+        <h2>Una forma distinta de entender la transformación</h2>
+        <p>Alhelí nace de una forma distinta de entender la transformación. No se trata de borrar lo que existe para comenzar de cero, sino de reconocer el valor de un lugar, reinterpretarlo y hacerlo evolucionar.</p>
+        <p>El nombre nace del alhelí, una flor reconocida por su aroma y por la intensidad y diversidad de sus colores. Una especie capaz de aparecer entre muros y jardines y transformar la percepción de un lugar cuando florece.</p>
+        <div class="credits">
+          <div>Diseño<b>JGStudio</b></div>
+          <div>Construcción<b>Conarmo</b></div>
+          <div>Web<b>alheliresidencias.com</b></div>
+        </div>
+      </div>
+      <img src="img/r-jardines.jpg" alt="Acceso secundario y jardines de Alhelí">
+    </div>
     <section class="dl" id="descargar">
       <div class="dl-txt">
         <div class="eyebrow">App de escritorio</div>
@@ -310,31 +471,13 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       </div>
       <img class="dl-img" src="img/r-patio.jpg" alt="Patio central de Alhelí">
     </section>
-    <div class="intro">
-      <div class="txt">
-        <div class="eyebrow">El proyecto</div>
-        <h2>Una forma distinta de entender la transformación</h2>
-        <p>Alhelí nace de una forma distinta de entender la transformación. No se trata de borrar lo que existe para comenzar de cero, sino de reconocer el valor de un lugar, reinterpretarlo y hacerlo evolucionar.</p>
-        <p>El nombre nace del alhelí, una flor reconocida por su aroma y por la intensidad y diversidad de sus colores. Una especie capaz de aparecer entre muros y jardines y transformar la percepción de un lugar cuando florece.</p>
-        <div class="credits">
-          <div>Diseño<b>JGStudio</b></div>
-          <div>Construcción<b>Conarmo</b></div>
-          <div>Web<b>alheliresidencias.com</b></div>
-        </div>
-      </div>
-      <div class="quick">
-        <a href="#recorrido"><img src="img/r-patio.jpg" alt=""><span><b>Recorrido visual</b><span>Fachada, accesos, patio central e interiores</span></span><i>›</i></a>
-        <a href="#plantas"><img src="img/plan-pb.jpg" alt=""><span><b>Plantas interactivas</b><span>Toque un departamento sobre el plano</span></span><i>›</i></a>
-        <a href="#departamentos"><img src="img/u9.jpg" alt=""><span><b>Departamentos</b><span>Filtre por dormitorios, planta y disponibilidad</span></span><i>›</i></a>
-      </div>
-    </div>
   </div>
 </section>
 
-<!-- RECORRIDO -->
-<section class="view" id="v-recorrido">
+<!-- GALERÍA -->
+<section class="view" id="v-galeria">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Recorrido</div><h2>Del acceso a la terraza</h2></div>
+    <div class="sec-head"><div class="eyebrow">Galería</div><h2>Del acceso a la terraza</h2></div>
     <div class="tour">
       <div class="stage">
         <img id="stageImg" src="img/r-fachada.jpg" alt="">
@@ -343,13 +486,14 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       </div>
       <div class="thumbs" id="thumbs"></div>
     </div>
+    <div class="next"><span>Siguiente paso<b>Elija su departamento</b></span><a class="btn gold" href="#departamentos">Ver departamentos</a></div>
   </div>
 </section>
 
 <!-- PLANTAS -->
-<section class="view" id="v-plantas">
+<section class="view" id="v-planos">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Plantas</div><h2>Ubique cada departamento en el proyecto</h2></div>
+    <div class="sec-head"><div class="eyebrow">Planos</div><h2>Ubique cada departamento en el proyecto</h2></div>
     <div class="plan-tabs" id="planTabs">
       <button class="chip on" data-plan="pb">Planta baja</button>
       <button class="chip" data-plan="pa">Planta alta</button>
@@ -362,6 +506,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       </div>
       <aside class="side" id="planSide"><p class="empty">Toque un número sobre el plano para ver el departamento.</p></aside>
     </div>
+    <div class="next"><span>Siguiente paso<b>Vea el edificio completo y su entorno</b></span><a class="btn gold" href="#edificio">Abrir el edificio 3D</a></div>
   </div>
 </section>
 
@@ -387,6 +532,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
         </div>
 
         <div class="tip3" id="tip3"></div>
+        <div class="visit3"><span>Visitar departamento</span><div id="visitChips"></div></div>
       </div>
       <aside class="side" id="side3" hidden><p class="empty">Toque un departamento o su número para ver la ficha. Use “Mover” para desplazarse por la propiedad, las flechas del teclado o Shift + scroll. Active “Abrir paredes” para ver los interiores y “Disponibilidad” para colorear las unidades por estado.</p>
         <div class="legend"><span><i style="background:#6a4f74"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
@@ -395,8 +541,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
   </div>
 </section>
 
-<!-- EXPERIENCIA: selector interactivo sobre la fachada (carpeta experiencia/, se carga al abrir la sección) -->
-<section class="view" id="v-experiencia">
+<!-- RECORRIDO INTERIOR: selector interactivo sobre la fachada (carpeta experiencia/, se carga al abrir la sección) -->
+<section class="view" id="v-recorrido">
   <iframe class="exp-frame" id="expFrame" data-src="experiencia/index.html" title="Experiencia interactiva: elija un departamento sobre la fachada" allow="autoplay; fullscreen"></iframe>
 </section>
 
@@ -419,6 +565,29 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
       <button class="chip" data-f="disp" data-val="1">Solo disponibles</button>
     </div>
     <div class="units" id="units"></div>
+    <div class="next"><span>Siguiente paso<b>Visite su departamento en el edificio</b></span><a class="btn gold" href="#edificio">Abrir el edificio 3D</a></div>
+  </div>
+</section>
+
+<!-- AVANCE DE OBRA -->
+<section class="view" id="v-avance">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Avance de obra</div><h2>En qué etapa está la construcción</h2></div>
+    <p class="note" id="obraNote" hidden>Datos de ejemplo para la demo. Edite <code>OBRA</code> en el código para publicar el avance real de cada mes.</p>
+    <div class="obra">
+      <div class="panel ring" id="obraRing"></div>
+      <div class="fases" id="obraFases"></div>
+    </div>
+    <div class="next"><span>Siguiente paso<b>Coordine una visita con un asesor</b></span><button class="btn gold" data-asesor>Hablar con un asesor</button></div>
+  </div>
+</section>
+
+<!-- MÉTRICAS (equipo comercial) -->
+<section class="view" id="v-metricas">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Equipo comercial</div><h2>Qué recorrió el visitante antes de la reunión</h2></div>
+    <p class="note">Mediciones reales de este dispositivo, guardadas en el navegador. En producción, este mismo tablero reúne a todos los visitantes del showroom.</p>
+    <div id="metricas"></div>
   </div>
 </section>
 
@@ -469,17 +638,129 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clea
 (function(){const isWin=/Windows/i.test(navigator.userAgent);const mB=document.getElementById('dlMac'),wB=document.getElementById('dlWin'),nt=document.getElementById('dlNote');
   mB.hidden=wB.hidden=false;[mB,wB].forEach(b=>b.classList.remove('gold','ghost'));(isWin?wB:mB).classList.add('gold');(isWin?mB:wB).classList.add('ghost');
   if(isWin)wB.parentNode.insertBefore(wB,mB);nt.textContent=isWin?'Versión 0.1.0 · Windows 10 y 11 (64 bits). La versión de Mac está firmada y notarizada por Apple.':'Versión 0.1.0 · Mac firmada y notarizada por Apple, se instala con doble clic. También disponible para Windows 10 y 11.'})();
+/* ---- avance de obra (ejemplo: reemplazar con el avance real; ejemplo:false oculta el aviso) ---- */
+const OBRA={ejemplo:true,actualizado:'noviembre de 2026',fases:[
+  {t:'Excavación y cimentación',p:100},{t:'Estructura',p:100},{t:'Mampostería',p:80},{t:'Instalaciones',p:45},{t:'Acabados',p:10}]};
+const obraTotal=()=>Math.round(OBRA.fases.reduce((s,f)=>s+f.p,0)/OBRA.fases.length);
+/* ---- contacto del asesor: WhatsApp con código de país, solo dígitos (vacío = el visitante elige el contacto) ---- */
+const CONTACTO={whatsapp:''};
+/* ---- secciones: una sola lista alimenta el menú, el hub de inicio y el título de la barra ---- */
+const IC={
+  departamentos:'<path d="M3 21h18M5 21V6l7-3v18M12 9h7v12M8.5 8.5h.01M8.5 12.5h.01M8.5 16.5h.01M15.5 13h.01M15.5 17h.01"/>',
+  recorrido:'<circle cx="12" cy="12" r="2.6"/><path d="M12.5 16.5C7.3 16.4 3 14.4 3 12c0-2.5 4-4.5 9-4.5s9 2 9 4.5c0 1.5-1.5 2.8-3.800 3.600M10.200 14l2.300 2.500-2.600 2.300"/>',
+  edificio:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.500M12 12v9M12 12L4 7.500"/>',
+  avance:'<path d="M4 20h16M7 20v-5M12 20V8M17 20v-9"/>',
+  planos:'<path d="M12 4l9 5-9 5-9-5zM3 14.500l9 5 9-5"/>',
+  galeria:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.600"/><path d="M4 18l5-5 4 4 3-3 4 4"/>'};
+const SECCIONES=[
+  {id:'inicio',t:'Inicio',d:'Portada y accesos del showroom',g:0},
+  {id:'galeria',t:'Galería',d:'Renders de fachada, patio e interiores',g:0,hub:1},
+  {id:'avance',t:'Avance de obra',d:'En qué etapa está la construcción',g:0,hub:1},
+  {id:'departamentos',t:'Departamentos',d:'Disponibilidad, áreas y fichas',g:1,hub:1},
+  {id:'planos',t:'Planos',d:'Ubique cada unidad en su planta',g:1,hub:1},
+  {id:'edificio',t:'Edificio 3D',d:'Explore el edificio y visite un departamento',g:1,hub:1},
+  {id:'recorrido',t:'Recorrido interior',d:'Entre a un departamento desde la fachada',g:1,hub:1},
+  {id:'metricas',t:'Métricas',d:'Qué recorrió el visitante',g:2}];
+const GRUPOS=['Conozca el proyecto','Elija su departamento','Equipo comercial'];
+const HUB_ORDEN=['departamentos','recorrido','edificio','avance','planos','galeria'];
+const nDisp=()=>UNITS.filter(u=>status(u.n)==='disponible').length;
+const hubDato=id=>({departamentos:nDisp()+' disponibles',recorrido:'Sala · Terraza',edificio:'Entorno · Asoleamiento',avance:obraTotal()+'% · '+OBRA.actualizado,planos:'Baja · Alta · Terraza',galeria:TOUR.length+' renders'})[id];
+
+/* ---- recorrido del visitante: se guarda en este dispositivo y alimenta el resumen para el asesor y las métricas ---- */
+const J=(()=>{const K='alheli.visita.v1';const nuevo=()=>({inicio:Date.now(),seg:0,vistas:{},deptos:{},recorridos:{},fav:null,contacto:0});let d;
+  try{d=JSON.parse(localStorage.getItem(K))}catch(e){} if(!d||!d.vistas)d=nuevo();
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify(d))}catch(e){}};
+  setInterval(()=>{if(!document.hidden){d.seg+=5;save()}},5000);
+  return{get d(){return d},save,
+    view(v){d.vistas[v]=(d.vistas[v]||0)+1;save()},
+    unit(n,how){const u=d.deptos[n]=d.deptos[n]||{ficha:0,plano:0,d3:0};u[how]=(u[how]||0)+1;save()},
+    reco(name){d.recorridos[name]=(d.recorridos[name]||0)+1;save()},
+    count(n){const u=d.deptos[n];return u?(u.ficha||0)+(u.plano||0)+(u.d3||0):0},
+    top(){if(d.fav)return d.fav;let b=null,m=0;UNITS.forEach(u=>{const c=this.count(u.n);if(c>m){m=c;b=u.n}});return b},
+    reset(){d=nuevo();save()}}})();
+addEventListener('message',e=>{if(e.data&&e.data.type==='alheli:visit'&&typeof e.data.name==='string')J.reco(e.data.name.slice(0,60))});
+const unitLine=u=>`Departamento ${u.n} (${PLANTA[u.planta].toLowerCase()}, ${u.dorm} dormitorio${u.dorm>1?'s':''}, ${m2(total(u))}, ${status(u.n)})`;
+function pasos(){const d=J.d,n=J.top(),u=UNITS.find(x=>x.n===n),rec=Object.keys(d.recorridos);
+  return[
+    {ok:!!u,t:u?`Departamento ${u.n} · ${status(u.n)}`:'Departamento de interés',s:u?(d.fav?'Marcado como favorito':'El más consultado: '+J.count(u.n)+(J.count(u.n)===1?' interacción':' interacciones')):'Aún no abrió ninguna ficha',k:'qué departamento quiere'},
+    {ok:rec.length>0,t:'Recorrido interior',s:rec.length?rec.join(' · '):(d.vistas.recorrido?'Abrió la sección, sin entrar a un departamento':'Pendiente'),k:'cómo es por dentro'},
+    {ok:!!d.vistas.edificio,t:'Edificio 3D y entorno',s:d.vistas.edificio?'Visto '+d.vistas.edificio+(d.vistas.edificio>1?' veces':' vez'):'Pendiente',k:'cómo se ubica en el edificio'},
+    {ok:!!d.vistas.planos,t:'Planos',s:d.vistas.planos?'Consultados':'Pendiente',k:'la distribución de la planta'},
+    {ok:!!d.vistas.avance,t:'Avance de obra',s:d.vistas.avance?'Al día: '+obraTotal()+'% a '+OBRA.actualizado:'Pendiente',k:'en qué etapa está la obra'}]}
+function mensaje(n){const u=UNITS.find(x=>x.n===n),ok=pasos().slice(1).filter(p=>p.ok).map(p=>p.t.toLowerCase());
+  return 'Hola, recorrí el showroom virtual de Alhelí.'+(u?' Me interesa el '+unitLine(u)+'.':'')+(ok.length?' Ya vi: '+ok.join(', ')+'.':'')+' Quisiera coordinar una visita.'}
+function openAsesor(n){if(n){J.d.fav=n;J.save()}const sel=n||J.top()||'';
+  const sh=$('#sheet');sh.className='sheet solo';
+  sh.innerHTML=`<div class="bd">
+    <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">Asesor comercial</div><button class="close" aria-label="Cerrar">×</button></div>
+    <h2 id="mTitle">Hablar con un asesor</h2>
+    <p class="muted" style="font-size:.9rem">El asesor recibe lo que usted ya recorrió, para que la reunión empiece donde quedó el showroom.</p>
+    <ul class="steps">${pasos().map(p=>`<li class="${p.ok?'ok':''}"><i>✓</i><span>${p.t}<small>${p.s}</small></span></li>`).join('')}</ul>
+    <label>Departamento de interés<select id="asSel"><option value="">Aún no lo decido</option>${UNITS.map(u=>`<option value="${u.n}"${u.n===sel?' selected':''}>Departamento ${u.n} · ${u.dorm} dorm. · ${m2(total(u))} · ${status(u.n)}</option>`).join('')}</select></label>
+    <div class="msg" id="asMsg"></div>
+    <div class="actions"><a class="btn gold" id="asWa" target="_blank" rel="noopener">Enviar por WhatsApp</a><button class="btn ghost" id="asCopy">Copiar mensaje</button></div>
+  </div>`;
+  const upd=()=>{const v=+$('#asSel').value||null;if(v!==J.d.fav){J.d.fav=v;J.save()}const m=mensaje(v);$('#asMsg').textContent=m;$('#asWa').href='https://wa.me/'+CONTACTO.whatsapp+'?text='+encodeURIComponent(m)};
+  $('#asSel').onchange=()=>{upd();const li=$('#sheet .steps li'),p=pasos()[0];li.className=p.ok?'ok':'';li.querySelector('span').innerHTML=`${p.t}<small>${p.s}</small>`};
+  $('#asWa').onclick=()=>{J.d.contacto++;J.save()};
+  $('#asCopy').onclick=()=>{const m=$('#asMsg').textContent;(navigator.clipboard?navigator.clipboard.writeText(m):Promise.reject()).then(()=>toast('Mensaje copiado'),()=>toast('No se pudo copiar; selecciónelo manualmente'));J.d.contacto++;J.save()};
+  upd();$('#modal').classList.add('on');$('#sheet .close').focus()}
+
+function renderObra(){const t=obraTotal(),R=84,C=2*Math.PI*R;$('#obraNote').hidden=!OBRA.ejemplo;
+  $('#obraRing').innerHTML=`<svg viewBox="0 0 200 200" role="img" aria-label="Avance total de la obra: ${t}%"><circle class="trk" cx="100" cy="100" r="${R}"/><circle class="val" cx="100" cy="100" r="${R}" transform="rotate(-90 100 100)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-t/100)}"/><text x="100" y="108" text-anchor="middle" font-size="52">${t}%</text><text x="100" y="132" text-anchor="middle" font-size="13" style="font-family:var(--body);fill:var(--muted)">avance total</text></svg>
+    <div><h3>Última actualización</h3><p class="muted">${OBRA.actualizado[0].toUpperCase()+OBRA.actualizado.slice(1)} · promedio de ${OBRA.fases.length} etapas</p></div>`;
+  $('#obraFases').innerHTML=OBRA.fases.map(f=>`<div class="fase"><div class="r">${f.t}<span class="${f.p>=100?'done':''}">${f.p>=100?'✓ Completo':f.p+'%'}</span></div><div class="meter" role="img" aria-label="${f.t}: ${f.p}%"><i class="${f.p>=100?'done':''}" style="width:${f.p}%"></i></div></div>`).join('')}
+
+function renderMetricas(){const d=J.d,min=Math.floor(d.seg/60),secc=SECCIONES.filter(s=>s.id!=='metricas'),vis=secc.filter(s=>d.vistas[s.id]).length;
+  const rows=UNITS.map(u=>({u,c:J.count(u.n),x:d.deptos[u.n]||{}})).sort((a,b)=>b.c-a.c||a.u.n-b.u.n),max=Math.max(1,...rows.map(r=>r.c)),vistos=rows.filter(r=>r.c).length,top=J.top();
+  const tip=[1,2,3].map(k=>{const l=UNITS.filter(u=>u.dorm===k),a=l.map(u=>u.cub);return{k,n:l.length,disp:l.filter(u=>status(u.n)==='disponible').length,res:l.filter(u=>status(u.n)==='reservado').length,ven:l.filter(u=>status(u.n)==='vendido').length,min:Math.min(...a),max:Math.max(...a)}});
+  $('#metricas').innerHTML=`<div class="kpis">
+      <div class="kpi"><span>Tiempo en el showroom</span><b>${min<1?d.seg+' s':min+' min'}</b><small>desde el ${new Date(d.inicio).toLocaleDateString('es',{day:'numeric',month:'long'})}</small></div>
+      <div class="kpi"><span>Secciones visitadas</span><b>${vis} de ${secc.length}</b><small>${secc.filter(s=>d.vistas[s.id]).map(s=>s.t).join(' · ')||'Ninguna todavía'}</small></div>
+      <div class="kpi"><span>Departamentos vistos</span><b>${vistos} de ${UNITS.length}</b><small>fichas, planos y 3D</small></div>
+      <div class="kpi"><span>Mayor interés</span><b>${top?'Depto '+top:'—'}</b><small>${top?(d.fav?'Favorito del visitante':'El más consultado'):'Sin datos todavía'}${d.contacto?' · pidió asesor':''}</small></div>
+    </div>
+    <div class="mgrid">
+      <div class="col">
+        <div class="panel"><h3>Interés por departamento</h3>
+          ${rows.map(r=>`<button class="ibar${r.c?'':' zero'}" data-open="${r.u.n}" title="Departamento ${r.u.n}: ${r.x.ficha||0} fichas, ${r.x.plano||0} en plano, ${r.x.d3||0} en 3D"><span>Depto ${r.u.n}</span><span class="meter"><i style="width:${r.c/max*100}%"></i></span><b>${r.c}</b>${r.c?`<small>Ficha ${r.x.ficha||0} · Plano ${r.x.plano||0} · 3D ${r.x.d3||0}${d.fav===r.u.n?' · favorito':''}</small>`:''}</button>`).join('')}
+          <p class="muted" style="font-size:.76rem;margin-top:10px">Interacciones: cada vez que el visitante abre la ficha, toca la unidad en el plano o la selecciona en 3D.</p></div>
+        <div class="panel"><h3>Inventario</h3>
+          <table class="tbl"><thead><tr><th>Tipología</th><th>Unidades</th><th>Disponibles</th><th>Reservados</th><th>Vendidos</th><th>Área cubierta</th></tr></thead><tbody>
+          ${tip.map(t=>`<tr><td>${t.k} dormitorio${t.k>1?'s':''}</td><td>${t.n}</td><td>${t.disp}</td><td>${t.res}</td><td>${t.ven}</td><td>${Math.round(t.min)}–${Math.round(t.max)} m²</td></tr>`).join('')}
+          </tbody></table></div>
+      </div>
+      <div class="col">
+        <div class="panel"><h3>Recorrido del visitante</h3><ul class="steps">${pasos().map(p=>`<li class="${p.ok?'ok':''}"><i>✓</i><span>${p.t}<small>${p.s}</small></span></li>`).join('')}</ul></div>
+        <div class="panel"><h3>Antes de la reunión, el asesor ya sabe</h3><ul class="steps">${pasos().map(p=>`<li class="${p.ok?'ok':''}"><i>✓</i><span>${p.k[0].toUpperCase()+p.k.slice(1)}</span></li>`).join('')}</ul>
+          <div class="actions" style="margin-top:14px"><button class="btn ghost" id="mReset">Reiniciar mediciones</button></div></div>
+      </div>
+    </div>`;
+  $('#mReset').onclick=()=>{J.reset();renderMetricas();toast('Mediciones reiniciadas')}}
+
+/* ---- menú, hub y barra superior ---- */
+$('#menuCols').innerHTML=GRUPOS.map((g,gi)=>`<div><h4>${g}</h4>${SECCIONES.filter(s=>s.g===gi).map(s=>`<a href="#${s.id}" data-v="${s.id}"><i>${String(SECCIONES.indexOf(s)+1).padStart(2,'0')}</i><span><b>${s.t}</b><small>${s.d}</small></span></a>`).join('')}</div>`).join('');
+function renderHub(){$('#hub').innerHTML=HUB_ORDEN.map(id=>{const s=SECCIONES.find(x=>x.id===id);return `<a class="tile" href="#${id}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[id]}</svg></span><b>${s.t}</b><small>${s.d}</small><em>${hubDato(id)}</em></a>`}).join('');
+  $('#heroDisp').textContent=nDisp()+' de '+UNITS.length+' disponibles';
+  $('#visitChips').innerHTML=UNITS.map(u=>`<button data-visit="${u.n}" class="st-${status(u.n)}" title="Departamento ${u.n} · ${PLANTA[u.planta]} · ${u.dorm} dorm. · ${status(u.n)}" aria-label="Visitar el departamento ${u.n}">${u.n}</button>`).join('')}
+function setMenu(on){$('#menu').hidden=!on;$('#menuBtn').setAttribute('aria-expanded',on);document.body.style.overflow=on?'hidden':'';if(on)$('#menuX').focus()}
+$('#menuBtn').onclick=()=>setMenu(true);$('#menuX').onclick=()=>setMenu(false);
+$('#menu').addEventListener('click',e=>{if(e.target.closest('a,[data-asesor]'))setMenu(false)});
+addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
+const onScroll=()=>$('#top').classList.toggle('solid',scrollY>innerHeight*.55);addEventListener('scroll',onScroll,{passive:true});
 /* ---- navegación por hash ---- */
-const VIEWS=['proyecto','recorrido','plantas','edificio','experiencia','departamentos'];
+const VIEWS=SECCIONES.map(x=>x.id),ALIAS={proyecto:'inicio',plantas:'planos',experiencia:'recorrido'};
 function route(){
-  const h=(location.hash||'#proyecto').slice(1); const v=VIEWS.includes(h)?h:'proyecto';
+  let h=(location.hash||'#inicio').slice(1);h=ALIAS[h]||h; const v=VIEWS.includes(h)?h:'inicio',sec=SECCIONES.find(x=>x.id===v);
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  document.querySelectorAll('#tabs a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
-  // Experiencia: carga diferida del iframe; al salir de la sección se detiene y vuelve a su portada.
+  document.querySelectorAll('#menuCols a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  document.body.classList.toggle('home',v==='inicio');$('#crumb').hidden=v==='inicio';$('#here').textContent=sec.t;
+  setMenu(false);J.view(v);if(v==='metricas')renderMetricas();
+  // Recorrido interior: carga diferida del iframe; al salir de la sección se detiene y vuelve a su portada.
   const ef=document.getElementById('expFrame');
-  if(v==='experiencia'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
+  if(v==='recorrido'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
   else if(ef.getAttribute('src')&&ef.contentWindow)ef.contentWindow.postMessage({type:'alheli:reset'},'*');
-  window.scrollTo({top:0});
+  window.scrollTo({top:0});onScroll();
 }
 addEventListener('hashchange',route);
 
@@ -494,7 +775,7 @@ $('#thumbs').innerHTML=TOUR.map((t,i)=>`<button data-i="${i}"><img src="img/${t.
 $('#thumbs').onclick=e=>{const b=e.target.closest('button');if(b){ti=+b.dataset.i;renderTour()}};
 $('#prevImg').onclick=()=>{ti=(ti-1+TOUR.length)%TOUR.length;renderTour()};
 $('#nextImg').onclick=()=>{ti=(ti+1)%TOUR.length;renderTour()};
-addEventListener('keydown',e=>{if($('#v-recorrido').classList.contains('on')&&!$('#modal').classList.contains('on')){if(e.key==='ArrowRight')$('#nextImg').click();if(e.key==='ArrowLeft')$('#prevImg').click()}});
+addEventListener('keydown',e=>{if($('#v-galeria').classList.contains('on')&&!$('#modal').classList.contains('on')){if(e.key==='ArrowRight')$('#nextImg').click();if(e.key==='ArrowLeft')$('#prevImg').click()}});
 renderTour();
 
 /* ---- plantas ---- */
@@ -507,7 +788,7 @@ function renderPlan(){
   UNITS.filter(u=>u.planta===plan).forEach(u=>{
     const b=document.createElement('button'); b.className='hot st-'+status(u.n)+(planSel===u.n?' on':''); b.textContent=u.n;
     b.style.left=u.pos[0]+'%'; b.style.top=u.pos[1]+'%'; b.setAttribute('aria-label','Departamento '+u.n);
-    b.onclick=()=>{planSel=u.n;renderPlan()}; $('#plan').appendChild(b);
+    b.onclick=()=>{planSel=u.n;J.unit(u.n,'plano');renderPlan()}; $('#plan').appendChild(b);
   });
   const side=$('#planSide');
   if(plan==='tc'){side.innerHTML=`<div class="eyebrow">Áreas comunes</div><h3>Terraza comunal</h3><p class="empty">Salón con cocina, baños y terraza abierta sobre la cubierta, con jardineras perimetrales. Un espacio compartido para reuniones de los diez departamentos.</p><img src="img/r-terraza.jpg" alt="Render de la terraza comunal">`;return}
@@ -518,7 +799,7 @@ function renderPlan(){
 function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div>${badge(u.n)}</div>
    <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
    <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button></div>`}
+   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button><button class="btn gold" data-asesor="${u.n}">Me interesa</button></div>`}
 const total=u=>u.cub+u.ext+(u.bbq||0);
 const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
 
@@ -545,7 +826,7 @@ function renderUnits(){
 
 /* ---- ficha ---- */
 function openUnit(n){
-  const u=UNITS.find(x=>x.n===n);
+  const u=UNITS.find(x=>x.n===n);J.unit(n,'ficha');$('#sheet').className='sheet';
   $('#sheet').innerHTML=`<div class="ph"><img src="img/u${n}.jpg" alt="Plano del departamento ${n}"></div>
   <div class="bd">
     <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">${PLANTA[u.planta]} · ${u.dorm} dormitorio${u.dorm>1?'s':''}</div>${badge(n)}<button class="close" aria-label="Cerrar">×</button></div>
@@ -553,7 +834,7 @@ function openUnit(n){
     <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
     <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
     <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
-    <div class="actions"><a class="btn ghost" href="#plantas" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a></div>
+    <div class="actions"><a class="btn ghost" href="#planos" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a><button class="btn gold" data-asesor="${n}">Me interesa</button></div>
   </div>`;
   $('#modal').classList.add('on'); $('#sheet .close').focus();
 }
@@ -563,11 +844,13 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* ---- delegación global ---- */
 document.addEventListener('click',e=>{
+  const as=e.target.closest('[data-asesor]'); if(as){openAsesor(+as.dataset.asesor||null);return}
+  const vs=e.target.closest('[data-visit]'); if(vs){if(window.visit3D)visit3D(+vs.dataset.visit);return}
   const o=e.target.closest('[data-open]'); if(o){openUnit(+o.dataset.open);return}
   const s3=e.target.closest('[data-sel3]'); if(s3){closeModal();if(window.select3D)select3D(+s3.dataset.sel3);return}
   const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
 });
-function renderAll(){renderUnits();renderPlan();if(window.update3D)update3D()}
+function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(window.update3D)update3D()}
 renderAll(); route();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1095,7 +1378,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     if(hit){const d=hit.object.userData;const nh=d.unit||null;if(nh!==hover){hoverCand=hoverCand===nh?hoverCand:nh;hoverN=hoverCand===nh?hoverN+1:1;if(hoverN>=2||click)hover=nh}else{hoverN=0}el.style.cursor=panMode?'move':'pointer';
       tip.style.display='block';tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';
       tip.textContent=d.unit?`Departamento ${d.unit} · ${UNITS.find(u=>u.n===d.unit).dorm} dorm. · ${status(d.unit)}`:d.common;
-      if(click){if(d.unit){sel=d.unit;($('#side3').hidden=false,$('#side3')).innerHTML=sideHTML(UNITS.find(u=>u.n===d.unit))}else{sel=null;($('#side3').hidden=false,$('#side3')).innerHTML=`<div class="eyebrow">Áreas comunes</div><h3>${d.common}</h3><img src="img/r-terraza.jpg" alt="Terraza comunal">`}}
+      if(click){if(d.unit){sel=d.unit;J.unit(d.unit,'d3');($('#side3').hidden=false,$('#side3')).innerHTML=sideHTML(UNITS.find(u=>u.n===d.unit))}else{sel=null;($('#side3').hidden=false,$('#side3')).innerHTML=`<div class="eyebrow">Áreas comunes</div><h3>${d.common}</h3><img src="img/r-terraza.jpg" alt="Terraza comunal">`}}
     }else{if(++missN>2){hover=null;tip.style.display='none'}el.style.cursor=panMode?'move':'grab'}
     if(hit)missN=0;
     paint();
@@ -1103,10 +1386,10 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   function paint(){UNITS.forEach(u=>{const o=overlays[u.n];const st=status(u.n);
     let c=null,op=0,ed=0;if(sel===u.n){c=0xd4b27a;op=.16;ed=1}else if(hover===u.n){c=0xffffff;op=.10;ed=.7}else if(showStatus){c=COL[st];op=st==='disponible'?.22:.34}
     if(c!=null)o.material.color.setHex(c);o.userData.target=op;o.userData.edgeTarget=ed;
-    const lb=labels.find(l=>l.userData.unit===u.n);if(lb)lb.material.map=sel===u.n?lb.userData.texSel:lb.userData.tex;})}
+    const lb=labels.find(l=>l.userData.unit===u.n);if(lb)lb.material.map=sel===u.n?lb.userData.texSel:lb.userData.tex;});document.querySelectorAll('#visitChips button').forEach(b=>b.classList.toggle('on',+b.dataset.visit===sel))}
   function easeOverlays(){let mv=false;UNITS.forEach(u=>{const o=overlays[u.n];const d=o.userData.target-o.material.opacity;if(Math.abs(d)>.003)mv=true;o.material.opacity+=d*.18;const e=o.userData.edge;if(e){const de=(o.userData.edgeTarget||0)-e.material.opacity;if(Math.abs(de)>.003)mv=true;e.material.opacity+=de*.18}});return mv}
   window.update3D=paint;
-  window.select3D=n=>{sel=n;($('#side3').hidden=false,$('#side3')).innerHTML=sideHTML(UNITS.find(x=>x.n===n));paint();auto=false;const u=units[n];theta=Math.atan2(u.cx-PW/2,u.cz-PH/2)+Math.PI*.15;dist=Math.min(dist,900);targetT.set(u.cx-PW/2,u.y+20,u.cz-PH/2)};
+  window.select3D=n=>{sel=n;J.unit(n,'d3');($('#side3').hidden=false,$('#side3')).innerHTML=sideHTML(UNITS.find(x=>x.n===n));paint();auto=false;const u=units[n];theta=Math.atan2(u.cx-PW/2,u.cz-PH/2)+Math.PI*.15;dist=Math.min(dist,900);targetT.set(u.cx-PW/2,u.y+20,u.cz-PH/2)};
   $('#status3').onclick=e=>{showStatus=!showStatus;e.target.classList.toggle('on',showStatus);paint()};
   /* plantas */
   $('#floor3').onclick=e=>{const b=e.target.closest('button');if(!b)return;floor=b.dataset.fl;
@@ -1114,6 +1397,8 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const order=['pb','pa','tc'];const idx=floor==='all'?2:order.indexOf(floor);
     root.children.forEach(o=>{if(o.userData.level)o.visible=order.indexOf(o.userData.level)<=idx});labels.forEach(l=>l.visible=floor==='all'||l.userData.level===floor);
     Object.values(slabs).forEach(s=>s.visible=gapT>0&&s.visible);Object.entries(slabs).forEach(([k,sl])=>sl.material.opacity=(floor==='all'||k===floor)?1:.3);if(cut)applyCut();applyExplodeOpacity();shadowDirty()};
+  /* visita: enfoca el departamento elegido, deja visible solo hasta su planta y abre las paredes para ver el interior */
+  window.visit3D=n=>{const u=UNITS.find(x=>x.n===n);select3D(n);if(floor!==u.planta)document.querySelector('#floor3 [data-fl="'+u.planta+'"]').click();if(!cut)$('#cut3').click();dist=Math.min(dist,640);phi=Math.min(phi,.72);wake()};
   /* abrir paredes: oculta la envolvente y baja los tabiques para ver los interiores */
   let cut=false;
   function applyCut(){root.traverse(o=>{

@@ -236,6 +236,8 @@
     const id = ++run;
     state = 'opening';
     selected = item;
+    // avisa al showroom que el visitante entró a este departamento (métricas y resumen para el asesor)
+    try { if (window.parent !== window) window.parent.postMessage({ type: 'alheli:visit', name: item.name }, '*'); } catch (error) { /* sin contenedor */ }
     preload(item);
     forward = getForwardVideo(item);
 
