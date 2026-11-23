@@ -6,7 +6,7 @@
 <title>Alhelí Residencias</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%232b1d2e%27/%3E%3Cpath d=%27M32 18v34M32 30c-8 0-11-3-11-8M32 40c7 0 10-2 11-7%27 stroke=%27%23d4b27a%27 stroke-width=%273.2%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%2732%27 cy=%2711%27 r=%274%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2719%27 cy=%2719%27 r=%273.4%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2745%27 cy=%2725%27 r=%273.4%27 fill=%27%23d4b27a%27/%3E%3Ccircle cx=%2723%27 cy=%2738%27 r=%272.8%27 fill=%27%23d4b27a%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
 <style>
 /* Layout: sticky brand bar + tabbed single-page showroom; plum/cream brand palette from the sales brochure */
 :root{
@@ -139,8 +139,6 @@ section.view.on{display:block}
 .chip .cnt{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:8px;border-radius:999px;background:rgba(43,29,46,.08);font:600 .7rem var(--body);font-style:normal;font-variant-numeric:tabular-nums;vertical-align:middle}
 .chip.on .cnt{background:rgba(255,255,255,.22)}
 .chip.off{opacity:.4;cursor:not-allowed;text-decoration:line-through}
-:root[data-theme="dark"] .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .chip.on{background:var(--gold);color:#1e1420;border-color:var(--gold)} }
 .plan-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
 .plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 .plan img{width:100%;aspect-ratio:1125/598}
@@ -271,143 +269,219 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 
-/* ===== navegación: barra mínima + menú a pantalla completa ===== */
-.top .wrap{flex-wrap:nowrap;max-width:none;padding-inline:clamp(16px,4vw,56px)}
-.crumb{display:flex;align-items:center;gap:10px;min-width:0;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#cfc3d1;padding-left:18px;border-left:1px solid rgba(255,255,255,.18)}
-.crumb a{color:inherit;text-decoration:none;white-space:nowrap}
-.crumb a:hover{color:#fff}
-.crumb b{color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.crumb b::before{content:"/";margin-right:10px;color:var(--gold2)}
-.top-r{margin-left:auto;display:flex;align-items:center;gap:12px;flex:none}
-.pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;border:1px solid #fff;background:#fff;color:#1e1420;padding:16px 30px;font:500 1rem var(--body);text-decoration:none;white-space:nowrap}
-.pill:hover{background:#f1e9dc;border-color:#f1e9dc}
-.pill.line{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.55);backdrop-filter:blur(6px)}
-.pill.line:hover{background:rgba(255,255,255,.24)}
-.pill.sm{padding:9px 18px;font-size:.76rem;letter-spacing:.04em}
-.menu-btn{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 6px 0 16px;border-radius:999px;border:0;background:rgba(255,255,255,.16);color:#fff;font:500 .74rem var(--body);letter-spacing:.14em;text-transform:uppercase;backdrop-filter:blur(6px)}
-.menu-btn:hover{background:rgba(255,255,255,.28)}
-.menu-btn i{display:grid;place-content:center;gap:4px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22)}
-.menu-btn i span{display:block;height:1.6px;width:15px;background:#fff;border-radius:2px}
-.menu-btn i span:nth-child(2){width:9px}
-body.home .top{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);background:transparent;border-bottom-color:transparent;transition:background .3s,border-color .3s}
-body.home .top.solid{background:var(--plum);border-bottom-color:rgba(212,178,122,.25)}
-body.home::before{background:transparent}
-.menu{position:fixed;inset:0;z-index:40;background:#221626;color:#efe8dd;overflow:auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) clamp(18px,5vw,72px) 28px}
-.menu-top{display:flex;align-items:center;justify-content:space-between;min-height:48px}
-.menu-top .eyebrow{color:var(--gold2)}
-.menu-x{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:1.5rem;line-height:1}
-.menu-x:hover{background:rgba(255,255,255,.28)}
-.menu-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,4vw,60px);margin-block:auto;padding-block:28px}
-.menu-cols h4{margin:0 0 6px;font:600 .68rem var(--body);letter-spacing:.22em;text-transform:uppercase;color:#d4b27a;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.14)}
-.menu-cols a{display:grid;grid-template-columns:34px 1fr;gap:6px;align-items:baseline;padding:14px 0;color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.08)}
-.menu-cols a i{font:500 .72rem var(--body);font-style:normal;color:#b4a7b6;letter-spacing:.08em;font-variant-numeric:tabular-nums}
-.menu-cols a b{display:block;font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,2.4vw,2.1rem);line-height:1.1}
-.menu-cols a small{display:block;font-size:.82rem;color:#b4a7b6;margin-top:3px}
-.menu-cols a:hover b,.menu-cols a.on b{color:#d4b27a}
-.menu-cols a.on i::after{content:" ●";color:#d4b27a}
-.menu-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;font-size:.74rem;color:#b4a7b6;letter-spacing:.06em}
-
-/* ===== portada a pantalla completa ===== */
-#v-inicio.view{padding-top:0}
-.lux{position:relative;height:100vh;height:100dvh;min-height:540px;color:#fff;overflow:hidden;background:#1e1420}
-.lux>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 42%;transform:scale(1.05)}
-.lux::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,12,22,.6) 0%,rgba(20,12,22,.12) 26%,rgba(20,12,22,.12) 50%,rgba(20,12,22,.8) 100%),linear-gradient(270deg,rgba(20,12,22,.55),rgba(20,12,22,0) 60%)}
-.lux .in{position:relative;z-index:1;height:100%;display:grid;grid-template-rows:1fr auto;padding:96px clamp(20px,5vw,76px) clamp(28px,6vh,60px)}
-.lux h1{justify-self:end;align-self:center;max-width:11.5ch;font-size:clamp(2.7rem,6.4vw,5.8rem);font-weight:400;letter-spacing:-.01em;text-transform:none;line-height:1.02;text-shadow:0 2px 24px rgba(0,0,0,.45)}
-.lux-b{display:flex;flex-direction:column;gap:18px;align-items:flex-start;max-width:560px}
-.lux-b .eyebrow{color:#e6cfa3}
-.lux-b p{font-size:clamp(1.05rem,1.9vw,1.5rem);font-weight:300;line-height:1.35;text-shadow:0 1px 12px rgba(0,0,0,.5)}
-.lux-cta{display:flex;gap:12px;flex-wrap:wrap}
-.hub-head{margin-top:54px}
-.hub-head p{max-width:60ch}
-.hub{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.tile{display:flex;flex-direction:column;gap:4px;min-height:168px;padding:22px;border-radius:18px;background:var(--bg2);border:1px solid var(--line);color:inherit;text-decoration:none;transition:border-color .2s,transform .2s,box-shadow .2s}
-.tile:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow)}
-.tile .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--fg)}
+/* ===== Dirección visual: editorial de arquitectura =====
+   Fondo blanco y tinta casi negra; un único acento terracota (el ladrillo del edificio) usado con moderación.
+   Cormorant Garamond para títulos, IBM Plex Sans para texto; jerarquía por tamaño y peso.
+   Grilla asimétrica alineada a la izquierda; líneas finas en lugar de tarjetas, sombras o desenfoques. */
+:root{--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;--radius:2px}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light} }
+:root[data-theme="dark"]{--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light}
+body::before{background:var(--bg)}
+.wrap{max-width:1320px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h2{font-size:clamp(2rem,3.8vw,3.1rem);letter-spacing:-.005em}
+.eyebrow{color:var(--muted);letter-spacing:.16em}
+.sec-head{border-bottom:1px solid var(--fg);padding-bottom:20px;margin-bottom:28px;gap:10px}
+.sec-head.sub{margin-top:80px}
+.wrap.wrap3{max-width:none;padding:0}
+section.view{padding-block:44px 72px}
 a.btn{text-decoration:none;display:inline-block}
-.tile .ic svg,.cta-bar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.tile b{font-family:var(--display);font-weight:500;font-size:1.55rem;line-height:1.1;margin-top:14px}
-.tile small{color:var(--muted);font-size:.82rem}
-.tile em{font-style:normal;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-top:auto;padding-top:10px;font-variant-numeric:tabular-nums}
-.cta-bar{display:flex;width:100%;align-items:center;justify-content:center;gap:12px;margin-top:14px;padding:20px;border-radius:999px;border:0;background:var(--plum);color:#efe8dd;font:500 1.02rem var(--body)}
-.cta-bar:hover{background:var(--plum2)}
-.intro>img{width:100%;height:100%;min-height:260px;object-fit:cover;border-radius:18px}
-.next{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:34px;padding:18px 22px;border:1px solid var(--line);border-radius:18px;background:var(--bg2)}
-.next span{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.next b{display:block;font-family:var(--display);font-weight:500;font-size:1.4rem;letter-spacing:0;text-transform:none;color:var(--fg)}
+.btn{border-radius:2px;background:transparent;color:var(--fg);border-color:var(--fg);padding:10px 16px}
+.btn:hover{background:var(--fg);color:var(--bg)}
+.btn.gold,.btn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.gold:hover{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn.ghost{border-color:var(--line);background:transparent;color:var(--fg)}
+.btn.ghost:hover{border-color:var(--fg);background:transparent;color:var(--fg)}
+.tlink{color:var(--fg);font-size:.86rem;font-weight:500;text-underline-offset:5px;text-decoration-thickness:1px}
+.tlink:hover{text-decoration-color:var(--gold)}
+.chip{border-radius:2px;background:transparent;border-color:var(--line)}
+.chip:hover{border-color:var(--fg)}
+.chip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip .cnt{border-radius:0;background:none;padding:0;min-width:0;margin-left:10px;color:inherit;opacity:.65}
+.chip.on .cnt{background:none}
+.badge{border-radius:0;padding:0;background:none!important;display:inline-flex;align-items:center;gap:7px}
+.badge::before{content:"";width:7px;height:7px;background:currentColor}
+.card{border-radius:0;background:transparent;border:0;border-top:1px solid var(--fg)}
+.card .ph{border:1px solid var(--line);margin-top:14px}
+.card .bd{padding:14px 0 18px}
+.card .num{color:var(--muted);font-family:var(--body);font-size:.66rem;letter-spacing:.16em}
+.units{gap:34px 24px}
+.side{border-radius:0;background:transparent;border:0;border-top:1px solid var(--fg);padding:18px 0 0}
+.side img,.amb img,.rooms span,.plan,.toast,.tip3,.thumbs button img{border-radius:0}
+.rooms span{border-color:var(--line)}
+.hot{box-shadow:none;font-family:var(--body);font-size:.9rem}
+.stage{border-radius:0;box-shadow:none;background:none;overflow:visible}
+.stage .cap{position:static;background:none;color:var(--fg);padding:14px 0;border-bottom:1px solid var(--fg)}
+.stage .cap .eyebrow{color:var(--muted)}
+.stage .arrows{inset:0 0 auto 0;aspect-ratio:1210/719}
+.stage .arrows button{border-radius:0;background:var(--bg);color:var(--fg);border:1px solid var(--fg)}
+.thumbs button{border-radius:0;background:transparent;border:0;border-bottom:1px solid var(--line);padding:8px 0}
+.thumbs button.on{box-shadow:none;background:transparent;border-bottom-color:var(--fg)}
+.thumbs button.on small::before{content:"";display:inline-block;width:7px;height:7px;background:var(--gold);margin-right:7px}
+.modal{background:rgba(17,17,17,.62)}
+.sheet{border-radius:0;box-shadow:none;border:1px solid var(--fg)}
+.sheet .close{border-radius:0;border-color:var(--fg)}
+.builder input,.builder select,.sheet select{border-radius:0}
+.legend i{border-radius:0}
+footer{border-top:1px solid var(--fg)}
 
-/* ===== avance de obra y métricas ===== */
-.note{font-size:.8rem;color:var(--muted);border-left:3px solid var(--gold);padding:8px 14px;background:var(--bg2);border-radius:0 6px 6px 0;margin-bottom:22px;max-width:80ch}
-.panel{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}
-.panel h3{margin-bottom:14px}
-.obra{display:grid;grid-template-columns:minmax(260px,1fr) 1.7fr;gap:16px;align-items:start}
-.ring{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
-.ring svg{width:200px;height:200px}
-.ring .trk{fill:none;stroke:var(--line);stroke-width:12}
-.ring .val{fill:none;stroke:var(--gold);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .8s}
+/* barra superior: papel, cinco secciones a la vista y el menú completo */
+.top{background:var(--bg);color:var(--fg);border-bottom:1px solid var(--fg)}
+.top .wrap{flex-wrap:nowrap;gap:22px}
+.brand b{letter-spacing:.2em}
+.brand small{color:var(--muted)}
+.brand svg path{stroke:currentColor}
+.brand svg circle{fill:var(--gold)}
+nav.quicknav{display:flex;gap:22px;margin-left:clamp(8px,2vw,34px)}
+nav.quicknav a{color:var(--fg);text-decoration:none;font-size:.74rem;font-weight:500;letter-spacing:.06em;padding:21px 0 19px;border-bottom:2px solid transparent;white-space:nowrap}
+nav.quicknav a:hover{border-bottom-color:var(--line)}
+nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
+.crumb{display:none;align-items:center;gap:10px;min-width:0;font-size:.74rem;letter-spacing:.06em;padding-left:16px;border-left:1px solid var(--line)}
+.crumb a{color:var(--muted);text-decoration:none;white-space:nowrap}
+.crumb a:hover{color:var(--fg)}
+.crumb b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb b::before{content:"/";margin-right:10px;color:var(--muted);font-weight:400}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex:none}
+.top-r .btn{white-space:nowrap}
+.menu-btn{display:inline-flex;align-items:center;gap:10px;height:37px;padding:0 12px;border-radius:2px;border:1px solid var(--fg);background:transparent;color:var(--fg);font:500 .74rem var(--body);letter-spacing:.12em;text-transform:uppercase}
+.menu-btn:hover{background:var(--fg);color:var(--bg)}
+.menu-btn i{display:grid;gap:4px}
+.menu-btn i span{display:block;height:1.5px;width:16px;background:currentColor}
+.menu-btn i span:nth-child(2){width:10px}
+.menu{position:fixed;inset:0;z-index:40;background:#141211;color:#f2eee6;overflow:auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) max(20px,calc((100vw - 1320px)/2 + 20px)) 28px}
+.menu-top{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid rgba(242,238,230,.25);padding-bottom:12px}
+.menu-top .eyebrow{color:#a69f94}
+.menu-x{width:44px;height:37px;border-radius:2px;border:1px solid #f2eee6;background:transparent;color:#f2eee6;font-size:1.3rem;line-height:1}
+.menu-x:hover{background:#f2eee6;color:#141211}
+.menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,64px);margin-block:auto;padding-block:32px;align-items:start}
+.menu-cols h4{margin:0 0 4px;font:500 .7rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:#a69f94;padding-bottom:12px;border-bottom:1px solid #f2eee6}
+.menu-cols a{display:grid;grid-template-columns:38px 1fr;gap:6px;align-items:baseline;padding:14px 0;color:inherit;text-decoration:none;border-bottom:1px solid rgba(242,238,230,.16)}
+.menu-cols a i{font:400 .74rem var(--body);font-style:normal;color:#a69f94;font-variant-numeric:tabular-nums}
+.menu-cols a b{display:block;font-family:var(--display);font-weight:500;font-size:clamp(1.6rem,2.6vw,2.3rem);line-height:1.08}
+.menu-cols a small{display:block;font-size:.84rem;color:#a69f94;margin-top:3px}
+.menu-cols a:hover b{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.menu-cols a.on i{color:#e08a6c;font-weight:600}
+.menu-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;font-size:.76rem;color:#a69f94}
+.menu-foot .btn{border-color:#f2eee6;color:#f2eee6}
+.menu-foot .btn:hover{background:#f2eee6;color:#141211}
+
+/* portada partida: texto a la izquierda, fotografía sin velo a la derecha */
+#v-inicio.view{padding-top:0}
+.lux{display:grid;grid-template-columns:5fr 7fr;min-height:calc(100vh - 61px);min-height:calc(100dvh - 61px);border-bottom:1px solid var(--fg)}
+.lux-t{display:flex;flex-direction:column;justify-content:flex-end;gap:22px;padding:48px clamp(24px,4vw,64px) 44px max(20px,calc((100vw - 1320px)/2 + 20px))}
+.kicker{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:auto}
+.lux h1{font-size:clamp(2.9rem,5.4vw,5.3rem);font-weight:500;letter-spacing:-.015em;text-transform:none;line-height:.98;max-width:9.5ch}
+.lead{font-size:1.06rem;line-height:1.5;max-width:40ch}
+.lux-d{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0 34px;margin:0;padding-top:16px;border-top:1px solid var(--fg)}
+.lux-d dt{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.lux-d dd{margin:2px 0 0;font-weight:600;font-size:.95rem;font-variant-numeric:tabular-nums}
+.lux-cta{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.lux-cta .btn{padding:14px 20px;font-size:.78rem}
+.lux-f{margin:0;position:relative;border-left:1px solid var(--fg);min-height:320px}
+.lux-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:42% 40%}
+.lux-f figcaption,.intro figcaption{position:absolute;left:0;bottom:0;background:#fff;color:var(--fg);font-size:.7rem;letter-spacing:.06em;padding:7px 12px;border-top:1px solid var(--fg);border-right:1px solid var(--fg)}
+/* índice del showroom: lista numerada, no tarjetas */
+.hub-sec{display:grid;grid-template-columns:4fr 8fr;gap:clamp(24px,5vw,90px);padding-block:72px 40px;align-items:start}
+.hub-sec .sec-head{border:0;padding:0;margin:0;gap:14px;align-items:flex-start;position:sticky;top:90px}
+.hub-sec .sec-head p{max-width:34ch}
+.hub a{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1.25fr) auto;gap:18px;align-items:baseline;padding:20px 0;border-top:1px solid var(--line);color:inherit;text-decoration:none}
+.hub a:first-child{border-top-color:var(--fg)}
+.hub a:last-child{border-bottom:1px solid var(--fg)}
+.hub i{font-style:normal;font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.hub b{font-family:var(--display);font-weight:500;font-size:clamp(1.6rem,2.5vw,2.15rem);line-height:1.05}
+.hub span{color:var(--muted);font-size:.9rem}
+.hub em{font-style:normal;font-size:.74rem;font-weight:600;letter-spacing:.04em;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hub a:hover b{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px;text-decoration-color:var(--gold)}
+.specs{border-top-color:var(--fg);margin-top:8px}
+.intro{grid-template-columns:7fr 5fr;gap:clamp(24px,5vw,80px);margin-top:64px;align-items:end}
+.intro figure{margin:0;position:relative}
+.intro figure img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.next{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:48px;padding:20px 0 0;border-top:1px solid var(--fg)}
+.next span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.next b{display:block;font-family:var(--display);font-weight:500;font-size:1.6rem;letter-spacing:0;text-transform:none;color:var(--fg);margin-top:2px}
+
+/* avance de obra y métricas: filas y tablas con filetes */
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--gold);padding:2px 0 2px 14px;margin-bottom:28px;max-width:76ch}
+.panel{border-top:1px solid var(--fg);padding-top:18px;min-width:0}
+.panel h3{margin-bottom:12px}
+.obra{display:grid;grid-template-columns:4fr 8fr;gap:clamp(24px,5vw,90px);align-items:start}
+.ring{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+.ring svg{width:210px;height:210px}
+.ring .trk{fill:none;stroke:var(--line);stroke-width:6}
+.ring .val{fill:none;stroke:var(--gold);stroke-width:6}
 .ring text{font-family:var(--display);fill:var(--fg);font-variant-numeric:lining-nums}
-.fases{display:grid;gap:10px}
-.fase{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
-.fase .r{display:flex;justify-content:space-between;gap:10px;font-size:.92rem;font-weight:500}
-.fase .r span{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
-.fase .r span.done{color:var(--ok);font-weight:600}
-.meter{height:6px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
-.meter i{display:block;height:100%;border-radius:4px;background:var(--gold)}
-.meter i.done{background:var(--ok)}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.kpi{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:4px;min-width:0}
-.kpi span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.kpi b{font-family:var(--display);font-weight:500;font-size:2.5rem;line-height:1;font-variant-numeric:lining-nums tabular-nums}
+.fases{border-top:1px solid var(--fg)}
+.fase{padding:16px 0;border-bottom:1px solid var(--line)}
+.fase .r{display:flex;justify-content:space-between;gap:10px;font-size:1rem;font-weight:500}
+.fase .r span{font-variant-numeric:tabular-nums;font-weight:600}
+.meter{height:4px;background:var(--line);margin-top:12px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--gold)}
+.meter i.done{background:var(--fg)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--fg);border-bottom:1px solid var(--line);margin-bottom:44px}
+.kpi{padding:18px 20px 18px 0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kpi+.kpi{padding-left:20px;border-left:1px solid var(--line)}
+.kpi span{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.kpi b{font-family:var(--display);font-weight:500;font-size:2.7rem;line-height:1;font-variant-numeric:lining-nums tabular-nums}
 .kpi small{font-size:.78rem;color:var(--muted)}
-.mgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
-.mgrid .col{display:grid;gap:16px;min-width:0}
+.mgrid{display:grid;grid-template-columns:7fr 5fr;gap:clamp(24px,4vw,64px);align-items:start}
+.mgrid .col{display:grid;gap:40px;min-width:0}
 .ibar{display:grid;grid-template-columns:84px 1fr 28px;gap:12px;align-items:center;padding:7px 0;font-size:.86rem;border:0;background:none;color:inherit;width:100%;text-align:left;font-family:inherit}
-.ibar:hover .meter i{background:var(--fg)}
-.ibar .meter{margin:0;height:8px}
+.ibar:hover span:first-child{text-decoration:underline}
+.ibar .meter{margin:0;height:6px}
 .ibar b{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .ibar small{grid-column:2/4;color:var(--muted);font-size:.72rem;margin-top:-6px}
 .ibar.zero{color:var(--muted)}
-.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.steps li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:.88rem}
-.steps li i{font-style:normal;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--muted);display:grid;place-items:center;font-size:.7rem;color:transparent;margin-top:1px}
-.steps li.ok i{background:var(--ok);border-color:var(--ok);color:var(--bg2)}
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;padding:11px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.steps li i{font-style:normal;width:14px;height:14px;border:1px solid var(--muted);display:grid;place-items:center;font-size:.6rem;color:transparent;margin-top:3px}
+.steps li.ok i{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.steps li:not(.ok){color:var(--muted)}
 .steps li small{display:block;color:var(--muted);font-size:.76rem}
 .tbl{width:100%;border-collapse:collapse;font-size:.86rem}
-.tbl th,.tbl td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-.tbl th{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tbl th,.tbl td{text-align:left;padding:9px 6px 9px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tbl th{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .sheet.solo{grid-template-columns:1fr;width:min(580px,100%)}
 .sheet.solo .bd{display:flex;flex-direction:column;gap:14px}
-.sheet.solo label{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:grid;gap:6px}
+.sheet.solo label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:grid;gap:6px}
 .sheet.solo select{width:100%}
-.msg{font-size:.86rem;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--fg);white-space:pre-wrap}
+.msg{font-size:.88rem;border-left:2px solid var(--fg);padding:2px 0 2px 14px;white-space:pre-wrap}
 
-/* ===== 3D: elegir un departamento para visitarlo ===== */
-.visit3{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 24px);display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;border-radius:999px;background:rgba(43,29,46,.72);backdrop-filter:blur(8px);color:#fff;z-index:2}
-.visit3>span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
-.visit3 div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.visit3 button{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;font:600 .82rem var(--body);font-variant-numeric:tabular-nums}
-.visit3 button:hover{background:rgba(255,255,255,.3)}
-.visit3 button.on{background:var(--gold);border-color:var(--gold);color:#1e1420}
+/* 3D: controles sólidos sobre la escena, sin vidrio */
+.v3 .side{background:var(--bg);backdrop-filter:none;border:1px solid var(--fg);padding:16px}
+.ctl3 .chip,.walkbar .chip{backdrop-filter:none;background:var(--bg);color:var(--fg);border-color:var(--fg)}
+.ctl3 .chip.on,.walkbar .chip.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.sun{background:var(--bg);color:var(--fg);border:1px solid var(--fg);border-radius:2px;backdrop-filter:none;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px}
+.sun input{accent-color:var(--fg)}
+.ibtn{width:auto;height:auto;padding:8px 12px;border-radius:2px;border:1px solid var(--fg);background:var(--bg);backdrop-filter:none;color:var(--fg);font:500 .7rem var(--body);letter-spacing:.08em;text-transform:uppercase}
+.ibtn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.hint3,.where{background:var(--bg);color:var(--fg);border:1px solid var(--fg);border-radius:2px;backdrop-filter:none}
+.visit3{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 24px);display:flex;align-items:center;gap:12px;padding:7px 7px 7px 14px;background:var(--bg);border:1px solid var(--fg);color:var(--fg);z-index:2}
+.visit3>span{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;white-space:nowrap}
+.visit3 div{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.visit3 button{flex:none;width:34px;height:34px;border-radius:0;border:1px solid var(--line);background:transparent;color:var(--fg);font:500 .84rem var(--body);font-variant-numeric:tabular-nums}
+.visit3 button:hover{border-color:var(--fg)}
+.visit3 button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
 .visit3 button.st-vendido{opacity:.45;text-decoration:line-through}
 .visit3 button.st-reservado{border-style:dashed}
 
+@media (max-width:1240px){nav.quicknav{display:none}body:not(.home) .crumb{display:flex}}
 @media (max-width:900px){
-  .hub{grid-template-columns:repeat(2,1fr)}
+  .lux{grid-template-columns:1fr;min-height:0}
+  .lux-f{order:-1;height:46vh;border-left:0;border-bottom:1px solid var(--fg)}
+  .lux-t{padding:28px 20px 36px}.kicker{margin-bottom:0}
+  .hub-sec,.obra,.mgrid,.intro{grid-template-columns:1fr}
+  .hub-sec{padding-block:44px 28px}.hub-sec .sec-head{position:static}
   .menu-cols{grid-template-columns:1fr;margin-block:10px}
-  .obra,.mgrid{grid-template-columns:1fr}
-  .kpis{grid-template-columns:repeat(2,1fr)}
-  .lux .in{grid-template-rows:1fr auto auto;gap:18px}
-  .lux h1{justify-self:start;align-self:end;max-width:13ch}
+  .kpis{grid-template-columns:repeat(2,1fr)}.kpi:nth-child(3){padding-left:0;border-left:0}.kpi:nth-child(n+3){border-top:1px solid var(--line)}
 }
 @media (max-width:700px){
-  .top-r .pill{display:none}
-  .menu-btn{padding-left:6px}.menu-btn>span{display:none}
+  .top-r>.btn{display:none}
+  .menu-btn>span{display:none}
   body:not(.home) .brand span{display:none}
-  .crumb{padding-left:12px}
-  .tile{min-height:150px;padding:16px;border-radius:14px}.tile b{font-size:1.3rem}
-  .pill{padding:14px 22px;font-size:.92rem}
-  .visit3>span{display:none}.visit3{padding-left:10px;z-index:3}
-  .kpi b{font-size:2rem}
+  .hub a{grid-template-columns:30px 1fr auto;gap:4px 12px}.hub span{grid-column:2/4;grid-row:2}
+  .lux-d{grid-template-columns:repeat(2,auto)}
+  .visit3>span{display:none}.visit3{padding-left:7px;z-index:3}
+  .kpi b{font-size:2.1rem}
 }
 </style>
 
@@ -417,9 +491,10 @@ a.btn{text-decoration:none;display:inline-block}
       <svg viewBox="0 0 26 34" aria-hidden="true"><path d="M13 8v26M13 16c-5 0-7-2-7-5M13 22c4 0 6-1 7-4" stroke="#d4b27a" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="4" r="2.2" fill="#d4b27a"/><circle cx="6" cy="9" r="1.8" fill="#d4b27a"/><circle cx="20" cy="12" r="1.8" fill="#d4b27a"/><circle cx="8" cy="19" r="1.5" fill="#d4b27a"/></svg>
       <span><b>Alhelí</b><small>Residencias boutique</small></span>
     </a>
-    <div class="crumb" id="crumb" hidden><a href="#inicio">‹ Inicio</a><b id="here"></b></div>
+    <nav class="quicknav" id="quicknav" aria-label="Secciones principales"></nav>
+    <div class="crumb" id="crumb" hidden><a href="#inicio">Inicio</a><b id="here"></b></div>
     <div class="top-r">
-      <button class="pill sm" data-asesor>Hablar con un asesor</button>
+      <button class="btn gold" data-asesor>Hablar con un asesor</button>
       <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><span>Menú</span><i aria-hidden="true"><span></span><span></span><span></span></i></button>
     </div>
   </div>
@@ -427,29 +502,30 @@ a.btn{text-decoration:none;display:inline-block}
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menú del showroom" hidden>
   <div class="menu-top"><div class="eyebrow">Alhelí · Showroom virtual</div><button class="menu-x" id="menuX" aria-label="Cerrar menú">×</button></div>
   <nav class="menu-cols" id="menuCols"></nav>
-  <div class="menu-foot"><span>Diseño JGStudio · Construcción Conarmo</span><button class="pill sm" data-asesor>Hablar con un asesor</button></div>
+  <div class="menu-foot"><span>Diseño JGStudio · Construcción Conarmo</span><button class="btn" data-asesor>Hablar con un asesor</button></div>
 </div>
 
 <main>
-<!-- INICIO: portada + hub del showroom -->
+<!-- INICIO: portada + índice del showroom -->
 <section class="view" id="v-inicio">
   <div class="lux">
-    <img src="img/r-fachada.jpg" alt="Fachada de Alhelí al atardecer">
-    <div class="in">
+    <div class="lux-t">
+      <p class="kicker">Residencias boutique · Showroom virtual</p>
       <h1>Donde una historia vuelve a florecer</h1>
-      <div class="lux-b">
-        <div class="eyebrow">Showroom virtual · <span id="heroDisp"></span></div>
-        <p>Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
-        <div class="lux-cta"><a class="pill" href="#departamentos">Explorar departamentos</a><a class="pill line" href="#edificio">Ver el edificio en 3D</a></div>
-      </div>
+      <p class="lead">Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
+      <dl class="lux-d"><div><dt>Disponibles</dt><dd id="heroDisp"></dd></div><div><dt>Diseño</dt><dd>JGStudio</dd></div><div><dt>Construcción</dt><dd>Conarmo</dd></div></dl>
+      <div class="lux-cta"><a class="btn gold" href="#departamentos">Ver los 10 departamentos</a><a class="tlink" href="#edificio">Recorrer el edificio en 3D</a></div>
     </div>
+    <figure class="lux-f"><img src="img/r-fachada.jpg" alt="Fachada de Alhelí al atardecer"><figcaption>Fachada frontal, al atardecer</figcaption></figure>
   </div>
   <div class="wrap">
-    <div class="sec-head hub-head"><div class="eyebrow">Showroom virtual</div><h2>Todo en una sola experiencia</h2><p class="muted">Elija su departamento, recórralo por dentro, ubíquelo en el edificio y siga el avance de la obra antes de hablar con un asesor.</p></div>
-    <div class="hub" id="hub"></div>
-    <button class="cta-bar" data-asesor><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hablar con un asesor</button>
+    <div class="hub-sec">
+      <div class="sec-head"><div class="eyebrow">Índice del showroom</div><h2>Seis secciones antes de la visita</h2><p class="muted">Elija su departamento, recórralo por dentro, ubíquelo en el edificio y revise el avance de la obra. El asesor recibe lo que usted ya vio.</p><button class="btn gold" data-asesor>Hablar con un asesor</button></div>
+      <div class="hub" id="hub"></div>
+    </div>
     <p class="specs"><span><b>10</b>departamentos</span><span><b>2</b>plantas y terraza</span><span><b>1 · 2 · 3</b>dormitorios</span><span><b>71–164</b>m² cubiertos</span><span><b id="factDisp">10</b>disponibles</span></p>
     <div class="intro">
+      <figure><img src="img/r-jardines.jpg" alt="Acceso secundario y jardines de Alhelí"><figcaption>Acceso secundario y jardines</figcaption></figure>
       <div class="txt">
         <div class="eyebrow">El proyecto</div>
         <h2>Una forma distinta de entender la transformación</h2>
@@ -461,7 +537,6 @@ a.btn{text-decoration:none;display:inline-block}
           <div>Web<b>alheliresidencias.com</b></div>
         </div>
       </div>
-      <img src="img/r-jardines.jpg" alt="Acceso secundario y jardines de Alhelí">
     </div>
   </div>
 </section>
@@ -517,9 +592,9 @@ a.btn{text-decoration:none;display:inline-block}
           </div>
           <div class="chips"><button class="chip" id="pan3" title="Arrastrar para desplazarse">Mover</button><button class="chip on" id="iso3">Isométrica</button><button class="chip" id="cut3">Abrir paredes</button><button class="chip" id="status3">Disponibilidad</button><button class="chip" id="explode3">Separar plantas</button></div>
           <div class="right">
-            <label class="sun"><span aria-hidden="true">☀</span><input type="range" id="sun" min="0" max="100" value="22" aria-label="Hora del día"><span aria-hidden="true">☾</span></label>
-            <button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">⌂</button>
-            <button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">⛶</button>
+            <label class="sun"><span aria-hidden="true">Día</span><input type="range" id="sun" min="0" max="100" value="22" aria-label="Hora del día"><span aria-hidden="true">Noche</span></label>
+            <button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">Centrar</button>
+            <button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">Ampliar</button>
           </div>
         </div>
 
@@ -527,7 +602,7 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="visit3"><span>Visitar departamento</span><div id="visitChips"></div></div>
       </div>
       <aside class="side" id="side3" hidden><p class="empty">Toque un departamento o su número para ver la ficha. Use “Mover” para desplazarse por la propiedad, las flechas del teclado o Shift + scroll. Active “Abrir paredes” para ver los interiores y “Disponibilidad” para colorear las unidades por estado.</p>
-        <div class="legend"><span><i style="background:#6a4f74"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
+        <div class="legend"><span><i style="background:#2b2826"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
       </aside>
     </div>
   </div>
@@ -564,22 +639,15 @@ a.btn{text-decoration:none;display:inline-block}
 <!-- AVANCE DE OBRA -->
 <section class="view" id="v-avance">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Avance de obra</div><h2>En qué etapa está la construcción</h2></div>
+    <div class="sec-head"><div class="eyebrow">Avance y métricas · Obra</div><h2>En qué etapa está la construcción</h2></div>
     <p class="note" id="obraNote" hidden>Datos de ejemplo para la demo. Edite <code>OBRA</code> en el código para publicar el avance real de cada mes.</p>
     <div class="obra">
       <div class="panel ring" id="obraRing"></div>
       <div class="fases" id="obraFases"></div>
     </div>
-    <div class="next"><span>Siguiente paso<b>Coordine una visita con un asesor</b></span><button class="btn gold" data-asesor>Hablar con un asesor</button></div>
-  </div>
-</section>
-
-<!-- MÉTRICAS (equipo comercial) -->
-<section class="view" id="v-metricas">
-  <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Equipo comercial</div><h2>Qué recorrió el visitante antes de la reunión</h2></div>
-    <p class="note">Mediciones reales de este dispositivo, guardadas en el navegador. En producción, este mismo tablero reúne a todos los visitantes del showroom.</p>
+    <div class="sec-head sub"><div class="eyebrow">Métricas del showroom</div><h2>Qué recorrió el visitante antes de la reunión</h2><p class="muted">Mediciones reales de este dispositivo, guardadas en el navegador. En producción, este mismo tablero reúne a todos los visitantes.</p></div>
     <div id="metricas"></div>
+    <div class="next"><span>Siguiente paso<b>Coordine una visita con un asesor</b></span><button class="btn gold" data-asesor>Hablar con un asesor</button></div>
   </div>
 </section>
 
@@ -633,24 +701,17 @@ const obraTotal=()=>Math.round(OBRA.fases.reduce((s,f)=>s+f.p,0)/OBRA.fases.leng
 /* ---- contacto del asesor: WhatsApp con código de país, solo dígitos (vacío = el visitante elige el contacto) ---- */
 const CONTACTO={whatsapp:''};
 /* ---- secciones: una sola lista alimenta el menú, el hub de inicio y el título de la barra ---- */
-const IC={
-  departamentos:'<path d="M3 21h18M5 21V6l7-3v18M12 9h7v12M8.5 8.5h.01M8.5 12.5h.01M8.5 16.5h.01M15.5 13h.01M15.5 17h.01"/>',
-  recorrido:'<circle cx="12" cy="12" r="2.6"/><path d="M12.5 16.5C7.3 16.4 3 14.4 3 12c0-2.5 4-4.5 9-4.5s9 2 9 4.5c0 1.5-1.5 2.8-3.800 3.600M10.200 14l2.300 2.500-2.600 2.300"/>',
-  edificio:'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.500M12 12v9M12 12L4 7.500"/>',
-  avance:'<path d="M4 20h16M7 20v-5M12 20V8M17 20v-9"/>',
-  planos:'<path d="M12 4l9 5-9 5-9-5zM3 14.500l9 5 9-5"/>',
-  galeria:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.600"/><path d="M4 18l5-5 4 4 3-3 4 4"/>'};
 const SECCIONES=[
   {id:'inicio',t:'Inicio',d:'Portada y accesos del showroom',g:0},
   {id:'galeria',t:'Galería',d:'Renders de fachada, patio e interiores',g:0,hub:1},
-  {id:'avance',t:'Avance de obra',d:'En qué etapa está la construcción',g:0,hub:1},
+  {id:'avance',t:'Avance y métricas',d:'Etapa de la obra y actividad del showroom',g:0,hub:1},
   {id:'departamentos',t:'Departamentos',d:'Disponibilidad, áreas y fichas',g:1,hub:1},
   {id:'planos',t:'Planos',d:'Ubique cada unidad en su planta',g:1,hub:1},
   {id:'edificio',t:'Edificio 3D',d:'Explore el edificio y visite un departamento',g:1,hub:1},
-  {id:'recorrido',t:'Recorrido interior',d:'Entre a un departamento desde la fachada',g:1,hub:1},
-  {id:'metricas',t:'Métricas',d:'Qué recorrió el visitante',g:2}];
-const GRUPOS=['Conozca el proyecto','Elija su departamento','Equipo comercial'];
+  {id:'recorrido',t:'Recorrido interior',d:'Entre a un departamento desde la fachada',g:1,hub:1}];
+const GRUPOS=['Conozca el proyecto','Elija su departamento'];
 const HUB_ORDEN=['departamentos','recorrido','edificio','avance','planos','galeria'];
+const NAV_RAPIDA=['departamentos','planos','edificio','recorrido','avance'];   // máximo cinco en la barra; el resto vive en el menú
 const nDisp=()=>UNITS.filter(u=>status(u.n)==='disponible').length;
 const hubDato=id=>({departamentos:nDisp()+' disponibles',recorrido:'Sala · Terraza',edificio:'Entorno · Asoleamiento',avance:obraTotal()+'% · '+OBRA.actualizado,planos:'Baja · Alta · Terraza',galeria:TOUR.length+' renders'})[id];
 
@@ -695,11 +756,11 @@ function openAsesor(n){if(n){J.d.fav=n;J.save()}const sel=n||J.top()||'';
   upd();$('#modal').classList.add('on');$('#sheet .close').focus()}
 
 function renderObra(){const t=obraTotal(),R=84,C=2*Math.PI*R;$('#obraNote').hidden=!OBRA.ejemplo;
-  $('#obraRing').innerHTML=`<svg viewBox="0 0 200 200" role="img" aria-label="Avance total de la obra: ${t}%"><circle class="trk" cx="100" cy="100" r="${R}"/><circle class="val" cx="100" cy="100" r="${R}" transform="rotate(-90 100 100)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-t/100)}"/><text x="100" y="108" text-anchor="middle" font-size="52">${t}%</text><text x="100" y="132" text-anchor="middle" font-size="13" style="font-family:var(--body);fill:var(--muted)">avance total</text></svg>
+  $('#obraRing').innerHTML=`<svg viewBox="0 0 200 200" role="img" aria-label="Avance total de la obra: ${t}%"><circle class="trk" cx="100" cy="100" r="${R}"/><circle class="val" cx="100" cy="100" r="${R}" transform="rotate(-90 100 100)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-t/100)}"/><text x="100" y="110" text-anchor="middle" font-size="58">${t}%</text><text x="100" y="132" text-anchor="middle" font-size="13" style="font-family:var(--body);fill:var(--muted)">avance total</text></svg>
     <div><h3>Última actualización</h3><p class="muted">${OBRA.actualizado[0].toUpperCase()+OBRA.actualizado.slice(1)} · promedio de ${OBRA.fases.length} etapas</p></div>`;
   $('#obraFases').innerHTML=OBRA.fases.map(f=>`<div class="fase"><div class="r">${f.t}<span class="${f.p>=100?'done':''}">${f.p>=100?'✓ Completo':f.p+'%'}</span></div><div class="meter" role="img" aria-label="${f.t}: ${f.p}%"><i class="${f.p>=100?'done':''}" style="width:${f.p}%"></i></div></div>`).join('')}
 
-function renderMetricas(){const d=J.d,min=Math.floor(d.seg/60),secc=SECCIONES.filter(s=>s.id!=='metricas'),vis=secc.filter(s=>d.vistas[s.id]).length;
+function renderMetricas(){const d=J.d,min=Math.floor(d.seg/60),secc=SECCIONES,vis=secc.filter(s=>d.vistas[s.id]).length;
   const rows=UNITS.map(u=>({u,c:J.count(u.n),x:d.deptos[u.n]||{}})).sort((a,b)=>b.c-a.c||a.u.n-b.u.n),max=Math.max(1,...rows.map(r=>r.c)),vistos=rows.filter(r=>r.c).length,top=J.top();
   const tip=[1,2,3].map(k=>{const l=UNITS.filter(u=>u.dorm===k),a=l.map(u=>u.cub);return{k,n:l.length,disp:l.filter(u=>status(u.n)==='disponible').length,res:l.filter(u=>status(u.n)==='reservado').length,ven:l.filter(u=>status(u.n)==='vendido').length,min:Math.min(...a),max:Math.max(...a)}});
   $('#metricas').innerHTML=`<div class="kpis">
@@ -728,22 +789,23 @@ function renderMetricas(){const d=J.d,min=Math.floor(d.seg/60),secc=SECCIONES.fi
 
 /* ---- menú, hub y barra superior ---- */
 $('#menuCols').innerHTML=GRUPOS.map((g,gi)=>`<div><h4>${g}</h4>${SECCIONES.filter(s=>s.g===gi).map(s=>`<a href="#${s.id}" data-v="${s.id}"><i>${String(SECCIONES.indexOf(s)+1).padStart(2,'0')}</i><span><b>${s.t}</b><small>${s.d}</small></span></a>`).join('')}</div>`).join('');
-function renderHub(){$('#hub').innerHTML=HUB_ORDEN.map(id=>{const s=SECCIONES.find(x=>x.id===id);return `<a class="tile" href="#${id}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[id]}</svg></span><b>${s.t}</b><small>${s.d}</small><em>${hubDato(id)}</em></a>`}).join('');
-  $('#heroDisp').textContent=nDisp()+' de '+UNITS.length+' disponibles';
+$('#quicknav').innerHTML=NAV_RAPIDA.map(id=>`<a href="#${id}" data-v="${id}">${SECCIONES.find(x=>x.id===id).t}</a>`).join('');
+function renderHub(){$('#hub').innerHTML=HUB_ORDEN.map((id,k)=>{const s=SECCIONES.find(x=>x.id===id);return `<a href="#${id}"><i>${String(k+1).padStart(2,'0')}</i><b>${s.t}</b><span>${s.d}</span><em>${hubDato(id)}</em></a>`}).join('');
+  $('#heroDisp').textContent=nDisp()+' de '+UNITS.length;
   $('#visitChips').innerHTML=UNITS.map(u=>`<button data-visit="${u.n}" class="st-${status(u.n)}" title="Departamento ${u.n} · ${PLANTA[u.planta]} · ${u.dorm} dorm. · ${status(u.n)}" aria-label="Visitar el departamento ${u.n}">${u.n}</button>`).join('')}
 function setMenu(on){$('#menu').hidden=!on;$('#menuBtn').setAttribute('aria-expanded',on);document.body.style.overflow=on?'hidden':'';if(on)$('#menuX').focus()}
 $('#menuBtn').onclick=()=>setMenu(true);$('#menuX').onclick=()=>setMenu(false);
 $('#menu').addEventListener('click',e=>{if(e.target.closest('a,[data-asesor]'))setMenu(false)});
 addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
-const onScroll=()=>$('#top').classList.toggle('solid',scrollY>innerHeight*.55);addEventListener('scroll',onScroll,{passive:true});
+const onScroll=()=>{};
 /* ---- navegación por hash ---- */
-const VIEWS=SECCIONES.map(x=>x.id),ALIAS={proyecto:'inicio',plantas:'planos',experiencia:'recorrido'};
+const VIEWS=SECCIONES.map(x=>x.id),ALIAS={proyecto:'inicio',plantas:'planos',experiencia:'recorrido',metricas:'avance'};
 function route(){
   let h=(location.hash||'#inicio').slice(1);h=ALIAS[h]||h; const v=VIEWS.includes(h)?h:'inicio',sec=SECCIONES.find(x=>x.id===v);
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  document.querySelectorAll('#menuCols a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
+  document.querySelectorAll('#menuCols a,#quicknav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
   document.body.classList.toggle('home',v==='inicio');$('#crumb').hidden=v==='inicio';$('#here').textContent=sec.t;
-  setMenu(false);J.view(v);if(v==='metricas')renderMetricas();
+  setMenu(false);J.view(v);if(v==='avance')renderMetricas();
   // Recorrido interior: carga diferida del iframe; al salir de la sección se detiene y vuelve a su portada.
   const ef=document.getElementById('expFrame');
   if(v==='recorrido'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
@@ -901,7 +963,7 @@ pa:[
  ['counter',735,360,44,19],['sala',720,417,0],['dining',772,413,20,28],['sofa',828,408,33,12,0],['round',745,461],['bed',933,384,30,29,0],['bed',933,432,30,29,0],['bed',918,326,29,37,0],['toilet',882,373],['toilet',893,457],['ochairs',975,455]],
 tc:[['round',425,240],['sofa',360,215,12,30,270],['sofa',360,262,12,30,270],['counter',470,240,10,40],['toilet',500,205],['osofa',365,330,90],['osofa',485,330,270],['round',425,345],['ochairs',425,400],['osofa',425,425,180]]};
 const CARS=[];for(let i=0;i<9;i++)CARS.push([262+i*42,388,0]);for(let i=0;i<7;i++)CARS.push([728+i*38,388,0]);[[870,322],[908,322],[948,322]].forEach(c=>CARS.push([c[0],c[1],0]));
-const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,hover:0xd4b27a};
+const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,hover:0xd4b27a};
 (function(){
   if(!window.THREE) return;
   const el=$('#stage3'), canvas=$('#c3');
@@ -1117,7 +1179,7 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const treadmill=g=>{fb3(g,10,2,22,rubber,0,2,0);fb3(g,10,1,4,steel,0,8,-11);fb3(g,1,12,1,steel,-4.5,7,-10);fb3(g,1,12,1,steel,4.5,7,-10);fb3(g,10,4,2,rubber,0,14,-10.5)};
     const bike=g=>{fb3(g,3,2,14,steel,0,1,0);fb3(g,1.2,10,1.2,steel,0,6,3);fb3(g,4,1.5,6,rubber,0,11,3);fb3(g,1.2,12,1.2,steel,0,7,-4);fb3(g,8,1,1.2,steel,0,13,-4);const wh=new THREE.Mesh(new THREE.CylinderGeometry(3.5,3.5,1.5,14),rubber);wh.rotation.z=Math.PI/2;wh.position.set(0,4,-1);g.add(wh)};
     const rack=g=>{fb3(g,22,1.5,6,steel,0,4,0);fb3(g,22,1.5,6,steel,0,10,0);fb3(g,1.5,14,6,steel,-10,7,0);fb3(g,1.5,14,6,steel,10,7,0);for(let k=-4;k<=4;k++){const d=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,4,10),rubber);d.rotation.z=Math.PI/2;d.position.set(k*2.3,6,0);g.add(d);const d2=d.clone();d2.position.y=12;g.add(d2)}};
-    const mat=g=>{fb3(g,22,.6,10,new THREE.MeshStandardMaterial({color:0x6a4f74,roughness:1}),0,.3,0)};
+    const mat=g=>{fb3(g,22,.6,10,new THREE.MeshStandardMaterial({color:0x2b2826,roughness:1}),0,.3,0)};
     const wbench=g=>{fb3(g,5,1.5,16,rubber,0,6,0);fb3(g,1.5,5,1.5,steel,0,3,-6);fb3(g,1.5,5,1.5,steel,0,3,6)};
     const mirror=g=>{fb3(g,1,28,60,new THREE.MeshStandardMaterial({color:0xcfd8dc,roughness:.05,metalness:.9}),0,18,0)};
     G(bike,646,131);G(bike,661,131);G(rack,676,146,0);G(mat,648,146);G(wbench,676,131);G(mirror,636.5,110)}

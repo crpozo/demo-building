@@ -8,7 +8,7 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 - `img/` — renders, plantas y planos de cada departamento, extraídos del brochure ALHELI_SEP_2026.
 
 ## Funciones
-- Portada a pantalla completa con menú único (Inicio, Galería, Avance de obra, Departamentos, Planos, Edificio 3D, Recorrido interior, Métricas) y hub de accesos.
+- Portada partida (texto y fotografía), barra con las cinco secciones principales, menú completo e índice numerado del showroom. Fondo blanco, tinta y un acento terracota; Avance de obra y Métricas comparten sección.
 - Avance de obra por etapas (`OBRA` en `index.html`; hoy con datos de ejemplo) y contacto del asesor (`CONTACTO.whatsapp`).
 - Recorrido del visitante guardado en el navegador: alimenta el mensaje para el asesor y el tablero de Métricas.
 - En el Edificio 3D, la barra «Visitar departamento» enfoca la unidad y abre sus paredes; el entorno es natural (bosques, lagunas, senderos).
