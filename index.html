@@ -974,7 +974,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   renderer.shadowMap.autoUpdate=false;
   let need=8;const wake=n=>{need=Math.max(need,n||8)};
   function shadowDirty(){renderer.shadowMap.needsUpdate=true;wake()}
-  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.86;
   const scene=new THREE.Scene();
   scene.fog=new THREE.Fog(0xcfe0f2,3200,7500);
   const camP=new THREE.PerspectiveCamera(38,1,40,12000);const camO=new THREE.OrthographicCamera(-1,1,1,-1,-2200,4200);let cam=camO,iso=true;
@@ -999,10 +999,10 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     asphalt:ctex((x,s)=>noise(x,s,'#4a4b4f',.12,3000),256,6),
   };
   const M={
-    terra:new THREE.MeshStandardMaterial({color:0xb5704e,roughness:.95}),
-    sand:new THREE.MeshStandardMaterial({color:0xd6b995,roughness:.95}),
+    terra:new THREE.MeshStandardMaterial({color:0xa44d30,roughness:.95}),
+    sand:new THREE.MeshStandardMaterial({color:0xc2a88c,roughness:.95}),
     plaster:new THREE.MeshStandardMaterial({color:0xe9dfcd,roughness:.9}),
-    slab:new THREE.MeshStandardMaterial({color:0xd9d0c0,roughness:1,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1}),
+    slab:new THREE.MeshStandardMaterial({color:0xcdbfa9,roughness:1,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1}),
     glass:new THREE.MeshPhysicalMaterial({color:0x5d7f96,metalness:.1,roughness:.15,transparent:true,opacity:.72,emissive:0x000000}),
     wood:new THREE.MeshStandardMaterial({map:T.wood,roughness:.8}),
     lawn:new THREE.MeshStandardMaterial({map:T.lawn,roughness:1}),
@@ -1069,6 +1069,8 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   // zona construida de planta baja: unidades 1 a 4, núcleos y el bloque de estacionamientos, bodegas y garita
   const BUILT_PB=UNITS.filter(u=>u.planta==='pb').flatMap(u=>ENC[u.n]).concat(CORES,[[[168,340],[1002,340],[1002,436],[168,436]]]);
   const isBuilt=(x,z)=>z>70&&inZone(x,z,BUILT_PB,4);
+  const UNITS_PB=UNITS.filter(u=>u.planta==='pb').flatMap(u=>ENC[u.n]).concat(CORES),inUnitPB=(x,z)=>z>70&&inZone(x,z,UNITS_PB,4);
+  {const st=new THREE.Mesh(wallGeo('pb',(x,z)=>isBuilt(x,z)&&!inUnitPB(x,z),40),M.sand);st.castShadow=st.receiveShadow=true;st.userData.level='pb';st.userData.structure=true;root.add(st)}
   {const gw=new THREE.Mesh(wallGeo('pb',(x,z)=>!isBuilt(x,z),22),M.terra);gw.castShadow=gw.receiveShadow=true;gw.userData.gardenWalls=true;root.add(gw)}
   /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
   const mosaicM=new THREE.MeshStandardMaterial({map:ctex((x,s)=>{x.fillStyle='#55565c';x.fillRect(0,0,s,s);for(let i=0;i<s;i+=10)for(let j=0;j<s;j+=10){x.fillStyle=`hsl(225,5%,${26+Math.random()*18}%)`;x.fillRect(i+1,j+1,8,8)}},256,6),roughness:1});
@@ -1144,7 +1146,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
-    {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?isBuilt:()=>true,40)}}
+    {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,40);w.visible=cut}}
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
     root.add(grp);grp.updateMatrixWorld(true);batchContainer(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click();shadowDirty()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
@@ -1152,6 +1154,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<8;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.count=k;cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
   [[668,300,7],[650,238,6],[685,310,6]].forEach(b=>{const bowl=new THREE.Mesh(new THREE.CylinderGeometry(b[2],b[2]*.8,6,24,1,true),new THREE.MeshStandardMaterial({color:0x8e2f2a,roughness:.35,metalness:.2,side:THREE.DoubleSide}));bowl.position.set(b[0],3,b[1]);root.add(bowl);const sp=new THREE.Mesh(new THREE.SphereGeometry(1.6,8,6),M.white);sp.position.set(b[0],6.5,b[1]);root.add(sp);sp.userData.level='pb';
     const w=new THREE.Mesh(new THREE.CircleGeometry(b[2]-.6,24),M.water);w.rotation.x=-Math.PI/2;w.position.set(b[0],5.6,b[1]);root.add(w);bowl.userData.level=w.userData.level='pb'});
+  [[300,112],[742,118],[862,330]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,18,10),new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:.5,metalness:.4}));c.position.set(p[0],LV.pa+FH+9,p[1]+PA_DZ);c.castShadow=true;c.userData.level='pa';root.add(c)});   // chimeneas
   // núcleos, salón de terraza, cubierta
   prism(CORES[2],0,FH-5,M.terra,{core:1});
   const salonRoof=box(325,130,507,243,LV.tc+33.4,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
@@ -1470,7 +1473,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   let cut=false;
   function applyCut(){root.traverse(o=>{
       if(o.isMesh&&!o.isSprite&&!o.userData.interior&&!o.userData.floor&&(o.userData.unit||o.userData.core||o.userData.common)&&o.material!==M.deck&&!o.material.isMeshBasicMaterial){o.visible=!cut}
-      if(o.isMesh&&o.userData.interior&&o.name==='walls'){o.scale.y=cut?.3:1}
+      if(o.isMesh&&o.userData.interior&&o.name==='walls'){o.scale.y=cut?.3:1;if(o.userData.level!=='tc')o.visible=cut}
       if(o.userData.pane&&o.parent){o.parent.visible=!cut}});shadowDirty()}
   $('#cut3').onclick=e=>{cut=!cut;e.target.classList.toggle('on',cut);auto=false;if(cut){phi=Math.min(phi,.75)}applyCut();if(floor!=='all')$('#floor3 .chip.on').click()};
   /* separar plantas */
@@ -1507,7 +1510,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   /* día / noche */
   const sky=new THREE.Color();
   function daylight(v){const t=v/100;const day=new THREE.Color(0x8fbce6),dusk=new THREE.Color(0xe0a070),night=new THREE.Color(0x141022);
-    if(t<.5)sky.copy(day).lerp(dusk,t*2);else sky.copy(dusk).lerp(night,(t-.5)*2);
+    if(t<.5)sky.copy(day).lerp(dusk,Math.max(0,(t-.3)/.2));else sky.copy(dusk).lerp(night,(t-.5)*2);
     scene.background=sky;scene.fog.color.copy(sky);
     sunL.intensity=t<.55?1.1:Math.max(.12,1.1*(1-(t-.55)*2.2));amb.intensity=Math.max(.4,.7*(1-t*.5));
     sunL.color.setHex(t<.4?0xfff2e0:t<.7?0xffb070:0x9ab0ff);sunL.position.set(-700+t*1400,1000-t*600,900);
