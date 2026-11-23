@@ -1554,7 +1554,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};let panMode=false;
   $('#pan3').onclick=e=>{panMode=!panMode;e.target.classList.toggle('on',panMode);el.style.cursor=panMode?'move':'grab'};
   function pan(dx,dy){const sc=tv.dist/el.clientHeight*1.3;const fx=Math.sin(tv.theta),fz=Math.cos(tv.theta);targetT.x+=(-dx*fz*sc)+(-dy*fx*sc);targetT.z+=(dx*fx*sc)+(-dy*fz*sc);targetT.x=Math.max(-2200,Math.min(2200,targetT.x));targetT.z=Math.max(-2000,Math.min(2000,targetT.z))}
-  function place(){if(walk){tv.theta+=(theta-tv.theta)*.3;tv.phi+=(phi-tv.phi)*.3;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+24,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
+  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+24,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
     tv.theta+=(theta-tv.theta)*.18;tv.phi+=(phi-tv.phi)*.18;tv.dist+=(dist-tv.dist)*.18;target.lerp(targetT,.18);const th=tv.theta,ph=tv.phi;cam.position.set(target.x+tv.dist*Math.sin(ph)*Math.sin(th),target.y+tv.dist*Math.cos(ph),target.z+tv.dist*Math.sin(ph)*Math.cos(th));cam.lookAt(target)}
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
@@ -1562,7 +1562,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   el.addEventListener('pointerdown',e=>{if(e.target!==canvas||(e.pointerType==='touch'&&pinch))return;drag=pos(e);drag.pan=panMode||e.button===2||e.shiftKey||e.ctrlKey;moved=false;auto=false;el.setPointerCapture(e.pointerId)});
   el.addEventListener('pointermove',e=>{
     if(e.target!==canvas&&!drag){$('#tip3').style.display='none';return}
-    if(drag){const p=pos(e);const dx=p.x-drag.x,dy=p.y-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;if(walk){theta+=dx*.004;phi=Math.min(PHI_MAX,Math.max(.6,phi+dy*.004))}else if(drag.pan)pan(dx,dy);else{theta-=dx*.006;phi=Math.min(1.52,Math.max(.08,phi-dy*.006))}p.pan=drag.pan;drag=p;return}
+    if(drag){const p=pos(e);const dx=p.x-drag.x,dy=p.y-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;if(walk){theta+=dx*.0018;phi=Math.min(PHI_MAX,Math.max(1.2,phi+dy*.0014))}else if(drag.pan)pan(dx,dy);else{theta-=dx*.006;phi=Math.min(1.52,Math.max(.08,phi-dy*.006))}p.pan=drag.pan;drag=p;return}
     pick(e,false)});
   el.addEventListener('pointerup',e=>{if(drag&&!moved){if(walk)walkTo(e);else pick(e,true)}drag=null});
   el.addEventListener('pointercancel',()=>drag=null);
@@ -1610,9 +1610,9 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));wake(30)}
   function move(dx,dz){if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz;return true}if(freeAt(walk.x+dx,walk.z)){walk.x+=dx;return true}if(freeAt(walk.x,walk.z+dz)){walk.z+=dz;return true}return false}
   function stepWalk(){let mv=joyV[1],sd=0;if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d)sd+=1;if(keys.a)sd-=1;
-    const turn=(keys.arrowright?1:0)-(keys.arrowleft?1:0)+joyV[0]*.8;if(turn){theta-=turn*.035;wake(6)}
-    if(mv||sd){walk.goal=null;const fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta),sp=1.1;move((fx*mv-fz*sd)*sp,(fz*mv+fx*sd)*sp);wake(6)}
-    else if(walk.goal){const gx=walk.goal[0]-walk.x,gz=walk.goal[1]-walk.z,l=Math.hypot(gx,gz);if(l<3||!move(gx/l*1.6,gz/l*1.6)||--walk.goal[2]<0)walk.goal=null;wake(6)}}
+    const turn=(keys.arrowright?1:0)-(keys.arrowleft?1:0)+joyV[0]*.8;if(turn){theta-=turn*.016;wake(6)}
+    if(mv||sd){walk.goal=null;const fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta),sp=.42;move((fx*mv-fz*sd)*sp,(fz*mv+fx*sd)*sp);wake(6)}
+    else if(walk.goal){const gx=walk.goal[0]-walk.x,gz=walk.goal[1]-walk.z,l=Math.hypot(gx,gz);if(l<3||!move(gx/l*.55,gz/l*.55)||--walk.goal[2]<0)walk.goal=null;wake(6)}}
   function miniMap(){const c=$('#mini3'),x=c.getContext('2d'),b=walk.bb,sc=Math.min(c.width/(b[2]-b[0]),c.height/(b[3]-b[1]))*.9,ox=(c.width-(b[2]-b[0])*sc)/2-b[0]*sc,oz=(c.height-(b[3]-b[1])*sc)/2-b[1]*sc;
     x.clearRect(0,0,c.width,c.height);x.fillStyle='#f1eee7';walk.polys.forEach(p=>{x.beginPath();p.forEach((q,i)=>i?x.lineTo(q[0]*sc+ox,q[1]*sc+oz):x.moveTo(q[0]*sc+ox,q[1]*sc+oz));x.fill()});
     x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
@@ -1629,14 +1629,14 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
     mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
     walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
-    if(iso)$('#iso3').click();camP.near=1.5;camP.fov=64;camP.updateProjectionMatrix();PHI_MAX=2.3;$('#sun').value=18;daylight(18);walkL.visible=true;
+    if(iso)$('#iso3').click();camP.near=1.5;camP.fov=64;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
     if(walk.rooms.length)goRoom(0);else{const ip=innerPoint(FOOT[n]);walk.x=ip[0];walk.z=ip[1]}
     J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
   $('#rooms3').onclick=e=>{const b=e.target.closest('button');if(b&&walk)goRoom(+b.dataset.room)};
   // tocar el piso: caminar hasta ese punto
   function walkTo(e){const r=canvas.getBoundingClientRect(),v=new THREE.Vector3((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1,.5).unproject(camP).sub(camP.position);if(v.y>-.02)return;
-    const t=(LV[walk.lvl]+1-camP.position.y)/v.y,x=camP.position.x+v.x*t+PW/2,z=camP.position.z+v.z*t+PH/2-walk.dz;walk.goal=[x,z,400];document.querySelectorAll('#rooms3 button').forEach(b=>b.classList.remove('on'));wake(10)}
+    const t=(LV[walk.lvl]+1-camP.position.y)/v.y,x=camP.position.x+v.x*t+PW/2,z=camP.position.z+v.z*t+PH/2-walk.dz;walk.goal=[x,z,1200];document.querySelectorAll('#rooms3 button').forEach(b=>b.classList.remove('on'));wake(10)}
   $('#walkExit').onclick=exitWalk;
   $('#walkGo').onclick=()=>{if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
   addEventListener('keydown',e=>{if(!walk)return;if(e.key==='Escape'){exitWalk();return}keys[e.key.toLowerCase()]=true;wake(6)});
