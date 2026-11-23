@@ -1559,7 +1559,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};let panMode=false;
   $('#pan3').onclick=e=>{panMode=!panMode;e.target.classList.toggle('on',panMode);el.style.cursor=panMode?'move':'grab'};
   function pan(dx,dy){const sc=tv.dist/el.clientHeight*1.3;const fx=Math.sin(tv.theta),fz=Math.cos(tv.theta);targetT.x+=(-dx*fz*sc)+(-dy*fx*sc);targetT.z+=(dx*fx*sc)+(-dy*fz*sc);targetT.x=Math.max(-2200,Math.min(2200,targetT.x));targetT.z=Math.max(-2000,Math.min(2000,targetT.z))}
-  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+24,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
+  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+19,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
     tv.theta+=(theta-tv.theta)*.18;tv.phi+=(phi-tv.phi)*.18;tv.dist+=(dist-tv.dist)*.18;target.lerp(targetT,.18);const th=tv.theta,ph=tv.phi;cam.position.set(target.x+tv.dist*Math.sin(ph)*Math.sin(th),target.y+tv.dist*Math.cos(ph),target.z+tv.dist*Math.sin(ph)*Math.cos(th));cam.lookAt(target)}
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
@@ -1603,7 +1603,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
      arrastrar para mirar; W/S o flechas arriba/abajo avanzan, flechas izquierda/derecha giran, A/D pasos laterales */
   let walk=null,PHI_MAX=1.52;const keys={},joyV=[0,0];
   const walkL=new THREE.PointLight(0xfff1dc,.55,420,1.2);walkL.visible=false;scene.add(walkL);
-  const freeAt=(x,z)=>inZone(x,z,walk.polys,0)&&!walk.rects.some(r=>x>r[0]-2.4&&x<r[2]+2.4&&z>r[1]-2.4&&z<r[3]+2.4);
+  const freeAt=(x,z)=>inZone(x,z,walk.polys,0)&&!walk.rects.some(r=>x>r[0]-1.6&&x<r[2]+1.6&&z>r[1]-1.6&&z<r[3]+1.6);
   const clearAt=(x,z)=>freeAt(x,z)&&!walk.furn.some(r=>x>r[0]-3&&x<r[2]+3&&z>r[1]-3&&z<r[3]+3);
   const wray=(x,z,a)=>{let d=0;while(d<200&&freeAt(x+Math.cos(a)*(d+4),z+Math.sin(a)*(d+4)))d+=4;return d};
   // mejor punto despejado cerca de un ambiente, mirando hacia él
@@ -1634,7 +1634,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
     mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
     walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
-    if(iso)$('#iso3').click();camP.near=1.5;camP.fov=64;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
+    if(iso)$('#iso3').click();camP.near=1;camP.fov=70;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
     if(walk.rooms.length)goRoom(0);else{const ip=innerPoint(FOOT[n]);walk.x=ip[0];walk.z=ip[1]}
     J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
