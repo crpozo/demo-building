@@ -8,6 +8,7 @@ Herramienta de venta para que el constructor muestre al cliente el proyecto Alhe
 - `img/` — renders, plantas y planos de cada departamento, extraídos del brochure ALHELI_SEP_2026.
 
 ## Funciones
+- Edificio 3D: panel de filtros (planta, dormitorios, disponibilidad, interiores, cámara y hora), tres estilos de decoración interior (moderno, indie, tradicional) con adornos distintos por departamento, y recorrido en primera persona dentro de cada unidad (`walk3D(n)`).
 - El 3D sigue el plano: lindero y calle sobre la diagonal oeste, jardines pintados desde `img/plan-pb-hd.jpg` y muros de ambas plantas trazados de los planos HD (`WALLS2` en `index.html`, copia en `blender/walls.json`; los GLB conservan pisos y mobiliario).
 - Portada partida (texto y fotografía), barra con las cinco secciones principales, menú completo e índice numerado del showroom. Fondo blanco, tinta y un acento terracota; Avance de obra y Métricas comparten sección.
 - Avance de obra por etapas (`OBRA` en `index.html`; hoy con datos de ejemplo) y contacto del asesor (`CONTACTO.whatsapp`).
