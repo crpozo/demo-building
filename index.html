@@ -370,7 +370,7 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
 .lux{display:grid;grid-template-columns:5fr 7fr;min-height:calc(100vh - 61px);min-height:calc(100dvh - 61px);border-bottom:1px solid var(--fg)}
 .lux-t{display:flex;flex-direction:column;justify-content:flex-end;gap:22px;padding:48px clamp(24px,4vw,64px) 44px max(20px,calc((100vw - 1320px)/2 + 20px))}
 .kicker{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:auto}
-.lux h1{font-size:clamp(2.9rem,5.4vw,5.3rem);font-weight:500;letter-spacing:-.015em;text-transform:none;line-height:.98;max-width:9.5ch}
+.lux h1{font-size:clamp(2.3rem,3.7vw,3.7rem);font-weight:500;letter-spacing:-.01em;text-transform:none;line-height:1.04;max-width:17ch}
 .lead{font-size:1.06rem;line-height:1.5;max-width:40ch}
 .lux-d{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0 34px;margin:0;padding-top:16px;border-top:1px solid var(--fg)}
 .lux-d dt{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -464,6 +464,18 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
 .visit3 button.st-vendido{opacity:.45;text-decoration:line-through}
 .visit3 button.st-reservado{border-style:dashed}
 
+/* esquinas suavizadas: 8 px en controles, 12 px en paneles e imágenes (sin llegar a píldoras) */
+.btn,.chip,.menu-btn,.menu-x,.ibtn,.sun,.hint3,.where,.sheet .close,.builder input,.builder select,.sheet select,.toast,.tip3,.rooms span{border-radius:8px}
+.visit3{border-radius:12px}.visit3 button{border-radius:7px}
+.v3 .side,.sheet,.card .ph,.plan,.stage img,.intro figure img,.amb img,.side img{border-radius:12px}
+.sheet,.plan,.card .ph{overflow:hidden}
+.thumbs button img{border-radius:6px}
+.stage .arrows button{border-radius:8px}
+.intro figcaption{border-radius:0 8px 0 12px}
+.meter,.meter i{border-radius:3px}
+.steps li i{border-radius:4px}
+.badge::before,.thumbs button.on small::before,.legend i{border-radius:50%}
+
 @media (max-width:1240px){nav.quicknav{display:none}body:not(.home) .crumb{display:flex}}
 @media (max-width:900px){
   .lux{grid-template-columns:1fr;min-height:0}
@@ -511,7 +523,7 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
   <div class="lux">
     <div class="lux-t">
       <p class="kicker">Residencias boutique · Showroom virtual</p>
-      <h1>Donde una historia vuelve a florecer</h1>
+      <h1>Donde una historia <br>vuelve a florecer</h1>
       <p class="lead">Diez departamentos de uno, dos y tres dormitorios alrededor de un patio central, con terraza comunal en cubierta.</p>
       <dl class="lux-d"><div><dt>Disponibles</dt><dd id="heroDisp"></dd></div><div><dt>Diseño</dt><dd>JGStudio</dd></div><div><dt>Construcción</dt><dd>Conarmo</dd></div></dl>
       <div class="lux-cta"><a class="btn gold" href="#departamentos">Ver los 10 departamentos</a><a class="tlink" href="#edificio">Recorrer el edificio en 3D</a></div>
@@ -592,7 +604,7 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
           </div>
           <div class="chips"><button class="chip" id="pan3" title="Arrastrar para desplazarse">Mover</button><button class="chip on" id="iso3">Isométrica</button><button class="chip" id="cut3">Abrir paredes</button><button class="chip" id="status3">Disponibilidad</button><button class="chip" id="explode3">Separar plantas</button></div>
           <div class="right">
-            <label class="sun"><span aria-hidden="true">Día</span><input type="range" id="sun" min="0" max="100" value="22" aria-label="Hora del día"><span aria-hidden="true">Noche</span></label>
+            <label class="sun"><span aria-hidden="true">Día</span><input type="range" id="sun" min="0" max="100" value="58" aria-label="Hora del día"><span aria-hidden="true">Noche</span></label>
             <button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">Centrar</button>
             <button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">Ampliar</button>
           </div>
@@ -1509,13 +1521,13 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const unitLights=[];UNITS.forEach(u=>{const ip=innerPoint(ENC[u.n][0]);const l=new THREE.PointLight(0xffd9a0,0,320,1.3);l.position.set(ip[0],LV[u.planta]+30,ip[1]+(u.planta==='pa'?PA_DZ:0));l.userData.level=u.planta;root.add(l);unitLights.push(l)});
   /* día / noche */
   const sky=new THREE.Color();
-  function daylight(v){const t=v/100;const day=new THREE.Color(0x8fbce6),dusk=new THREE.Color(0xe0a070),night=new THREE.Color(0x141022);
+  function daylight(v){const t=v/100;const day=new THREE.Color(0x8fbce6),dusk=new THREE.Color(0xf0b48c),night=new THREE.Color(0x141022);
     if(t<.5)sky.copy(day).lerp(dusk,Math.max(0,(t-.3)/.2));else sky.copy(dusk).lerp(night,(t-.5)*2);
     scene.background=sky;scene.fog.color.copy(sky);
-    sunL.intensity=t<.55?1.1:Math.max(.12,1.1*(1-(t-.55)*2.2));amb.intensity=Math.max(.4,.7*(1-t*.5));
+    sunL.intensity=t<.55?.95:Math.max(.12,.95*(1-(t-.55)*2.2));amb.intensity=Math.max(.3,.5*(1-t*.5));
     sunL.color.setHex(t<.4?0xfff2e0:t<.7?0xffb070:0x9ab0ff);sunL.position.set(-700+t*1400,1000-t*600,900);
     const glow=t>.55;lampM.emissiveIntensity=glow?2.2:0;unitLights.forEach(l=>{l.intensity=glow?2.4:0;l.visible=glow});root.traverse(o=>{if(o.isMesh&&o.userData.floor&&o.material){o.material.emissive=o.material.emissive||new THREE.Color();o.material.emissive.setHex(glow?0x5a3f1a:0)}if(o.isMesh&&o.userData.pane){o.material.emissive.setHex(glow&&status(o.userData.unit)!=='vendido'?0xffb45a:0x000000);o.material.emissiveIntensity=glow?.9:0}});shadowDirty()}
-  $('#sun').oninput=e=>daylight(+e.target.value); daylight(22);
+  $('#sun').oninput=e=>daylight(+e.target.value); daylight(58);   // por defecto, atardecer con luces encendidas
   if(window.ALHELI_DESKTOP)setTimeout(()=>setHQ(true),300);
   function frameO(){const w=el.clientWidth,h=el.clientHeight;const half=Math.max(60,Math.min(2500,tv.dist*.42));camO.left=-half*w/h;camO.right=half*w/h;camO.top=half;camO.bottom=-half;camO.updateProjectionMatrix()}
   function resize(force){const w=el.clientWidth,h=el.clientHeight;if(force||canvas.width!==Math.round(w*renderer.getPixelRatio())||canvas.height!==Math.round(h*renderer.getPixelRatio())){renderer.setSize(w,h,false);camP.aspect=w/h;camP.updateProjectionMatrix();}frameO()}
