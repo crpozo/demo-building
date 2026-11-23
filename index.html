@@ -1634,7 +1634,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
     mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
     walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
-    if(iso)$('#iso3').click();camP.near=1;camP.fov=70;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
+    if(iso)$('#iso3').click();camP.near=1;camP.fov=86;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
     if(walk.rooms.length)goRoom(0);else{const ip=innerPoint(FOOT[n]);walk.x=ip[0];walk.z=ip[1]}
     J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
