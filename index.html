@@ -507,6 +507,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 .p3-r{display:flex;gap:6px}.p3-r .ibtn{flex:1;text-transform:none;letter-spacing:0;font-size:.78rem;padding:8px 6px}
 .p3-n{font-size:.76rem;color:var(--muted);min-height:1.1em}
 .visit3 button.dim{opacity:.3}
+.visit3 #walkGo{width:auto;height:34px;padding:0 14px;white-space:nowrap;font-size:.8rem}
 .v3 .side{top:12px;max-height:calc(100% - 90px)}
 /* recorrido en primera persona */
 .stage3.walk .p3,.stage3.walk .p3-toggle,.stage3.walk .visit3{display:none}
@@ -681,7 +682,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
         <div class="joy" id="joy"><i></i></div>
 
         <div class="tip3" id="tip3"></div>
-        <div class="visit3"><span>Visitar departamento</span><div id="visitChips"></div></div>
+        <div class="visit3"><span>Visitar departamento</span><div id="visitChips"></div><button class="chip on" id="walkGo">Entrar en primera persona</button></div>
       </div>
       <aside class="side" id="side3" hidden><p class="empty">Toque un departamento o su número para ver la ficha. Use “Mover” para desplazarse por la propiedad, las flechas del teclado o Shift + scroll. Active “Abrir paredes” para ver los interiores y “Disponibilidad” para colorear las unidades por estado.</p>
         <div class="legend"><span><i style="background:#2b2826"></i>Disponible</span><span><i style="background:var(--warn)"></i>Reservado</span><span><i style="background:#8a8a8a"></i>Vendido</span><span><i style="background:var(--gold)"></i>Seleccionado</span></div>
@@ -1238,10 +1239,16 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     for(let t=-900;t<1500;t+=140){const c=ST.at(t,16+104+5),h=ST.at(t,16+104+1);const pole=new THREE.Mesh(new THREE.CylinderGeometry(1,1.3,46,8),M.column);pole.position.set(c[0],23,c[1]);root.add(pole);const head=new THREE.Mesh(new THREE.BoxGeometry(10,2,6),lampM);head.position.set(h[0],46,h[1]);head.rotation.y=ST.rot+Math.PI/2;root.add(head)}
     window.__southTrees=()=>{let k=0;for(let t=-840;t<1500;t+=120){const c=ST.at(t,16+104+12);maple(c[0],c[1],52+(k%3)*8,200+k);k++}};
   }
+  /* autos en los puestos que dibuja el plano (entre columnas y bodegas); los del modelo anterior se ocultan */
+  {const mk=(x,z,ry,i)=>{const g=new THREE.Group(),body=M.carBody[i%4];const fb=(w,h,dd,mat,px,py,pz)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),mat);m.position.set(px,py,pz);m.castShadow=true;g.add(m)};
+      fb(36,7,16,body,0,5.5,0);fb(18,6,13.5,body,-1,12,0);fb(18.4,4,13.9,M.glass,-1,12.5,0);[[-11,-7.5],[11,-7.5],[-11,7.5],[11,7.5]].forEach(q=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(3,3,2.5,12),M.tire);w.rotation.x=Math.PI/2;w.position.set(q[0],3,q[1]);g.add(w)});
+      g.position.set(x,0,z);g.rotation.y=ry;g.userData.level='pb';root.add(g)};
+    [[252,385],[295,385],[338,385],[382,385],[467,385],[504,385],[583,387],[622.5,387],[723,370],[764,370],[804,370],[846,370],[886,370],[926,370],[967.5,370],[886,291],[926,291],[967.5,291]].forEach((c,i)=>mk(c[0],c[1],Math.PI/2,i));[[88,71],[105,112]].forEach((c,i)=>mk(c[0],c[1],ST.rot,i+2))}
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
     {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,40);w.visible=cut||!!walk}}
+    {const old=[];grp.traverse(o=>{if(o.isMesh&&(/^(car\d|tire)$/.test(o.material.name||'')||/^(win|light)/.test(o.name)))old.push(o)});old.forEach(o=>o.parent.remove(o))}
     grp.traverse(o=>{if(o.isMesh&&o.material&&o.material.name&&STYLES.moderno[o.material.name]!==undefined)(MATREG[o.material.name]=MATREG[o.material.name]||new Set()).add(o.material)});applyMats();
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
     root.add(grp);grp.updateMatrixWorld(true);batchContainer(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click();shadowDirty()},undefined,()=>{}));
@@ -1604,6 +1611,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     if(iso)$('#iso3').click();camP.near=1.5;camP.fov=74;camP.updateProjectionMatrix();PHI_MAX=2.5;phi=tv.phi=1.62;theta=tv.theta=Math.atan2(-Math.cos(best.ba),-Math.sin(best.ba));
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl]+' · decoración '+styleNow;labels.forEach(l=>l.visible=false);applyCut();paint();J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
   $('#walkExit').onclick=exitWalk;
+  $('#walkGo').onclick=()=>{if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
   addEventListener('keydown',e=>{if(!walk)return;if(e.key==='Escape'){exitWalk();return}keys[e.key.toLowerCase()]=true;wake(6)});
   addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
   addEventListener('hashchange',()=>{if(walk&&location.hash!=='#edificio')exitWalk()});
