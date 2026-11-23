@@ -705,7 +705,6 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
 
   const lampM=new THREE.MeshStandardMaterial({color:0xfff1c0,emissive:0xffb347,emissiveIntensity:0,roughness:.3});
   /* terreno */
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),new THREE.MeshStandardMaterial({map:T.field,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-2;ground.receiveShadow=true;scene.add(ground);
   prism([[108,22],[928,22],[1035,522],[252,522]],-1.5,1.5,M.pave);
   window.__streetTrees=null;
   prism([[232,345],[640,345],[640,432],[232,432]],-.3,.6,M.cobble);           // estacionamiento
@@ -955,49 +954,91 @@ const COL={disponible:0x6a4f74,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     for(let x=280;x<1030;x+=48){if(k<140){mm.makeTranslation(x,5,548);lamps.setMatrixAt(k++,mm)}}
     lamps.count=k;
     lamps.userData.level='pb';root.add(lamps)}
-  /* vecindario alineado con el proyecto: retícula ortogonal de calles con veredas; la avenida diagonal del plano la atraviesa */
-  {const d=new THREE.Vector2(130,598).normalize(),nrm=new THREE.Vector2(d.y,-d.x);const O=new THREE.Vector2(33,6);
-    const distAve=(x,z)=>Math.abs((x-O.x)*nrm.x+(z-O.y)*nrm.y);           // distancia (en plan) a la avenida diagonal
-    const rnd=(i)=>{const t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
-    const G=new THREE.Group();G.name='vecindario';G.position.set(-PW/2,0,-PH/2);scene.add(G);
-    const roadM=new THREE.MeshStandardMaterial({color:0x4a4b4f,roughness:1});
-    const bx=new THREE.BoxGeometry(1,1,1);const parts={road:[],walk:[],terra:[],sand:[],slab:[],glass:[],frame:[],roofg:[],lawn:[],wall:[],hedge:[],drive:[]};
-    const P=(arr,x,y,z,w,h,dd)=>{const m=new THREE.Matrix4();m.compose(new THREE.Vector3(x,y,z),new THREE.Quaternion(),new THREE.Vector3(w,h,dd));arr.push(m)};
-    const RW=70,SW=16,BLK=420,X0=-2600,X1=3000,Z0=-2100,Z1=2500;
-    const ZS=[];for(let z=-110;z>Z0;z-=BLK)ZS.unshift(z);for(let z=640;z<Z1;z+=BLK)ZS.push(z);
-    const XS=[];for(let x=1140;x<X1;x+=BLK)XS.push(x);for(let x=-10;x>X0;x-=BLK)XS.unshift(x);
-    ZS.forEach(z=>{if(z!==640)P(parts.road,(X0+X1)/2,-.75,z,X1-X0,1,RW)});XS.forEach(x=>P(parts.road,x,-.75,(Z0+Z1)/2,RW,1,Z1-Z0));
-    const inLotPlan=(x,z)=>inside([x,z],[[40,-60],[1000,-60],[1120,600],[180,600]]);
-    const yards=[];let idx=0;
-    const house=(cx,cz,i,side)=>{ // side: +1 = fachada hacia +z (calle al sur), -1 = hacia -z
-      if(inLotPlan(cx,cz))return;const r=rnd(i);const nearLot=cx>-150&&cx<1300&&cz>-300&&cz<800;const two=!nearLot&&rnd(i+2)>.35;const W=72+r*30,D=58+rnd(i+1)*26;
-      const LW=W+50,LD=D+70;P(parts.lawn,cx,.4,cz,LW,1,LD);
-      P(parts.wall,cx,5,cz+side*LD/2,LW,10,3);P(parts.hedge,cx,13,cz+side*LD/2,LW,7,5);P(parts.drive,cx+LW*.3,.9,cz+side*(D/2+LD/4-D/4),22,.6,LD/2-D/2);
-      const mainM=rnd(i+3)>.5?parts.terra:parts.sand;const upM=mainM===parts.terra?parts.sand:parts.terra;
-      P(mainM,cx,20,cz,W,40,D);P(parts.slab,cx,42,cz,W+10,4,D+10);
-      if(two){const uw=W*.7,ud=D*.8,ux=cx+(rnd(i+4)-.5)*W*.3,uz=cz-side*4;P(upM,ux,64,uz,uw,40,ud);P(parts.slab,ux,86,uz,uw+12,4,ud+12);P(parts.roofg,ux,89,uz,uw+6,2.5,ud+6);
-        P(parts.glass,ux,64,uz+side*(ud/2+.6),uw*.6,30,1.2);P(parts.frame,ux,64,uz+side*(ud/2+.2),uw*.6+4,34,1.6)}
-      else P(parts.roofg,cx,45,cz,W+4,2.5,D+4);
-      P(parts.glass,cx,20,cz+side*(D/2+.6),W*.62,34,1.2);P(parts.frame,cx,20,cz+side*(D/2+.2),W*.62+4,38,1.6);
-      P(parts.glass,cx+W/2+.6,20,cz,1.2,30,D*.4);P(parts.frame,cx+W/2+.2,20,cz,1.6,34,D*.4+4);
-      yards.push([cx-LW*.32,cz+side*(D/2+22),i]);if(rnd(i+6)>.5)yards.push([cx+LW*.3,cz-side*(LD/2-18),i+50])};
-    // manzanas: entre calles consecutivas; dos filas de casas, cada una mirando a su calle
-    const allZ=[Z0].concat(ZS,[Z1]),allX=[X0].concat(XS,[X1]);
-    for(let a=0;a<allX.length-1;a++)for(let b=0;b<allZ.length-1;b++){const x0=allX[a]+RW/2+SW,x1=allX[a+1]-RW/2-SW,z0=allZ[b]+RW/2+SW,z1=allZ[b+1]-RW/2-SW;if(x1-x0<120||z1-z0<120)continue;
-      const parkCell=x0<1600&&x1>-450&&z0>600&&z0<1200; if(parkCell){P(parts.lawn,(x0+x1)/2,.2,(z0+z1)/2,x1-x0,.8,z1-z0);P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,(x0+x1)/2,-.2,z1+SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);
-        P(parts.walk,(x0+x1)/2,.4,(z0+z1)/2,x1-x0-40,.6,14);P(parts.walk,(x0+x1)/2,.4,(z0+z1)/2,14,.6,z1-z0-40);
-        for(let k=0;k<22;k++){yards.push([x0+30+rnd(k*3+x0)*(x1-x0-60),z0+30+rnd(k*7+z0)*(z1-z0-60),950+k])}
-        for(let k=0;k<6;k++){const bx=x0+60+k*(x1-x0-120)/5;P(parts.frame,bx,2,(z0+z1)/2+14,16,2,6);P(parts.frame,bx,5,(z0+z1)/2+17,16,6,1.5)}
-        continue}
-      const lotCell=x0<1040&&x1>60&&z0<600&&z1>-20; if(lotCell){P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);continue}
-      P(parts.lawn,(x0+x1)/2,.2,(z0+z1)/2,x1-x0,.8,z1-z0);
-      // veredas de la manzana (si no la cruza la avenida)
-      {P(parts.walk,(x0+x1)/2,-.2,z0-SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,(x0+x1)/2,-.2,z1+SW/2,x1-x0+2*SW,2.2,SW);P(parts.walk,x0-SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0);P(parts.walk,x1+SW/2,-.2,(z0+z1)/2,SW,2.2,z1-z0)}
-      const n=Math.max(1,Math.round((x1-x0)/150));for(let k=0;k<n;k++){const cx=x0+(x1-x0)*(k+.5)/n;house(cx,z0+72,idx++,-1);if(z1-z0>260)house(cx,z1-72,idx++,1)}
-      for(let x=x0+40;x<x1;x+=130){yards.push([x,z0-SW-6,900+idx+x]);yards.push([x,z1+SW+6,901+idx+x])}}
-    const mats={road:roadM,walk:M.pave,terra:M.terra,sand:M.sand,slab:M.slab,glass:M.glass,frame:M.wood,roofg:M.planter,lawn:M.lawn,wall:M.terra,hedge:M.planter,drive:M.cobble};
-    window.__hoodMats=[];Object.entries(parts).forEach(([k,ms])=>{if(!ms.length)return;const mat=['lawn','drive','road','walk'].includes(k)?mats[k]:mats[k].clone();if(mat!==mats[k]){mat.transparent=true;mat.opacity=1;window.__hoodMats.push(mat)}const im=new THREE.InstancedMesh(bx,mat,ms.length);ms.forEach((m,i)=>im.setMatrixAt(i,m));im.castShadow=!['lawn','drive','road','walk'].includes(k);im.receiveShadow=true;G.add(im)});
-    window.__yards=yards.map(y=>[y[0],y[1],y[2]]);
+  /* entorno natural alrededor del lote: colinas suaves, bosques, lagunas, praderas en flor y senderos (sin casas vecinas) */
+  {const G=new THREE.Group();G.name='naturaleza';G.position.set(-PW/2,0,-PH/2);scene.add(G);
+    const rnd=i=>{const t=Math.sin(i*127.1+311.7)*43758.5453;return t-Math.floor(t)};
+    const ss=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t)};
+    const CX=PW/2,CZ=PH/2,GY=-2;
+    // lagunas: [cx, cz, radio, semilla, estiramiento en x]
+    const LAKES=[[640,1140,235,1,1.55],[-640,-430,210,2,1.2],[1840,140,190,3,1.1],[1900,1500,170,4,1.4],[-980,1320,180,5,1.3],[420,-1250,230,6,1.6]];
+    const lakeR=(L,a)=>L[2]*(1+.15*Math.sin(a*2+L[3]*1.7)+.09*Math.sin(a*3+L[3]*4.1)+.05*Math.sin(a*5+L[3]));
+    const lakeD=(x,z)=>{let m=1e9;LAKES.forEach(L=>{const dx=(x-L[0])/L[4],dz=z-L[1];m=Math.min(m,Math.hypot(dx,dz)-lakeR(L,Math.atan2(dz,dx)))});return m}; // <0 = dentro del agua
+    // relieve: plano cerca del lote, de la calle y de las lagunas; colinas hacia el horizonte
+    const hill=(x,z)=>{const n=Math.sin(x*.0011+1.3)*Math.cos(z*.0013+.7)+.5*Math.sin(x*.0027-z*.0021+2.1)+.25*Math.sin(x*.0058+z*.0049);
+      const m=ss(1050,3000,Math.hypot(x-CX,z-CZ))*ss(170,700,Math.abs(z-640))*ss(60,520,lakeD(x,z));return m*(60+Math.max(-.3,n)*200)};
+    const fden=(x,z)=>Math.sin(x*.0021+.4)*Math.cos(z*.0026+1.9)+.6*Math.sin((x+z)*.0043+2.2)+.35*Math.cos(x*.0081-z*.0067);   // densidad del bosque
+    const groundT=ctex((x,s)=>noise(x,s,'#9aba68',.13,5000),256,56);
+    {const tg=new THREE.PlaneGeometry(15000,15000,150,150);tg.rotateX(-Math.PI/2);const tp=tg.attributes.position,tc=new Float32Array(tp.count*3);
+      for(let i=0;i<tp.count;i++){const x=tp.getX(i)+CX,z=tp.getZ(i)+CZ;tp.setY(i,hill(x,z));
+        const f=ss(-.5,.5,fden(x,z)),w=ss(-.2,.9,Math.sin(x*.0037+1)*Math.sin(z*.0031+2));
+        tc[i*3]=(1-.3*f)*(1+.07*w);tc[i*3+1]=(1-.16*f)*(1+.02*w);tc[i*3+2]=(1-.3*f)*(1-.16*w)}
+      tg.setAttribute('color',new THREE.BufferAttribute(tc,3));tg.computeVertexNormals();
+      const terr=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundT,vertexColors:true,roughness:1}));terr.position.set(CX,GY,CZ);terr.receiveShadow=true;G.add(terr)}
+    const gy=(x,z)=>hill(x,z)+GY;
+    // vereda perimetral del lote y vereda sur de la calle principal
+    [[565,-67,1080,16],[33,265,16,648],[1097,265,16,648],[560,700,5600,16]].forEach(w=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w[2],2.2,w[3]),M.pave);m.position.set(w[0],-.2,w[1]);m.receiveShadow=true;G.add(m)});
+    // lagunas: orilla de arena, agua y fondo más profundo
+    const waterM=new THREE.MeshStandardMaterial({color:0x58a6c2,roughness:.18,metalness:0,transparent:true,opacity:.93});
+    const deepM=new THREE.MeshStandardMaterial({color:0x2f7f9f,roughness:.25,transparent:true,opacity:.55});
+    const shoreM=new THREE.MeshStandardMaterial({color:0xdccfa6,roughness:1});
+    const lakeMesh=(L,k,off,y,mat)=>{const sh=new THREE.Shape();for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,r=lakeR(L,a)*k+off;const px=Math.cos(a)*r*L[4],pz=Math.sin(a)*r;i?sh.lineTo(px,-pz):sh.moveTo(px,-pz)}
+      const g=new THREE.ShapeGeometry(sh);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,mat);m.position.set(L[0],y,L[1]);m.receiveShadow=true;G.add(m)};
+    LAKES.forEach(L=>{lakeMesh(L,1,16,GY+.5,shoreM);lakeMesh(L,1,0,GY+1.1,waterM);lakeMesh(L,.62,0,GY+1.5,deepM)});
+    // instancias
+    const up=new THREE.Quaternion(),col=new THREE.Color(),B={};
+    const put=(k,x,y,z,sx,sy,sz,c,ry)=>{const m=new THREE.Matrix4();if(ry!==undefined)up.setFromAxisAngle(new THREE.Vector3(0,1,0),ry);else up.identity();m.compose(new THREE.Vector3(x,y,z),up,new THREE.Vector3(sx,sy,sz));(B[k]=B[k]||[]).push([m,c])};
+    const flat=g=>{const n=g.index?g.toNonIndexed():g;n.computeVertexNormals();return n};
+    const trunkG=new THREE.CylinderGeometry(.7,1,1,6);trunkG.translate(0,.5,0);const coneG=flat(new THREE.ConeGeometry(1,1,7));coneG.translate(0,.5,0);
+    const GEO={trunk:trunkG,trunkF:trunkG,blob:flat(new THREE.IcosahedronGeometry(1,1)),blobF:flat(new THREE.IcosahedronGeometry(1,0)),cone:coneG,coneF:coneG,
+      bush:flat(new THREE.IcosahedronGeometry(1,0)),rock:flat(new THREE.DodecahedronGeometry(1,0)),flower:new THREE.SphereGeometry(1,5,4),reed:new THREE.ConeGeometry(1,1,4).translate(0,.5,0),pad:new THREE.CircleGeometry(1,10).rotateX(-Math.PI/2)};
+    const tint=(hex,i,v=.12)=>{col.setHex(hex);const k=1-v/2+rnd(i)*v;return new THREE.Color(col.r*k,col.g*k,col.b*k)};
+    const LEAF=[0x5c8f3a,0x6b9d42,0x4f8236,0x7aa94a,0x86b352,0x638f3f],PINE=[0x2f6b3c,0x3a7a44,0x285f38,0x44854a],BLOOM=[0x9a6cc4,0xb48ad6,0xe39ab8,0xd8b84e];
+    const inLot=(x,z,mg)=>x>-10-mg&&x<1150+mg&&z>-110-mg&&z<720+mg;
+    // bosques: retícula con desorden, claros según el ruido, más densos hacia el horizonte
+    let ti=0;for(let gx=-3500;gx<4700;gx+=80)for(let gz=-3400;gz<4000;gz+=80){const i=ti++;const x=gx+(rnd(i)-.5)*74,z=gz+(rnd(i+.5)-.5)*74;
+      const dc=Math.hypot(x-CX,z-CZ);if(inLot(x,z,130)||Math.abs(z-640)<120||lakeD(x,z)<40)continue;
+      if(x>180&&x<1100&&z>700&&z<900)continue;                                   // pradera abierta entre la calle y la laguna principal
+      if(fden(x,z)+ss(1900,3200,dc)*1.4+(rnd(i+.25)-.5)*.5<-.05)continue;
+      const y=gy(x,z)-1,s=.8+rnd(i+.7)*.75,far=dc>1500,ry=rnd(i+.9)*6.28;
+      if(Math.sin(x*.0013+3)*Math.cos(z*.0017+.5)+(rnd(i+.3)-.5)*.7>.12){             // pinos
+        put(far?'trunkF':'trunk',x,y,z,2.8*s,22*s,2.8*s,tint(0x5d4a3a,i));
+        for(let k=0;k<3;k++)put(far?'coneF':'cone',x,y+(13+k*19)*s,z,(23-k*5.5)*s,(40-k*3)*s,(23-k*5.5)*s,tint(PINE[i%4],i+k,.16),ry)}
+      else{const bloom=rnd(i+.11)>.93,c0=bloom?BLOOM[i%4]:LEAF[i%6];                 // frondosos (algunos en flor)
+        put(far?'trunkF':'trunk',x,y,z,3.4*s,36*s,3.4*s,tint(0x6b5a4a,i));
+        put(far?'blobF':'blob',x,y+52*s,z,27*s,23*s,27*s,tint(c0,i),ry);
+        for(let k=0;k<2;k++){const a=ry+k*3.1+.6;put(far?'blobF':'blob',x+Math.cos(a)*15*s,y+(40+k*9)*s,z+Math.sin(a)*15*s,18*s,15*s,18*s,tint(c0,i+k+1,.2),ry+k)}}}
+    // arbustos, rocas y praderas en flor
+    for(let i=0;i<900;i++){const x=-1500+rnd(i*3+1)*4200,z=-1400+rnd(i*3+2)*3900;if(inLot(x,z,40)||Math.abs(z-640)<75||lakeD(x,z)<14)continue;const s=7+rnd(i+.4)*9;
+      if(i%6===0)put('rock',x,gy(x,z)+s*.25,z,s*1.1,s*.7,s*.9,tint(0x9a9890,i,.2),rnd(i)*6);else put('bush',x,gy(x,z)+s*.45,z,s*1.25,s*.8,s*1.15,tint(i%9===1?BLOOM[i%3]:LEAF[i%6],i,.2),rnd(i)*6)}
+    LAKES.forEach((L,li)=>{for(let k=0;k<26;k++){const a=rnd(li*50+k)*6.28,r=lakeR(L,a)+6+rnd(k+li)*16,s=6+rnd(k*7+li)*12;const x=L[0]+Math.cos(a)*r*L[4],z=L[1]+Math.sin(a)*r;put('rock',x,GY+s*.3,z,s*1.2,s*.7,s,tint(0xa3a096,k+li,.2),a)}});
+    const FL=[[0x8a4ac0,0xb060d8,0x6a2f9c],[0xf2d24b,0xf6e27a,0xe9b83a],[0xffffff,0xf4ecd8,0xfff6c8],[0xe76fa0,0xf3a0c0,0xd94f8a],[0xe2573c,0xf08a4a,0xf2d24b]];
+    for(let p=0;p<110;p++){const px=-1300+rnd(p*5+3)*3800,pz=-1200+rnd(p*5+4)*3400,pr=50+rnd(p+.6)*90,pal=FL[p%5];
+      for(let k=0;k<70;k++){const a=rnd(p*91+k)*6.28,r=Math.sqrt(rnd(p*57+k+.5))*pr,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r;if(inLot(x,z,6)||Math.abs(z-640)<70||lakeD(x,z)<8)continue;
+        const s=2+rnd(k+p)*1.6;put('flower',x,gy(x,z)+2.5+rnd(k)*2.5,z,s,s*.8,s,new THREE.Color(pal[k%3]))}}
+    // juncos y nenúfares en las lagunas
+    LAKES.forEach((L,li)=>{for(let c=0;c<12;c++){const a=rnd(li*31+c+.2)*6.28;for(let k=0;k<12;k++){const aa=a+(rnd(c*13+k+li)-.5)*.3,r=lakeR(L,aa)-4-rnd(k*3+c)*20;
+          put('reed',L[0]+Math.cos(aa)*r*L[4],GY+1,L[1]+Math.sin(aa)*r,1.3,13+rnd(k+c*5)*14,1.3,tint(k%4?0x7c9c46:0x9a8a4e,k+c,.2))}}
+      for(let k=0;k<24;k++){const a=rnd(li*77+k+.4)*6.28,r=lakeR(L,a)*(.35+rnd(k*5+li)*.5),x=L[0]+Math.cos(a)*r*L[4],z=L[1]+Math.sin(a)*r,s=5+rnd(k+li*3)*5;
+        put('pad',x,GY+1.75,z,s,1,s,tint(0x4f8f45,k,.2));if(k%3===0)put('flower',x,GY+3,z,2.4,1.8,2.4,new THREE.Color(k%2?0xf7c6dc:0xffffff))}});
+    const SH={trunk:1,blob:1,cone:1,bush:1,rock:1};
+    Object.entries(B).forEach(([k,list])=>{const mat=k==='pad'?new THREE.MeshLambertMaterial({side:THREE.DoubleSide}):new THREE.MeshLambertMaterial();
+      const im=new THREE.InstancedMesh(GEO[k],mat,list.length);list.forEach((e,i)=>{im.setMatrixAt(i,e[0]);im.setColorAt(i,e[1])});im.castShadow=!!SH[k];im.receiveShadow=k!=='flower';im.frustumCulled=false;G.add(im)});
+    // senderos de tierra: del ingreso al muelle de la laguna y hacia las lagunas vecinas
+    const trailM=new THREE.MeshStandardMaterial({color:0xd3c096,roughness:1});
+    const trail=(pts,w)=>{const cv=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],0,p[1]))),N=pts.length*14,pos=[],idx=[];
+      for(let i=0;i<=N;i++){const p=cv.getPoint(i/N),t=cv.getTangent(i/N),nx=-t.z,nz=t.x,l=Math.hypot(nx,nz)||1;
+        [-1,1].forEach(sd=>{const x=p.x+nx/l*w/2*sd,z=p.z+nz/l*w/2*sd;pos.push(x,gy(x,z)+.9,z)});if(i<N){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}}
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,trailM);m.receiveShadow=true;G.add(m)};
+    const L0=LAKES[0],shoreZ=L0[1]-lakeR(L0,-Math.PI/2);
+    trail([[620,708],[604,760],[652,830],[640,shoreZ-4]],14);
+    trail([[1105,300],[1290,340],[1480,250],[1640,205]],12);
+    trail([[25,150],[-150,40],[-320,-190],[-440,-330]],12);
+    trail([[640,-75],[700,-330],[560,-640],[470,-1010]],12);
+    // muelle de madera y bote en la laguna principal
+    {const dk=new THREE.Mesh(new THREE.BoxGeometry(24,2,130),M.wood);dk.position.set(640,GY+7,shoreZ+50);dk.castShadow=dk.receiveShadow=true;G.add(dk);
+      for(let k=0;k<5;k++)[-10,10].forEach(dx=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,14,6),M.wood);p.position.set(640+dx,GY+3,shoreZ-10+k*30);p.castShadow=true;G.add(p)});
+      const boat=new THREE.Group();const hull=new THREE.Mesh(new THREE.SphereGeometry(1,12,8,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color:0xf4f1ea,roughness:.6,side:THREE.DoubleSide}));hull.scale.set(9,6,24);hull.position.y=6;boat.add(hull);
+      [-8,6].forEach(z=>{const s=new THREE.Mesh(new THREE.BoxGeometry(15,1.2,4),M.wood);s.position.set(0,4.6,z);boat.add(s)});boat.position.set(676,GY+1,shoreZ+92);boat.rotation.y=.5;boat.traverse(o=>{if(o.isMesh)o.castShadow=true});G.add(boat)}
   }
   /* planos sobre cada planta (modo casa de muñecas) */
   const loader=new THREE.TextureLoader();const slabs={};
