@@ -371,7 +371,7 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
 .lux-t{display:flex;flex-direction:column;justify-content:flex-end;gap:22px;padding:48px clamp(20px,2.4vw,40px) 44px max(20px,calc((100vw - 1320px)/2 + 20px))}
 .kicker{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:auto}
 .lux h1{font-size:clamp(2.3rem,4.5vw,5.4rem);font-weight:500;letter-spacing:-.015em;text-transform:none;line-height:1.02;white-space:nowrap}
-.lead{font-size:clamp(1.06rem,1.35vw,1.4rem);line-height:1.5;max-width:36ch;margin-bottom:auto}
+.lead{font-size:clamp(1.06rem,1.35vw,1.4rem);line-height:1.5;max-width:36ch;margin-bottom:8px}
 .lux-d{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0 34px;margin:0;padding-top:16px;border-top:1px solid var(--fg)}
 .lux-d dt{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .lux-d dd{margin:2px 0 0;font-weight:600;font-size:.95rem;font-variant-numeric:tabular-nums}
@@ -470,7 +470,8 @@ nav.quicknav{gap:4px}
 nav.quicknav a{font-size:.9rem;letter-spacing:0;padding:9px 15px;border-radius:999px;border:0}
 nav.quicknav a:hover{background:#f1efea}
 nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
-.lux h1{margin-top:auto}
+.lux h1{margin-top:0}
+.lux-t{justify-content:center;padding-bottom:14vh}
 .hub{display:grid;grid-template-columns:repeat(12,1fr);gap:34px 22px;padding-block:64px 8px}
 .hub a{grid-column:span 5;color:inherit;text-decoration:none;display:block}
 .hub a:nth-child(4n+2),.hub a:nth-child(4n+3){grid-column:span 7}
@@ -533,7 +534,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 @media (max-width:900px){
   .lux{grid-template-columns:1fr;min-height:0}
   .lux-f{order:-1;height:46vh;border-left:0;border-bottom:1px solid var(--fg)}
-  .lux-t{padding:28px 20px 36px}.kicker,.lead{margin-bottom:0}.lux h1{white-space:normal;font-size:clamp(2.3rem,9vw,3.4rem)}
+  .lux-t{padding:28px 20px 36px;justify-content:flex-start}.kicker,.lead{margin-bottom:0}.lux h1{white-space:normal;font-size:clamp(2.3rem,9vw,3.4rem)}
   .hub-sec,.obra,.mgrid,.intro{grid-template-columns:1fr}
   .hub-sec{padding-block:44px 28px}.hub-sec .sec-head{position:static}
   .menu-cols{grid-template-columns:1fr;margin-block:10px}
