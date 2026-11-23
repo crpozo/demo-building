@@ -509,15 +509,19 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 .stage3.walk + .side{display:none}
 .stage3.walk{cursor:grab}
 .where{left:50%;top:14px;transform:translateX(-50%);padding:8px 16px;font-size:.84rem;font-weight:500;border-radius:999px}
-.walkbar{left:50%;right:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);align-items:center;gap:12px;background:#fff;border:1px solid var(--fg);border-radius:12px;padding:7px 7px 7px 14px;flex-wrap:nowrap;max-width:calc(100% - 24px)}
-.walkbar span{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.walkbar{left:50%;right:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);align-items:center;gap:8px;background:#fff;border:1px solid var(--fg);border-radius:12px;padding:7px;flex-wrap:nowrap;max-width:calc(100% - 24px)}
+#rooms3{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}#rooms3 .chip{white-space:nowrap;padding:8px 13px;font-size:.84rem}
+.mini3,.walkhint{display:none;position:absolute}
+.stage3.walk .mini3{display:block;right:12px;top:12px;width:180px;height:150px;background:#fff;border:1px solid var(--fg);border-radius:12px}
+.stage3.walk .walkhint{display:block;left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);margin:0;font-size:.78rem;background:rgba(255,255,255,.9);padding:5px 12px;border-radius:999px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
+.stage3.walk{cursor:pointer}
 .joy{background:rgba(255,255,255,.75);border:1px solid var(--fg);backdrop-filter:none;bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .joy i{background:var(--fg)}
 @media (hover:hover) and (pointer:fine){.stage3.walk .joy{display:none}}
 @media (max-width:900px){
   .hub a,.hub a:nth-child(4n+2),.hub a:nth-child(4n+3){grid-column:span 12}
   .hub{padding-top:40px}
-  .walkbar span{display:none}.walkbar{padding-left:7px}
+  .stage3.walk .mini3{width:120px;height:100px}.stage3.walk .walkhint{display:none}
 }
 
 @media (max-width:1240px){nav.quicknav{display:none}body:not(.home) .crumb{display:flex}}
@@ -673,7 +677,9 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
           </div>
         </aside>
         <div class="where" id="where3"></div>
-        <div class="walkbar"><span>Arrastre para mirar · W A S D o flechas para caminar</span><button class="chip on" id="walkExit">Salir del departamento</button></div>
+        <div class="walkbar"><div id="rooms3"></div><button class="chip on" id="walkExit">Salir</button></div>
+        <canvas class="mini3" id="mini3" width="360" height="300"></canvas>
+        <p class="walkhint">Toque el piso para caminar hasta ahí · arrastre para mirar · flechas o W A S D en el teclado</p>
         <div class="joy" id="joy"><i></i></div>
 
         <div class="tip3" id="tip3"></div>
@@ -1251,7 +1257,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
      con un acento de color distinto en cada departamento */
   const FURN={"pb":[["counter",400,230,9,40,0],["counter",422,230,10,40,0],["dtable",457,240,9,25,0],["sala",495,240,0,0,0],["round",545,232,0,0,0],["washer",366,249,0,0,-1],["bed",381,325,28,27,180],["bed",537,327,30,28,180],["toilet",466,301,0,0,90],["basin",455,312,0,0,-1],["toilet",439,311,0,0,-1],["basin",418,337,0,0,-1],["basin",470,340,0,0,-1],["bed",225,98,29,30,270],["toilet",264,75,0,0,0],["basin",282,90,0,0,-1],["sofa",324,82,20,9,0],["ochair",305,93,0,0,270],["ochair",305,104,0,0,270],["ochair",340,93,0,0,90],["ochair",340,104,0,0,90],["ctable",323,99,13,10,0],["dtable",320,133,33,9,0],["counter",367,105,10,40,0],["fridge",366,131,0,0,270],["basin",374,142,0,0,-1],["toilet",368,164,0,0,180],["bed",267,169,31,30,180],["basin",215,144,0,0,270],["toilet",215,163,0,0,270],["toilet",404,100,0,0,270],["basin",402,113,0,0,270],["basin",402,124,0,0,270],["bed",434,101,27,29,270],["bed",475,101,27,29,270],["toilet",519,95,0,0,0],["basin",517,120,0,0,-1],["ochair",535,104,0,0,270],["ochair",535,115,0,0,270],["sofa",551,93,24,9,0],["ochair",545,126,0,0,180],["ochair",556,126,0,0,180],["ctable",552,110,13,12,0],["dtable",580,110,9,34,0],["counter",608,108,14,44,0],["toilet",521,174,0,0,-1],["basin",510,163,0,0,-1],["washer",553,160,0,0,270],["washer",553,175,0,0,270],["bed",732,103,28,27,180],["toilet",725,126,0,0,0],["basin",727,146,0,0,-1],["counter",785,108,8,54,0],["counter",802,117,12,44,0],["fridge",780,129,0,0,270],["sofa",849,76,26,9,0],["sofa",866,95,24,9,90],["ctable",848,100,10,15,0],["dtable",847,132,26,9,0],["washer",775,171,0,0,-1],["toilet",801,172,0,0,180],["basin",796,159,0,0,-1]],"pa":[["counter",418,262,10,50,0],["counter",440,272,10,36,0],["dtable",474,265,8,32,0],["sofa",525,270,22,9,90],["sofa",505,291,27,9,180],["ctable",504,273,14,9,0],["sofa",538,270,22,9,270],["ochair",551,289,0,0,90],["toilet",472,306,0,0,0],["basin",483,319,0,0,90],["bed",536,313,29,28,0],["bed",484,421,24,28,90],["basin",475,358,0,0,0],["toilet",494,374,0,0,90],["bed",538,390,31,26,0],["toilet",537,367,0,0,0],["basin",551,369,0,0,0],["basin",565,388,0,0,270],["basin",565,397,0,0,270],["toilet",601,394,0,0,90],["round",543,449,0,0,0],["sofa",505,450,18,8,270],["sofa",322,327,27,10,270],["sofa",345,307,28,9,0],["ctable",346,326,14,10,0],["dtable",377,323,8,24,0],["counter",418,332,12,28,0],["counter",440,322,9,26,0],["fridge",440,356,0,0,90],["bed",319,413,24,26,90],["basin",342,410,0,0,270],["basin",342,423,0,0,270],["toilet",379,433,0,0,-1],["bed",417,414,26,24,0],["basin",404,370,0,0,0],["toilet",440,388,0,0,90],["ochair",280,422,0,0,90],["sofa",261,440,20,9,180],["sofa",195,101,20,9,0],["sofa",243,104,26,9,0],["ochair",228,110,0,0,270],["ochair",228,120,0,0,270],["ochair",261,110,0,0,90],["ochair",261,120,0,0,90],["ctable",244,116,12,9,0],["dtable",243,149,27,8,0],["counter",282,129,9,58,0],["fridge",301,101,0,0,0],["bed",328,127,24,28,270],["basin",371,102,0,0,0],["toilet",390,124,0,0,90],["basin",386,166,0,0,-1],["toilet",370,186,0,0,180],["bed",414,125,27,26,270],["basin",471,97,0,0,0],["toilet",486,98,0,0,0],["closet",459,123,16,14,0],["ochair",511,107,0,0,0],["ochair",524,107,0,0,0],["ochair",511,140,0,0,180],["ochair",524,140,0,0,180],["ochair",504,117,0,0,270],["ochair",504,128,0,0,270],["ctable",518,123,12,12,0],["dtable",561,128,11,35,0],["bed",630,145,24,27,90],["basin",567,181,0,0,270],["toilet",591,196,0,0,180],["counter",531,178,42,11,0],["counter",551,201,8,32,0],["basin",475,191,0,0,-1],["toilet",489,190,0,0,-1],["washer",474,210,0,0,180],["washer",486,210,0,0,180],["sofa",670,106,18,8,0],["sofa",670,142,18,8,180],["sofa",655,124,22,8,270],["ctable",674,122,12,14,0],["dtable",708,124,13,20,0],["counter",739,114,14,48,0],["counter",772,131,22,12,0],["basin",794,102,0,0,-1],["toilet",799,117,0,0,-1],["bed",852,103,24,28,0],["sofa",807,176,31,8,180],["sofa",787,168,16,8,270],["toilet",859,159,0,0,0],["basin",852,173,0,0,-1],["sofa",656,183,26,9,270],["sofa",676,167,28,9,0],["ctable",678,187,14,10,0],["round",706,181,0,0,0],["washer",742,161,0,0,0],["washer",752,161,0,0,0],["basin",739,177,0,0,-1],["toilet",750,192,0,0,180],["bed",889,212,29,26,180],["bed",897,273,31,27,270],["basin",874,276,0,0,90],["basin",874,289,0,0,90],["toilet",845,271,0,0,-1],["counter",742,357,58,12,0],["toilet",786,345,0,0,0],["basin",805,344,0,0,0],["washer",789,372,0,0,180],["washer",805,372,0,0,180],["ochair",715,398,0,0,0],["ochair",729,398,0,0,0],["ochair",710,409,0,0,270],["ochair",710,421,0,0,270],["ochair",715,432,0,0,180],["ochair",729,432,0,0,180],["ctable",722,415,12,12,0],["dtable",772,414,12,20,0],["sofa",833,404,28,9,0],["sofa",814,424,26,9,270],["ctable",836,422,13,10,0],["bed",920,332,27,27,0],["basin",877,315,0,0,-1],["basin",877,328,0,0,-1],["toilet",843,331,0,0,-1],["bed",934,381,24,26,0],["toilet",879,373,0,0,0],["basin",890,373,0,0,0],["bed",934,427,24,26,0],["toilet",879,461,0,0,180],["basin",890,463,0,0,180],["round",746,458,0,0,0],["sofa",965,446,18,9,90],["ochair",985,459,0,0,90]]};
   const STYLES={
-    moderno:{fabric:0xdddbd6,fabric2:0x4b4f55,oak:0xbfa685,floor:0xdbd8d2,plaster:0xf2f0eb,rug:0xa2a5a9,acc:[0x2f3a45,0xc9a227,0x7d8a8f,0xb5533c,0x1f1f1f],plants:1},
+    moderno:{fabric:0xdddbd6,fabric2:0x4b4f55,oak:0xbfa685,floor:0xdbd8d2,plaster:0xfaf7f1,rug:0xa2a5a9,acc:[0x2f3a45,0xc9a227,0x7d8a8f,0xb5533c,0x1f1f1f],plants:1},
     indie:{fabric:0xeadfc9,fabric2:0xb8663f,oak:0xa8703f,floor:0xd0a878,plaster:0xf3e6cf,rug:0xc86f4a,acc:[0x2f7f7a,0xd9a441,0xc4577a,0x5b7d3a,0xd9683c],plants:3},
     tradicional:{fabric:0xdac9aa,fabric2:0x6f2c33,oak:0x5c3b26,floor:0xa87a50,plaster:0xe9dfca,rug:0x8a2e2e,acc:[0x23405a,0x6f2c33,0x3f5a41,0xa8842c,0x4a2f24],plants:1}};
   const MATREG={};let styleNow='moderno';const decorG=[];
@@ -1548,7 +1554,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};let panMode=false;
   $('#pan3').onclick=e=>{panMode=!panMode;e.target.classList.toggle('on',panMode);el.style.cursor=panMode?'move':'grab'};
   function pan(dx,dy){const sc=tv.dist/el.clientHeight*1.3;const fx=Math.sin(tv.theta),fz=Math.cos(tv.theta);targetT.x+=(-dx*fz*sc)+(-dy*fx*sc);targetT.z+=(dx*fx*sc)+(-dy*fz*sc);targetT.x=Math.max(-2200,Math.min(2200,targetT.x));targetT.z=Math.max(-2000,Math.min(2000,targetT.z))}
-  function place(){if(walk){tv.theta+=(theta-tv.theta)*.3;tv.phi+=(phi-tv.phi)*.3;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+24,walk.z+walk.dz-PH/2);cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
+  function place(){if(walk){tv.theta+=(theta-tv.theta)*.3;tv.phi+=(phi-tv.phi)*.3;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+24,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
     tv.theta+=(theta-tv.theta)*.18;tv.phi+=(phi-tv.phi)*.18;tv.dist+=(dist-tv.dist)*.18;target.lerp(targetT,.18);const th=tv.theta,ph=tv.phi;cam.position.set(target.x+tv.dist*Math.sin(ph)*Math.sin(th),target.y+tv.dist*Math.cos(ph),target.z+tv.dist*Math.sin(ph)*Math.cos(th));cam.lookAt(target)}
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
@@ -1558,7 +1564,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     if(e.target!==canvas&&!drag){$('#tip3').style.display='none';return}
     if(drag){const p=pos(e);const dx=p.x-drag.x,dy=p.y-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;if(walk){theta+=dx*.004;phi=Math.min(PHI_MAX,Math.max(.6,phi+dy*.004))}else if(drag.pan)pan(dx,dy);else{theta-=dx*.006;phi=Math.min(1.52,Math.max(.08,phi-dy*.006))}p.pan=drag.pan;drag=p;return}
     pick(e,false)});
-  el.addEventListener('pointerup',e=>{if(drag&&!moved&&!walk)pick(e,true);drag=null});
+  el.addEventListener('pointerup',e=>{if(drag&&!moved){if(walk)walkTo(e);else pick(e,true)}drag=null});
   el.addEventListener('pointercancel',()=>drag=null);
   el.addEventListener('wheel',e=>{e.preventDefault();if(walk)return;auto=false;
     if(e.shiftKey){pan(0,-e.deltaY*.6);return}
@@ -1588,23 +1594,49 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   $('#dorm3').onclick=e=>{const b=e.target.closest('button');if(!b)return;f3.d=b.dataset.d;document.querySelectorAll('#dorm3 .chip').forEach(c=>c.classList.toggle('on',c===b));auto=false;paint();wake()};
   $('#disp3').onclick=e=>{f3.disp=!f3.disp;e.currentTarget.classList.toggle('on',f3.disp);e.currentTarget.setAttribute('aria-pressed',f3.disp);auto=false;paint();wake()};
   {const p=$('#p3'),t=$('#p3Toggle'),set=on=>{p.hidden=!on;t.setAttribute('aria-expanded',on);t.classList.toggle('on',on)};set(!matchMedia('(max-width:900px)').matches);t.onclick=()=>set(p.hidden)}
-  /* recorrido en primera persona dentro de un departamento: arrastrar para mirar, W A S D o flechas para caminar; los muros del plano frenan el paso */
+  /* recorrido en primera persona: tocar el piso para caminar hasta ahí, botones para saltar a cada ambiente, minimapa con la posición,
+     arrastrar para mirar; W/S o flechas arriba/abajo avanzan, flechas izquierda/derecha giran, A/D pasos laterales */
   let walk=null,PHI_MAX=1.52;const keys={},joyV=[0,0];
+  const walkL=new THREE.PointLight(0xfff1dc,.55,420,1.2);walkL.visible=false;scene.add(walkL);
   const freeAt=(x,z)=>inZone(x,z,walk.polys,0)&&!walk.rects.some(r=>x>r[0]-2.4&&x<r[2]+2.4&&z>r[1]-2.4&&z<r[3]+2.4);
-  function stepWalk(){let mv=joyV[1],sd=joyV[0];if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d||keys.arrowright)sd+=1;if(keys.a||keys.arrowleft)sd-=1;if(!mv&&!sd)return;
-    const fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta),sp=.8,dx=(fx*mv-fz*sd)*sp,dz=(fz*mv+fx*sd)*sp;
-    if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz}else if(freeAt(walk.x+dx,walk.z))walk.x+=dx;else if(freeAt(walk.x,walk.z+dz))walk.z+=dz;wake(6)}
-  function exitWalk(){if(!walk)return;const p=walk.prev;walk=null;camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
-    if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.52,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
+  const clearAt=(x,z)=>freeAt(x,z)&&!walk.furn.some(r=>x>r[0]-3&&x<r[2]+3&&z>r[1]-3&&z<r[3]+3);
+  const wray=(x,z,a)=>{let d=0;while(d<200&&freeAt(x+Math.cos(a)*(d+4),z+Math.sin(a)*(d+4)))d+=4;return d};
+  // mejor punto despejado cerca de un ambiente, mirando hacia él
+  function spotNear(t){let best=null;for(let r=10;r<64;r+=4)for(let a=0;a<6.28;a+=.4){const x=t[0]+Math.cos(a)*r,z=t[1]+Math.sin(a)*r;if(!clearAt(x,z))continue;
+      let open=true;for(let k=1;k<5&&open;k++)open=freeAt(x+(t[0]-x)*k/5,z+(t[1]-z)*k/5);if(!open)continue;                                   // sin muro entre el punto y el ambiente
+      let mn=1e9;for(let k=0;k<8;k++)mn=Math.min(mn,wray(x,z,k*.785));const sc=Math.min(mn,20)*4-Math.abs(r-30);if(!best||sc>best.sc)best={x,z,sc}}
+    return best||(freeAt(t[0],t[1])?{x:t[0],z:t[1]}:null)}
+  function goRoom(i){const rm=walk.rooms[i],s=spotNear(rm.p);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.62;
+    document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));wake(30)}
+  function move(dx,dz){if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz;return true}if(freeAt(walk.x+dx,walk.z)){walk.x+=dx;return true}if(freeAt(walk.x,walk.z+dz)){walk.z+=dz;return true}return false}
+  function stepWalk(){let mv=joyV[1],sd=0;if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d)sd+=1;if(keys.a)sd-=1;
+    const turn=(keys.arrowright?1:0)-(keys.arrowleft?1:0)+joyV[0]*.8;if(turn){theta-=turn*.035;wake(6)}
+    if(mv||sd){walk.goal=null;const fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta),sp=1.1;move((fx*mv-fz*sd)*sp,(fz*mv+fx*sd)*sp);wake(6)}
+    else if(walk.goal){const gx=walk.goal[0]-walk.x,gz=walk.goal[1]-walk.z,l=Math.hypot(gx,gz);if(l<3||!move(gx/l*1.6,gz/l*1.6)||--walk.goal[2]<0)walk.goal=null;wake(6)}}
+  function miniMap(){const c=$('#mini3'),x=c.getContext('2d'),b=walk.bb,sc=Math.min(c.width/(b[2]-b[0]),c.height/(b[3]-b[1]))*.9,ox=(c.width-(b[2]-b[0])*sc)/2-b[0]*sc,oz=(c.height-(b[3]-b[1])*sc)/2-b[1]*sc;
+    x.clearRect(0,0,c.width,c.height);x.fillStyle='#f1eee7';walk.polys.forEach(p=>{x.beginPath();p.forEach((q,i)=>i?x.lineTo(q[0]*sc+ox,q[1]*sc+oz):x.moveTo(q[0]*sc+ox,q[1]*sc+oz));x.fill()});
+    x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
+    const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(164,67,43,.25)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
+    x.fillStyle='#a4432b';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
+  function exitWalk(){if(!walk)return;const p=walk.prev;walk=null;walkL.visible=false;camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
+    $('#sun').value=p.sun;daylight(p.sun);if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.52,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();
-    walk={u,lvl,polys:ENC[n].concat(TER[n]||[]),rects:WALLS2[lvl].r,dz:lvl==='pa'?PA_DZ:0,x:0,z:0,prev:{iso,theta,phi,dist}};
-    const seeds=FURN[lvl].filter(f=>['sala','sofa','dtable','ctable'].includes(f[0])&&ENC[n].some(p=>inside([f[1],f[2]],p))).map(f=>[f[1],f[2]]).concat([innerPoint(FOOT[n])]);
-    // punto de partida: el lugar más despejado cerca de la sala, mirando hacia donde hay más recorrido libre
-    const ray=(x,z,a)=>{let d=0;while(d<240&&freeAt(x+Math.cos(a)*(d+4),z+Math.sin(a)*(d+4)))d+=4;return d};
-    let best=null;seeds.forEach(sd=>{for(let r=0;r<70;r+=5)for(let a=0;a<6.28;a+=.52){const x=sd[0]+Math.cos(a)*r,z=sd[1]+Math.sin(a)*r;if(!freeAt(x,z))continue;let mn=1e9,sum=0,bd=0,ba=0;for(let k=0;k<12;k++){const an=k*.5236,d=ray(x,z,an);mn=Math.min(mn,d);sum+=d;if(d>bd){bd=d;ba=an}}const sc=Math.min(mn,24)*6+sum-r*2;if(!best||sc>best.sc)best={x,z,sc,ba}}});
-    if(!best)best={x:seeds[0][0],z:seeds[0][1],ba:0};walk.x=best.x;walk.z=best.z;
-    if(iso)$('#iso3').click();camP.near=1.5;camP.fov=74;camP.updateProjectionMatrix();PHI_MAX=2.5;phi=tv.phi=1.62;theta=tv.theta=Math.atan2(-Math.cos(best.ba),-Math.sin(best.ba));
-    auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl]+' · decoración '+styleNow;labels.forEach(l=>l.visible=false);applyCut();paint();J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
+    const polys=ENC[n].concat(TER[n]||[]),all=polys.flat(),bb=[Math.min(...all.map(p=>p[0]))-4,Math.min(...all.map(p=>p[1]))-4,Math.max(...all.map(p=>p[0]))+4,Math.max(...all.map(p=>p[1]))+4];
+    const mine=FURN[lvl].filter(f=>ENC[n].some(p=>inside([f[1],f[2]],p)));
+    walk={u,lvl,polys,bb,rects:WALLS2[lvl].r,mrects:WALLS2[lvl].r.filter(r=>r[2]>bb[0]&&r[0]<bb[2]&&r[3]>bb[1]&&r[1]<bb[3]),dz:lvl==='pa'?PA_DZ:0,x:0,z:0,goal:null,prev:{iso,theta,phi,dist,sun:+$('#sun').value},
+      furn:mine.map(f=>{const sw=Math.abs(f[5]||0)%180===90,w=(sw?f[4]:f[3])||(f[0]==='sala'?40:16),d=(sw?f[3]:f[4])||(f[0]==='sala'?30:16);return[f[1]-w/2,f[2]-d/2,f[1]+w/2,f[2]+d/2]})};
+    // ambientes del departamento, según el mobiliario del plano
+    const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
+    mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
+    walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
+    if(iso)$('#iso3').click();camP.near=1.5;camP.fov=64;camP.updateProjectionMatrix();PHI_MAX=2.3;$('#sun').value=18;daylight(18);walkL.visible=true;
+    auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
+    if(walk.rooms.length)goRoom(0);else{const ip=innerPoint(FOOT[n]);walk.x=ip[0];walk.z=ip[1]}
+    J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
+  $('#rooms3').onclick=e=>{const b=e.target.closest('button');if(b&&walk)goRoom(+b.dataset.room)};
+  // tocar el piso: caminar hasta ese punto
+  function walkTo(e){const r=canvas.getBoundingClientRect(),v=new THREE.Vector3((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1,.5).unproject(camP).sub(camP.position);if(v.y>-.02)return;
+    const t=(LV[walk.lvl]+1-camP.position.y)/v.y,x=camP.position.x+v.x*t+PW/2,z=camP.position.z+v.z*t+PH/2-walk.dz;walk.goal=[x,z,400];document.querySelectorAll('#rooms3 button').forEach(b=>b.classList.remove('on'));wake(10)}
   $('#walkExit').onclick=exitWalk;
   $('#walkGo').onclick=()=>{if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
   addEventListener('keydown',e=>{if(!walk)return;if(e.key==='Escape'){exitWalk();return}keys[e.key.toLowerCase()]=true;wake(6)});
