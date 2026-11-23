@@ -1032,15 +1032,44 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const inside=(pt,pts)=>{let c=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const a=pts[i],b=pts[j];if((a[1]>pt[1])!==(b[1]>pt[1])&&pt[0]<(b[0]-a[0])*(pt[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
 
   const lampM=new THREE.MeshStandardMaterial({color:0xfff1c0,emissive:0xffb347,emissiveIntensity:0,roughness:.3});
-  /* terreno */
-  prism([[108,22],[928,22],[1035,522],[252,522]],-1.5,1.5,M.pave);
+  /* terreno: lindero real del lote (esquinas medidas sobre el plano de planta baja) */
+  const LOT=[[24,28],[907,26],[1067,485],[251,519]];
+  // calle: corre junto al lindero oeste (la diagonal del plano), donde están el ingreso peatonal y el vehicular
+  const ST=(()=>{const a=LOT[0],b=LOT[3],L=Math.hypot(b[0]-a[0],b[1]-a[1]),u=[(b[0]-a[0])/L,(b[1]-a[1])/L],n=[-u[1],u[0]];
+    return{rot:-Math.atan2(u[1],u[0]),at:(t,off)=>[a[0]+u[0]*t+n[0]*off,a[1]+u[1]*t+n[1]*off],dist:(x,z)=>(x-a[0])*n[0]+(z-a[1])*n[1]}})();   // dist>0: fuera del lote, hacia la calle
+  const ROAD_OFF=68;                                                                    // eje de la calzada: vereda de 16 + media calzada de 52
+  prism(LOT,-1.5,1.5,M.pave);
   window.__streetTrees=null;
-  prism([[232,345],[640,345],[640,432],[232,432]],-.3,.6,M.cobble);           // estacionamiento
-  prism([[700,350],[980,350],[980,432],[700,432]],-.3,.6,M.cobble);
-  prism([[250,432],[990,432],[1000,500],[260,500]],-.3,.6,M.cobble);           // circulación vehicular
-  prism([[108,22],[252,522],[238,578],[60,578],[60,22]],-.3,1.0,M.lawn);      // franja oeste del lote hasta la calle
-  prism([[880,60],[925,60],[1015,470],[905,470]],-.2,1.2,M.lawn);             // jardín este
-  PATIOS.forEach(p=>prism(p,-.2,1.2,M.lawn));
+  /* piso del lote pintado desde el plano: cada celda de 3 px del plano es jardín, adoquín vehicular o pavimento */
+  {const cv=document.createElement('canvas');cv.width=2250;cv.height=1196;const cx=cv.getContext('2d');cx.fillStyle='#d6cfc1';cx.fillRect(0,0,cv.width,cv.height);
+    const tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;tx.anisotropy=renderer.capabilities.getMaxAnisotropy();
+    const g=new THREE.ShapeGeometry(shape(LOT)),p=g.attributes.position,uv=g.attributes.uv;for(let i=0;i<p.count;i++)uv.setXY(i,p.getX(i)/PW,1+p.getY(i)/PH);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:tx,roughness:1}));m.rotation.x=-Math.PI/2;m.position.y=.3;m.receiveShadow=true;m.userData.planGround=true;root.add(m);
+    const img=new Image();img.onload=()=>{const t=document.createElement('canvas');t.width=PW;t.height=PH;const c=t.getContext('2d');c.drawImage(img,0,0,PW,PH);let d;try{d=c.getImageData(0,0,PW,PH).data}catch(e){return}
+      const Wc=PW/3|0,Hc=PH/3|0;let G=new Uint8Array(Wc*Hc);
+      for(let y=0;y<Hc;y++)for(let x=0;x<Wc;x++){let n=0;for(let j=0;j<3;j++)for(let i=0;i<3;i++){const k=((y*3+j)*PW+x*3+i)*4,r=d[k],gg=d[k+1],b=d[k+2];if(gg-r>=4&&gg-b>=8&&gg>165)n++}G[y*Wc+x]=n>=3?1:0}
+      const morph=(src,grow)=>{const o=new Uint8Array(Wc*Hc);for(let y=1;y<Hc-1;y++)for(let x=1;x<Wc-1;x++){let n=0;for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)n+=src[(y+j)*Wc+x+i];o[y*Wc+x]=grow?(n>0?1:0):(n===9?1:0)}return o};
+      G=morph(morph(morph(morph(G,true),true),false),false);                       // cierra los huecos que dejan los dibujos de plantas
+      const rr=(i)=>{const v=Math.sin(i*12.9898)*43758.5453;return v-Math.floor(v)};
+      for(let y=0;y<Hc;y++)for(let x=0;x<Wc;x++){const px=x*3,pz=y*3,k=y*Wc+x,v=rr(k);
+        if(G[k])cx.fillStyle=`hsl(${84+v*10},${26+v*6}%,${50+rr(k+7)*7}%)`;
+        else if(pz>343&&px>168)cx.fillStyle=`hsl(225,5%,${50+v*12}%)`;                // estacionamientos y circulación vehicular
+        else cx.fillStyle=`hsl(38,18%,${80+v*5}%)`;
+        cx.fillRect(x*6,y*6,6,6)}
+      tx.needsUpdate=true;shadowDirty()};img.src='img/plan-pb-hd.jpg'}
+  /* muros trazados del plano (tramo negro grueso): los de jardín y lindero se levantan aquí; los interiores reemplazan a los del modelo */
+  const WALLS2={"pb":{"r":[[816.6,25.1,818.2,27.6],[831.5,25.1,908.2,27.6],[730.2,25.6,816.6,28.1],[818.2,25.6,830.5,28.1],[636.6,26.1,638.2,154.9],[647.4,26.1,730.2,28.1],[529.3,26.6,636.6,28.6],[639.7,26.6,647.4,28.6],[445.4,27.1,529.3,29.7],[360.0,27.6,445.4,30.2],[257.7,28.1,360.0,30.2],[906.6,28.1,908.2,29.7],[174.4,28.6,257.7,31.2],[702.1,28.6,704.7,154.9],[56.8,29.1,171.8,31.7],[171.8,29.1,174.4,31.2],[21.5,29.7,56.8,31.2],[394.3,30.2,397.3,75.2],[208.1,31.2,210.7,124.3],[210.7,31.2,212.7,78.8],[681.6,69.5,684.2,82.3],[773.2,69.5,775.7,141.1],[806.9,69.5,811.5,81.8],[256.7,71.1,258.8,112.5],[359.5,71.1,364.1,83.4],[383.5,71.6,386.6,75.2],[397.3,71.6,407.6,75.2],[419.3,71.6,421.4,121.2],[386.6,72.1,393.8,75.2],[442.3,72.1,462.3,75.2],[505.7,72.6,507.8,104.3],[516.5,72.6,530.8,76.2],[626.4,73.1,636.6,76.7],[394.8,75.2,397.3,136.5],[460.2,75.7,462.3,136.5],[528.2,76.2,530.8,137.0],[682.2,94.1,683.7,106.4],[687.3,103.8,694.9,106.4],[695.5,103.8,700.1,106.4],[685.2,104.3,687.3,106.4],[700.1,104.3,701.6,106.4],[397.3,105.9,407.6,108.4],[505.7,115.6,507.8,137.0],[704.7,119.7,758.9,122.2],[359.5,120.2,361.5,137.0],[361.5,120.2,373.3,121.7],[756.8,122.2,758.9,130.9],[736.4,122.7,738.4,132.4],[287.4,125.3,288.9,138.6],[508.3,125.8,528.2,128.4],[491.9,126.3,493.5,137.0],[256.7,127.3,259.3,138.6],[208.1,128.4,211.2,152.9],[397.3,132.4,448.0,136.0],[384.0,134.5,394.3,136.5],[361.5,135.0,384.0,136.5],[462.3,135.0,491.9,137.0],[775.7,135.5,786.0,138.1],[211.2,136.0,256.7,138.1],[259.3,136.0,286.4,138.1],[397.3,136.0,400.4,177.4],[423.9,136.0,426.5,142.2],[388.1,136.5,390.2,171.3],[424.4,142.2,426.5,156.5],[599.3,142.7,601.9,154.9],[736.4,143.7,738.4,154.9],[756.8,143.7,758.9,154.9],[359.5,147.8,364.1,171.3],[490.9,148.3,493.5,156.0],[590.6,150.3,599.3,154.9],[601.9,150.3,604.4,154.9],[634.6,150.3,636.6,154.9],[286.4,151.4,288.9,156.5],[544.6,151.9,590.1,154.9],[604.4,151.9,614.7,154.9],[627.4,151.9,634.6,153.4],[763.5,151.9,765.5,217.3],[765.5,151.9,774.7,154.9],[211.2,152.4,216.8,157.0],[288.9,152.4,291.0,156.5],[340.1,152.4,342.1,171.3],[704.7,152.4,735.9,154.9],[738.4,152.4,756.8,154.9],[759.4,152.4,763.5,154.9],[787.0,152.4,789.5,186.1],[789.5,152.4,813.6,154.9],[209.1,152.9,211.2,188.2],[426.5,152.9,429.0,156.5],[430.6,152.9,435.7,156.5],[437.2,152.9,440.8,156.5],[441.8,152.9,466.4,156.5],[429.0,153.4,430.6,156.5],[435.7,153.4,437.2,156.5],[466.4,153.4,467.9,186.1],[493.5,153.4,527.7,156.0],[291.0,154.4,340.1,156.5],[503.2,156.0,505.7,186.1],[559.9,156.0,562.5,186.1],[836.6,157.0,951.6,159.5],[836.6,159.5,838.6,253.1],[891.3,159.5,892.8,212.2],[931.7,160.1,933.2,169.8],[811.5,166.2,813.6,186.1],[526.2,168.2,527.7,186.1],[364.1,168.8,366.6,171.3],[367.2,168.8,388.1,171.3],[390.2,168.8,396.8,171.3],[813.6,172.3,818.7,174.9],[400.4,173.9,448.5,176.9],[868.3,174.9,869.8,186.1],[467.9,175.9,503.2,178.5],[931.7,175.9,933.2,192.3],[397.3,177.4,398.9,186.1],[446.4,177.4,448.5,186.1],[505.7,182.6,512.4,186.1],[516.5,182.6,524.7,186.1],[544.6,182.6,546.1,186.1],[512.4,183.1,516.5,186.1],[546.1,183.1,559.9,186.1],[765.5,183.6,787.0,186.1],[789.5,183.6,811.0,186.1],[838.6,184.1,867.8,185.6],[262.8,185.1,275.6,187.2],[211.2,185.6,223.0,188.2],[275.6,185.6,278.2,187.2],[782.4,186.1,784.9,217.3],[931.7,192.8,933.2,212.2],[868.3,201.0,869.8,212.7],[784.9,204.5,814.6,206.6],[362.0,207.1,363.6,212.2],[396.8,207.1,412.7,210.7],[416.8,207.1,437.7,210.7],[438.2,207.1,439.8,210.7],[440.8,207.1,442.3,210.7],[442.8,207.1,444.9,210.7],[449.5,207.1,504.2,210.7],[523.6,207.1,556.9,210.7],[559.4,207.1,561.0,210.7],[564.0,207.1,601.4,210.7],[601.9,207.1,604.4,210.7],[358.5,207.6,361.5,252.1],[363.6,207.6,366.1,212.2],[392.7,207.6,395.3,252.1],[395.3,207.6,396.8,210.7],[412.7,207.6,416.8,210.7],[444.9,207.6,449.5,210.7],[504.2,207.6,506.2,210.7],[556.9,207.6,559.4,210.7],[561.0,207.6,562.5,219.4],[562.5,207.6,564.0,210.7],[604.4,207.6,607.0,211.7],[839.7,210.2,867.3,212.2],[523.6,210.7,526.2,219.4],[892.8,210.7,931.7,212.2],[766.0,214.8,782.4,217.3],[838.6,230.6,869.8,232.2],[361.5,240.9,392.7,242.4],[395.3,249.5,406.5,252.1],[838.6,250.6,869.8,253.1],[763.5,256.2,813.6,260.8],[460.2,266.4,463.8,268.5],[358.5,266.9,361.5,279.2],[376.9,266.9,408.1,269.0],[424.9,266.9,427.5,279.2],[376.9,269.0,379.4,279.2],[461.2,269.0,463.8,273.6],[406.0,269.5,408.1,279.2],[427.5,274.6,445.9,276.1],[452.0,274.6,453.6,279.2],[471.5,274.6,562.5,277.7],[442.8,276.1,445.4,280.7],[362.0,276.6,376.9,279.2],[409.1,276.6,424.9,279.2],[445.9,277.2,452.0,279.2],[471.5,277.7,474.0,279.2],[471.5,290.5,474.0,316.5],[474.0,290.5,481.7,292.5],[496.5,290.5,507.3,292.0],[442.8,292.0,444.4,347.7],[456.6,292.0,471.5,293.5],[505.7,292.5,507.3,347.7],[406.0,293.5,408.1,347.7],[419.3,293.5,421.4,295.1],[419.8,295.1,421.4,303.8],[421.4,301.7,442.8,303.8],[695.5,310.4,764.0,319.6],[784.9,310.4,791.1,319.6],[809.0,310.4,813.6,319.6],[791.1,310.9,792.6,319.6],[792.6,310.9,794.1,312.4],[795.7,311.4,797.2,314.5],[764.5,311.9,766.0,319.6],[797.7,312.4,799.3,314.0],[766.0,313.5,767.6,319.6],[805.9,313.5,808.0,319.6],[767.6,314.0,769.6,319.6],[780.3,314.0,781.9,319.6],[800.8,314.5,802.8,319.6],[444.4,315.0,445.9,347.7],[445.9,315.0,469.4,317.0],[469.4,315.0,471.5,316.5],[474.0,315.0,482.7,316.5],[769.6,315.0,771.6,319.6],[778.8,315.0,780.3,319.6],[792.6,315.0,794.1,319.6],[771.6,315.5,778.8,319.6],[797.2,316.0,798.8,319.6],[803.4,316.0,804.9,319.6],[795.7,316.5,797.2,319.6],[794.1,317.0,795.7,319.6],[481.2,328.3,482.7,347.7],[163.6,331.4,166.2,333.4],[696.0,331.9,702.1,336.0],[741.5,331.9,744.5,343.6],[822.8,331.9,826.4,343.6],[904.6,331.9,907.7,343.6],[945.0,331.9,948.1,343.6],[360.0,332.4,361.5,347.7],[358.5,332.9,360.0,347.7],[164.1,333.4,166.2,334.9],[700.6,339.5,702.1,404.0],[370.7,341.1,372.3,347.7],[394.8,341.1,396.3,347.7],[544.1,341.1,545.6,344.7],[170.8,341.6,180.5,344.1],[181.0,341.6,182.6,343.6],[185.1,341.6,204.5,344.1],[217.3,341.6,358.5,343.6],[362.0,341.6,370.7,347.7],[372.3,341.6,394.8,347.7],[396.3,341.6,405.5,347.7],[408.6,341.6,429.0,347.7],[507.3,341.6,527.2,347.7],[527.2,341.6,544.1,344.7],[545.6,341.6,606.0,344.7],[608.5,341.6,644.3,344.7],[182.6,342.1,185.1,343.6],[697.5,342.1,699.0,348.8],[227.6,343.6,358.5,347.7],[429.0,344.1,442.8,347.7],[446.4,344.1,481.2,347.7],[482.7,344.1,505.7,347.7],[559.9,344.7,562.5,347.7],[227.6,347.7,231.1,427.0],[440.8,347.7,443.4,370.2],[524.7,347.7,527.2,427.5],[696.5,355.9,698.0,357.4],[697.5,361.0,699.5,379.9],[560.5,362.0,562.5,427.5],[696.0,362.0,697.5,378.4],[405.0,362.6,407.6,408.1],[644.3,364.1,646.4,404.0],[646.4,364.1,649.9,369.7],[407.6,368.7,440.8,370.2],[527.2,369.2,559.9,371.2],[542.6,371.2,544.1,427.5],[647.9,376.4,649.9,381.5],[698.0,379.9,699.5,384.5],[186.1,380.5,198.9,382.0],[210.7,380.5,227.6,382.0],[441.8,385.1,443.4,408.1],[697.0,385.6,698.5,398.4],[407.6,397.8,440.8,399.4],[741.5,399.9,744.5,411.6],[822.8,399.9,826.4,411.6],[904.6,399.9,907.7,411.6],[985.9,399.9,989.5,411.6],[201.5,406.5,227.6,409.6],[523.1,408.1,524.7,411.1],[557.9,408.1,559.9,411.1],[603.4,411.1,606.0,423.9],[606.0,411.6,608.5,423.9],[271.5,421.4,274.6,427.5],[315.0,421.4,318.1,427.5],[358.5,421.4,361.5,427.5],[1060.1,482.7,1065.2,485.3],[1047.8,483.2,1059.5,485.8],[1036.0,483.8,1047.3,486.3],[1026.3,484.3,1036.0,486.3],[1012.0,484.8,1026.3,487.3],[1003.3,485.3,1012.0,487.8],[992.0,485.8,1003.3,488.4],[979.3,486.3,992.0,488.4],[970.6,486.8,979.3,489.4],[955.7,487.3,970.6,489.9],[946.5,487.8,955.7,490.4],[936.3,488.4,946.5,490.9],[923.0,488.9,936.3,490.9],[913.3,489.4,923.0,491.9],[899.5,489.9,913.3,492.4],[889.8,490.4,899.5,493.0],[879.0,490.9,889.8,493.5],[866.8,491.4,878.5,494.0],[856.0,491.9,866.8,494.5],[842.7,492.4,856.0,495.0],[833.5,493.0,842.7,495.5],[822.3,493.5,833.5,496.0],[810.0,494.0,822.3,496.5],[798.8,494.5,810.0,497.0],[786.5,495.0,798.8,497.6],[777.8,495.5,786.5,498.1],[765.5,496.0,777.8,498.6],[753.8,496.5,765.5,499.1],[742.5,497.0,753.8,499.6],[730.2,497.6,742.5,500.1],[721.0,498.1,730.2,500.6],[707.2,498.6,721.0,501.1],[697.0,499.1,707.2,501.6],[686.2,499.6,697.0,502.2],[673.0,500.1,686.2,502.7],[663.8,500.6,673.0,503.2],[648.9,501.1,663.8,503.7],[639.7,501.6,648.9,504.2],[630.5,502.2,639.7,504.7],[615.7,502.7,630.5,505.2],[607.0,503.2,615.7,505.7],[593.2,503.7,607.0,506.2],[582.4,504.2,593.2,506.8],[574.3,504.7,582.4,507.3],[558.4,505.2,574.3,507.8],[549.7,505.7,558.4,508.3],[539.0,506.2,541.0,509.3],[541.5,506.2,549.7,508.8],[525.2,506.8,539.0,509.3],[516.5,507.3,525.2,509.8],[499.6,507.8,516.5,510.3],[490.9,508.3,499.6,510.9],[476.6,508.8,490.9,511.4],[464.8,509.3,476.6,511.9],[455.1,509.8,464.8,512.4],[439.8,510.3,455.1,512.9],[429.5,510.9,439.8,513.4],[416.2,511.4,417.8,514.4],[418.3,511.4,429.5,513.9],[404.0,511.9,416.2,514.4],[393.2,512.4,404.0,514.9],[381.0,512.9,393.2,515.5],[248.0,513.4,250.6,514.9],[368.7,513.4,381.0,516.0],[356.9,513.9,368.7,516.5],[343.6,514.4,356.9,517.0],[332.9,514.9,343.6,517.0],[321.1,515.5,332.9,518.0],[307.8,516.0,321.1,518.5],[297.6,516.5,307.8,519.0],[282.3,517.0,297.6,519.5],[273.1,517.5,282.3,520.1],[262.3,518.0,272.6,520.6],[252.6,518.5,260.8,521.1],[260.8,518.5,262.3,520.6]],"d":[[95.7,183.6,127.5,252.0],[906.9,25.8,1067.3,484.9],[606.5,207.1,607.2,344.2],[164.6,332.4,171.2,345.0],[698.9,339.6,699.7,403.5],[646.7,369.2,647.5,401.9],[188.4,380.5,208.5,427.8]]},"pa":{"r":[[645.3,86.4,651.5,137.6],[723.6,86.4,734.3,92.6],[208.1,92.6,212.7,118.1],[212.7,92.6,218.4,95.1],[634.6,92.6,645.3,99.7],[724.1,92.6,745.6,94.6],[787.5,92.6,790.1,142.2],[790.1,92.6,801.8,94.6],[810.0,92.6,877.0,94.6],[218.4,93.1,274.1,95.1],[274.1,93.6,313.0,95.1],[360.0,93.6,362.0,134.0],[362.0,93.6,364.1,102.8],[395.3,94.1,397.8,158.5],[397.8,94.1,409.6,97.2],[488.9,94.6,497.0,97.2],[277.7,95.1,279.7,118.1],[310.4,95.1,313.0,158.5],[520.6,95.1,530.8,98.2],[590.6,95.6,604.4,99.7],[286.9,96.1,291.5,102.3],[494.5,97.2,496.5,157.0],[279.7,100.2,286.4,102.3],[810.0,105.9,811.5,142.2],[811.5,105.9,820.2,108.4],[480.2,118.1,494.0,120.2],[590.6,121.7,593.7,159.5],[636.6,121.7,645.3,124.3],[759.4,130.9,761.9,142.2],[373.8,131.4,395.3,134.0],[645.9,137.6,651.5,208.1],[479.7,139.6,494.5,141.6],[761.9,139.6,787.5,142.2],[790.1,139.6,810.0,142.2],[811.5,139.6,838.1,142.2],[359.5,147.8,362.0,158.5],[540.5,148.8,542.0,150.9],[397.8,154.4,481.7,157.0],[301.7,156.0,310.4,158.5],[313.0,156.0,346.7,158.5],[362.0,156.0,395.3,158.5],[731.8,156.5,734.3,167.2],[757.3,156.5,759.4,172.8],[781.4,156.5,783.4,186.1],[397.8,157.0,399.4,208.1],[388.1,158.5,390.7,193.3],[724.1,164.7,731.8,167.2],[732.3,167.2,734.3,208.1],[359.5,169.8,364.1,193.3],[876.0,169.8,878.5,186.1],[734.8,170.3,757.3,172.8],[179.0,171.3,217.3,172.8],[560.5,172.3,563.0,208.6],[563.0,172.3,589.6,174.9],[590.1,172.3,604.4,174.9],[634.6,172.3,645.9,176.9],[179.0,172.8,184.1,179.0],[186.1,172.8,206.6,179.0],[206.6,172.8,217.3,174.9],[263.4,174.4,291.5,176.4],[340.1,174.4,342.6,193.3],[465.9,174.4,468.9,232.7],[481.7,174.9,497.0,176.4],[590.6,174.9,621.8,177.4],[209.7,175.4,217.3,179.0],[417.8,175.4,448.5,178.5],[263.9,176.4,291.5,179.0],[494.5,177.4,497.0,201.5],[757.8,183.6,759.4,208.1],[792.6,183.6,794.1,186.6],[759.9,184.1,764.0,186.1],[783.9,184.1,792.6,186.6],[794.1,184.1,835.6,186.6],[835.6,184.1,838.1,186.1],[878.5,184.1,910.2,186.1],[836.1,186.1,838.1,379.4],[597.8,190.2,599.8,208.1],[366.6,190.7,374.3,193.3],[364.1,191.2,366.6,193.3],[374.3,191.2,388.1,193.3],[390.7,191.2,397.3,193.3],[400.4,195.9,448.5,199.4],[469.4,198.9,494.5,201.5],[850.9,198.9,852.4,240.9],[446.9,199.4,448.5,208.1],[853.5,199.4,862.2,202.0],[745.6,199.9,757.3,202.5],[563.0,206.1,583.5,208.1],[600.3,206.1,645.3,208.1],[723.6,206.1,732.3,208.1],[759.4,206.1,813.6,208.1],[763.5,208.6,765.5,239.3],[782.4,208.6,784.9,239.3],[494.5,214.3,497.0,232.7],[560.5,220.9,563.0,241.9],[359.0,229.6,361.5,301.2],[361.5,229.6,364.1,235.7],[393.2,229.6,395.3,276.6],[409.6,229.6,448.5,232.7],[469.4,229.6,494.5,232.7],[497.0,229.6,560.5,232.7],[853.5,229.6,926.1,232.2],[409.6,232.7,412.2,244.9],[880.1,232.7,882.1,240.9],[530.3,233.2,532.3,241.9],[766.0,237.3,781.4,239.3],[410.1,244.9,412.2,301.7],[857.0,255.2,859.6,266.4],[871.4,255.2,873.4,266.4],[880.1,255.2,882.1,351.8],[362.0,262.8,392.7,265.4],[838.1,263.9,857.0,266.4],[873.4,263.9,879.5,266.4],[838.6,283.3,858.6,285.9],[383.5,287.9,395.3,289.9],[361.5,288.4,383.5,289.9],[393.2,290.5,395.3,298.6],[315.5,296.6,359.0,301.2],[362.0,296.6,364.1,301.2],[463.8,296.6,562.5,299.1],[412.2,297.1,448.5,301.7],[463.8,299.1,465.3,314.5],[486.3,299.1,487.8,328.3],[511.9,299.7,514.4,313.5],[445.4,301.7,448.5,450.0],[838.1,302.2,879.5,304.8],[882.1,302.2,951.6,304.8],[903.1,304.8,905.6,351.8],[838.6,321.6,858.6,324.2],[463.8,325.7,476.1,328.3],[476.1,326.2,485.8,328.3],[487.8,326.2,514.4,328.3],[511.9,328.8,514.4,331.4],[702.1,337.0,704.7,479.1],[704.7,337.0,775.7,340.1],[776.2,337.0,793.1,340.1],[793.6,337.0,796.2,338.5],[777.8,340.1,780.3,379.4],[838.1,340.6,859.6,343.1],[871.4,340.6,873.4,351.8],[873.4,340.6,880.1,343.1],[448.5,343.1,452.0,345.2],[463.8,343.1,465.3,369.7],[498.1,343.1,500.1,353.9],[511.9,343.1,549.2,345.7],[560.5,343.1,563.0,352.3],[857.0,343.1,859.6,351.8],[515.5,345.7,517.0,375.3],[257.2,346.2,317.6,350.8],[882.1,349.3,891.3,351.8],[257.2,350.8,288.9,353.4],[466.4,351.8,498.1,353.9],[498.6,353.9,500.1,468.4],[803.4,362.6,805.4,365.6],[812.6,362.6,814.6,379.4],[780.3,363.1,803.4,365.1],[805.4,363.1,812.6,365.6],[315.5,363.6,320.6,374.8],[331.9,363.6,382.5,365.6],[394.3,363.6,445.4,365.1],[517.5,363.6,531.3,366.6],[558.4,363.6,561.0,417.3],[561.0,363.6,569.7,366.6],[578.4,363.6,609.0,366.6],[394.3,365.1,395.8,385.1],[411.1,365.1,416.8,369.2],[443.4,365.1,445.4,369.7],[336.0,366.1,338.0,374.3],[359.0,366.1,364.1,369.7],[379.9,366.1,382.5,449.5],[528.8,366.6,531.3,372.8],[606.5,366.6,608.5,445.9],[860.6,366.6,973.6,369.2],[568.1,367.2,569.7,375.3],[860.6,369.2,862.7,403.5],[902.0,369.2,904.1,378.4],[529.3,372.8,558.4,375.3],[518.0,373.8,528.8,375.3],[561.0,373.8,567.6,375.3],[769.1,376.9,777.8,379.4],[838.1,376.9,846.8,379.4],[476.6,381.5,498.6,383.0],[584.5,383.5,606.5,386.1],[863.2,389.1,891.8,391.2],[893.4,389.1,894.9,391.2],[902.0,389.1,904.1,399.9],[891.8,389.7,893.4,391.2],[894.9,389.7,902.0,391.2],[336.0,391.2,338.0,400.9],[395.3,395.8,404.5,398.4],[404.5,395.8,406.5,397.8],[406.5,396.3,445.4,397.8],[806.4,396.8,809.0,479.1],[809.0,396.8,846.8,399.4],[338.0,399.9,379.4,401.4],[336.5,400.9,338.0,432.6],[561.0,402.4,569.7,405.0],[580.4,402.4,606.5,405.0],[567.1,405.0,569.7,413.7],[580.4,405.0,583.5,412.7],[860.6,416.2,874.9,418.8],[874.9,416.8,959.8,418.8],[860.6,418.8,862.7,431.6],[902.0,418.8,904.1,427.5],[359.5,421.4,379.9,423.9],[338.0,430.6,346.2,432.1],[558.4,430.6,563.0,433.6],[560.5,433.6,563.0,468.4],[603.4,433.6,606.5,445.9],[704.7,441.3,713.4,443.4],[797.7,441.3,806.4,443.4],[338.0,442.8,345.2,450.0],[563.0,442.8,603.4,445.9],[289.4,443.4,292.0,450.0],[293.0,443.4,294.5,450.0],[336.0,443.4,338.0,450.0],[359.0,443.4,360.5,450.0],[378.4,443.4,379.9,450.0],[286.4,443.9,289.4,449.5],[294.5,443.9,336.0,449.5],[360.5,443.9,378.4,449.5],[411.1,443.9,419.8,449.5],[443.4,443.9,445.4,450.0],[860.6,443.9,862.7,473.0],[863.2,443.9,871.9,445.9],[871.9,444.4,904.1,445.9],[419.8,446.4,443.4,449.5],[489.9,446.4,498.6,448.5],[490.4,448.5,498.6,450.0],[902.0,457.2,904.1,471.0],[904.1,465.3,934.3,469.9],[862.7,467.9,875.5,472.5],[877.5,467.9,884.1,472.0],[884.7,467.9,888.2,472.0],[891.3,467.9,896.4,471.5],[875.5,468.4,877.5,472.5],[888.2,468.4,891.3,472.0],[896.4,468.4,902.0,471.5],[704.7,476.6,713.4,479.1],[797.7,476.6,806.4,479.1]],"d":[[645.2,176.4,646.3,208.2]]}};
+  const inZone=(x,z,polys,mg)=>polys.some(q=>{if(inside([x,z],q))return true;for(let i=0;i<q.length;i++){const a=q[i],b=q[(i+1)%q.length],dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz||1)));if(Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t)<=mg)return true}return false});
+  function wallGeo(lvl,pick,h){const P=[],N=[],U=[];const add=(w,d,cx,cz,ry)=>{const g=new THREE.BoxGeometry(w,h,d).toNonIndexed();g.rotateY(ry);g.translate(cx,h/2,cz);P.push(...g.attributes.position.array);N.push(...g.attributes.normal.array);U.push(...g.attributes.uv.array)};
+    WALLS2[lvl].r.forEach(r=>{const hz=r[2]-r[0]>=r[3]-r[1],L=hz?r[2]-r[0]:r[3]-r[1],n=Math.max(1,Math.ceil(L/12));          // en tramos de hasta 12 para clasificar cada uno
+      for(let k=0;k<n;k++){const a=k/n,b=(k+1)/n,x0=hz?r[0]+L*a:r[0],x1=hz?r[0]+L*b:r[2],z0=hz?r[1]:r[1]+L*a,z1=hz?r[3]:r[1]+L*b;if(pick((x0+x1)/2,(z0+z1)/2))add(x1-x0,z1-z0,(x0+x1)/2,(z0+z1)/2,0)}});
+    WALLS2[lvl].d.forEach(s=>{const L=Math.hypot(s[2]-s[0],s[3]-s[1]),n=Math.max(1,Math.ceil(L/12)),ry=-Math.atan2(s[3]-s[1],s[2]-s[0]);
+      for(let k=0;k<n;k++){const mx=s[0]+(s[2]-s[0])*(k+.5)/n,mz=s[1]+(s[3]-s[1])*(k+.5)/n;if(pick(mx,mz))add(L/n+.4,2.4,mx,mz,ry)}});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));return g}
+  // zona construida de planta baja: unidades 1 a 4, núcleos y el bloque de estacionamientos, bodegas y garita
+  const BUILT_PB=UNITS.filter(u=>u.planta==='pb').flatMap(u=>ENC[u.n]).concat(CORES,[[[168,340],[1002,340],[1002,436],[168,436]]]);
+  const isBuilt=(x,z)=>z>70&&inZone(x,z,BUILT_PB,4);
+  {const gw=new THREE.Mesh(wallGeo('pb',(x,z)=>!isBuilt(x,z),22),M.terra);gw.castShadow=gw.receiveShadow=true;gw.userData.gardenWalls=true;root.add(gw)}
   /* patio central según el plano (x 600-700, z 150-345): piso adoquinado, macizos con borde curvo, espejo de agua triangular */
   const mosaicM=new THREE.MeshStandardMaterial({map:ctex((x,s)=>{x.fillStyle='#55565c';x.fillRect(0,0,s,s);for(let i=0;i<s;i+=10)for(let j=0;j<s;j+=10){x.fillStyle=`hsl(225,5%,${26+Math.random()*18}%)`;x.fillRect(i+1,j+1,8,8)}},256,6),roughness:1});
   prism([[600,150],[700,150],[700,345],[600,345]],-.1,1,mosaicM);
@@ -1052,17 +1081,6 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   BEDS_PB.forEach(b=>{prism(b,.6,2.4,M.lawn)});
   {const cg=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.6,3),M.lawn,PATIO_CELLS.length);const mm=new THREE.Matrix4();PATIO_CELLS.forEach((c,i)=>{mm.makeTranslation(c[0]+1.5,1.3,c[1]+1.5);cg.setMatrixAt(i,mm)});cg.receiveShadow=true;cg.userData.level='pb';root.add(cg)}
   box(610,150,614,345,0,8,M.terra);                                                          // zócalo del muro del patio (sobre él va la celosía)
-  // muro perimetral bajo con seto, con vanos en el acceso peatonal y el vehicular
-  {const P=[[108,22],[928,22],[1035,522],[252,522],[108,22]];
-    for(let i=0;i<4;i++){const a=P[i],b=P[i+1];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const segs=Math.ceil(len/40);
-      for(let k=0;k<segs;k++){const t0=k/segs,t1=(k+1)/segs;const mx=a[0]+(b[0]-a[0])*(t0+t1)/2,mz=a[1]+(b[1]-a[1])*(t0+t1)/2;
-        if(i===2)continue;
-        if(i===3&&((mz>250&&mz<305)||(mz>412&&mz<525)))continue;
-        const w=new THREE.Mesh(new THREE.BoxGeometry(len/segs+1,14,4),M.terra);w.position.set(mx,7,mz);w.rotation.y=-Math.atan2(b[1]-a[1],b[0]-a[0]);w.castShadow=true;root.add(w);
-        const hg=new THREE.Mesh(new THREE.BoxGeometry(len/segs+1,9,6),M.planter);hg.position.set(mx,18,mz);hg.rotation.y=w.rotation.y;root.add(hg)}}}
-  // muros de patio
-  [[212,28,214,68],[400,28,402,68],[640,28,642,68],[700,28,702,68],[898,28,900,68],[212,28,900,30]].forEach(w=>box(w[0],w[1],w[2],w[3],0,22,M.terra));
-  box(568,200,570,345,0,22,M.terra);box(612,200,614,345,0,22,M.terra);
 
   /* edificio */
   const meshes=[], labels=[], overlays={}, units={};
@@ -1098,6 +1116,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     ENC[u.n].forEach(p=>{meshes.push(prism(p,y,FH-5,facade[u.n],data));glazing(p,u.planta,y,data)});
     (TER[u.n]||[]).forEach(p=>{meshes.push(prism(p,y,2,M.deck,data));
       const [x0,y0,x1,y1]=bbox(p);[[x0,y0,x1,y0+2],[x0,y1-2,x1,y1],[x0,y0,x0+2,y1],[x1-2,y0,x1,y1]].forEach(w=>{const m=box(w[0],w[1],w[2],w[3],y,14,facade[u.n],data);meshes.push(m)})});
+    if(u.planta==='pa')(TER[u.n]||[]).forEach(p=>{const [a,b,c,d]=bbox(p);meshes.push(box(a-3,b-3,c+3,d+3,y+FH-5,5,M.slab,data));meshes.push(box(a,b,c,d,y+FH-6.2,1.2,M.wood,data))});   // marquesina de hormigón con cielo de madera sobre cada terraza
     // losa superior con voladizo
     const [x0,y0,x1,y1]=bbox(FOOT[u.n]);ENC[u.n].forEach(pp=>{const slab=prism(pp,y+FH-5,5,M.slab,data);meshes.push(slab)});
     if(u.planta==='pa')ENC[u.n].forEach(pp=>edgeBands(pp,y+FH,3,8,M.planter,data,[316,128+22,531,411+22]));   // jardín de cubierta, sin invadir la terraza comunal
@@ -1110,22 +1129,22 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:mkLabel(u.n,false),depthTest:false,depthWrite:false,transparent:true}));sp.renderOrder=20;sp.userData.tex=sp.material.map;sp.userData.texSel=mkLabel(u.n,true);sp.userData.mk=mkLabel;sp.scale.set(34,34,1);const ip=innerPoint(FOOT[u.n]);sp.position.set(ip[0],y+FH+16,ip[1]);Object.assign(sp.userData,data,{sprite:true});root.add(sp);labels.push(sp);meshes.push(sp);
     units[u.n]={y,cx:ip[0],cz:ip[1]+(u.planta==='pa'?PA_DZ:0)};
   });
-  /* frente sur (fachada principal del render): césped abierto hasta la vereda, senda de acceso, luces bajas y la calle principal */
-  prism([[252,522],[1035,522],[1035,578],[238,578]],-.2,1.4,M.lawn);
-  prism([[600,522],[640,522],[640,578],[600,578]],-.1,1.6,M.cobble);                     // senda peatonal al ingreso
+  /* calle sobre el lindero oeste: calzada, veredas a ambos lados, autos estacionados y luminarias */
   {const roadT2=ctex((x,s)=>{noise(x,s,'#45464a',.1,2500);x.fillStyle='#d8d2b8';for(let i=0;i<s;i+=64)x.fillRect(i,s/2-2,34,4);x.fillStyle='#e8e4d8';x.fillRect(0,4,s,3);x.fillRect(0,s-7,s,3)},256,1);roadT2.repeat.set(30,1);
-    const rd=new THREE.Mesh(new THREE.BoxGeometry(5600,1,104),new THREE.MeshStandardMaterial({map:roadT2,roughness:1}));rd.position.set(560,-.45,640);rd.receiveShadow=true;root.add(rd);
-    [330,420,760,850,940,1120,1260,1400,-150,-40,60].forEach((x,i)=>{const g=new THREE.Group();const body=M.carBody[(i+1)%4];
+    const strip=(w,off,mat,y)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(5600,1,w),mat);const c=ST.at(270,off);m.position.set(c[0],y,c[1]);m.rotation.y=ST.rot;m.receiveShadow=true;root.add(m)};
+    strip(104,ROAD_OFF,new THREE.MeshStandardMaterial({map:roadT2,roughness:1}),-.45);strip(16,8,M.pave,-.38);strip(16,16+104+8,M.pave,-.38);
+    [-640,-520,-400,-280,-160,-40,80,180,600,720,860,1000,1140].forEach((t,i)=>{const g=new THREE.Group();const body=M.carBody[(i+1)%4];   // sin autos frente al ingreso peatonal ni al vehicular
       const fb=(w,h,dd,mat,px,py,pz)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),mat);m.position.set(px,py,pz);m.castShadow=true;g.add(m)};
       fb(38,7,17,body,0,5.5,0);fb(19,6,14,body,-1,12,0);const gl=new THREE.Mesh(new THREE.BoxGeometry(19.4,4,14.4),M.glass);gl.position.set(-1,12.5,0);g.add(gl);
       [[-12,-8],[12,-8],[-12,8],[12,8]].forEach(q=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(3,3,2.5,12),M.tire);w.rotation.x=Math.PI/2;w.position.set(q[0],3,q[1]);g.add(w)});
-      g.position.set(x,0,602);g.userData.level='pb';root.add(g)});
-    for(let x=-400;x<1700;x+=140){const pole=new THREE.Mesh(new THREE.CylinderGeometry(1,1.3,46,8),M.column);pole.position.set(x,23,700);root.add(pole);const head=new THREE.Mesh(new THREE.BoxGeometry(10,2,6),lampM);head.position.set(x,46,696);root.add(head)}
-    window.__southTrees=()=>{let k=0;for(let x=-360;x<1700;x+=120){maple(x,708,52+(k%3)*8,200+k);k++}};
+      const c=ST.at(t,16+11);g.position.set(c[0],0,c[1]);g.rotation.y=ST.rot;g.userData.level='pb';root.add(g)});
+    for(let t=-900;t<1500;t+=140){const c=ST.at(t,16+104+5),h=ST.at(t,16+104+1);const pole=new THREE.Mesh(new THREE.CylinderGeometry(1,1.3,46,8),M.column);pole.position.set(c[0],23,c[1]);root.add(pole);const head=new THREE.Mesh(new THREE.BoxGeometry(10,2,6),lampM);head.position.set(h[0],46,h[1]);head.rotation.y=ST.rot+Math.PI/2;root.add(head)}
+    window.__southTrees=()=>{let k=0;for(let t=-840;t<1500;t+=120){const c=ST.at(t,16+104+12);maple(c[0],c[1],52+(k%3)*8,200+k);k++}};
   }
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
+    {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?isBuilt:()=>true,40)}}
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
     root.add(grp);grp.updateMatrixWorld(true);batchContainer(grp);if(cut)applyCut();if(floor!=='all')$('#floor3 .chip.on').click();shadowDirty()},undefined,()=>{}));
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
@@ -1251,14 +1270,14 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     g.position.set(px,0,pz);g.userData.level='pb';root.add(g)}
   const ZONES=[[895,65,1000,460],[215,32,895,64]];
   {const fr2=new THREE.InstancedMesh(frondGeo,M.leaf[1],1200);const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
-    for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6))continue;
+    for(let i=0;i<54;i++){const z=ZONES[i%ZONES.length];const x=z[0]+((i*53)%(z[2]-z[0])),zz=z[1]+((i*29)%(z[3]-z[1]));if(BLOCKS.some(b=>x>b[0]-6&&x<b[2]+6&&zz>b[1]-6&&zz<b[3]+6)||!inside([x+10,zz],LOT))continue;
       for(let f=0;f<7&&k<1200;f++){const a=f/7*6.28+i;const tilt=.6+(f%3)*.12;q.setFromEuler(new THREE.Euler(tilt*Math.cos(a),0,-tilt*Math.sin(a)));const sc=1+(i%3)*.35;mm.compose(new THREE.Vector3(x,.5,zz),q,new THREE.Vector3(sc,sc*1.3,sc));fr2.setMatrixAt(k,mm);fr2.setColorAt(k,col.setHex([0x5f8f3a,0x6fa045,0x4f7f30][f%3]));k++}}
     fr2.count=k;fr2.castShadow=true;fr2.userData.level='pb';root.add(fr2)}
   // flores moradas en los bordes de senderos
   const petalM=[0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a].map(c=>new THREE.MeshLambertMaterial({color:c}));
   const flower=new THREE.InstancedMesh(new THREE.SphereGeometry(1.3,5,4),petalM[0],900);{const mm=new THREE.Matrix4();const col=new THREE.Color();let k=0;
     const beds=[[895,65,1000,460],[215,32,895,64]];
-    for(;k<900;k++){const b=beds[k%beds.length];mm.makeTranslation(b[0]+((k*61)%(b[2]-b[0])),2+(k%5),b[1]+((k*37)%(b[3]-b[1])));flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
+    for(;k<900;k++){const b=beds[k%beds.length];const fx=b[0]+((k*61)%(b[2]-b[0])),fz=b[1]+((k*37)%(b[3]-b[1]));mm.makeTranslation(fx,inside([fx+10,fz],LOT)?2+(k%5):-60,fz);flower.setMatrixAt(k,mm);flower.setColorAt(k,col.setHex([0x7a3fa0,0x9b5ac2,0xc77dd6,0xd94f8a][k%4]))}
     flower.userData.level='pb';root.add(flower)}
   // patio central como en el render: helechos y palmas densos dentro de los macizos, espigas moradas en los bordes
   const fronds=new THREE.InstancedMesh(frondGeo,M.leaf[1],6000);{const mm=new THREE.Matrix4();const q=new THREE.Quaternion();const col=new THREE.Color();let k=0;
@@ -1288,12 +1307,12 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const ss=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t)};
     const CX=PW/2,CZ=PH/2,GY=-2;
     // lagunas: [cx, cz, radio, semilla, estiramiento en x]
-    const LAKES=[[640,1140,235,1,1.55],[-640,-430,210,2,1.2],[1840,140,190,3,1.1],[1900,1500,170,4,1.4],[-980,1320,180,5,1.3],[420,-1250,230,6,1.6]];
+    const LAKES=[[1000,1150,235,1,1.4],[-760,-430,210,2,1.2],[1840,140,190,3,1.1],[1900,1500,170,4,1.4],[-980,1320,180,5,1.3],[420,-1250,230,6,1.6]];
     const lakeR=(L,a)=>L[2]*(1+.15*Math.sin(a*2+L[3]*1.7)+.09*Math.sin(a*3+L[3]*4.1)+.05*Math.sin(a*5+L[3]));
     const lakeD=(x,z)=>{let m=1e9;LAKES.forEach(L=>{const dx=(x-L[0])/L[4],dz=z-L[1];m=Math.min(m,Math.hypot(dx,dz)-lakeR(L,Math.atan2(dz,dx)))});return m}; // <0 = dentro del agua
     // relieve: plano cerca del lote, de la calle y de las lagunas; colinas hacia el horizonte
     const hill=(x,z)=>{const n=Math.sin(x*.0011+1.3)*Math.cos(z*.0013+.7)+.5*Math.sin(x*.0027-z*.0021+2.1)+.25*Math.sin(x*.0058+z*.0049);
-      const m=ss(1050,3000,Math.hypot(x-CX,z-CZ))*ss(170,700,Math.abs(z-640))*ss(60,520,lakeD(x,z));return m*(60+Math.max(-.3,n)*200)};
+      const m=ss(1050,3000,Math.hypot(x-CX,z-CZ))*ss(170,700,Math.abs(ST.dist(x,z)-ROAD_OFF))*ss(60,520,lakeD(x,z));return m*(60+Math.max(-.3,n)*200)};
     const fden=(x,z)=>Math.sin(x*.0021+.4)*Math.cos(z*.0026+1.9)+.6*Math.sin((x+z)*.0043+2.2)+.35*Math.cos(x*.0081-z*.0067);   // densidad del bosque
     const groundT=ctex((x,s)=>noise(x,s,'#9aba68',.13,5000),256,56);
     {const tg=new THREE.PlaneGeometry(15000,15000,150,150);tg.rotateX(-Math.PI/2);const tp=tg.attributes.position,tc=new Float32Array(tp.count*3);
@@ -1303,8 +1322,6 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       tg.setAttribute('color',new THREE.BufferAttribute(tc,3));tg.computeVertexNormals();
       const terr=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundT,vertexColors:true,roughness:1}));terr.position.set(CX,GY,CZ);terr.receiveShadow=true;G.add(terr)}
     const gy=(x,z)=>hill(x,z)+GY;
-    // vereda perimetral del lote y vereda sur de la calle principal
-    [[565,-67,1080,16],[33,265,16,648],[1097,265,16,648],[560,700,5600,16]].forEach(w=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w[2],2.2,w[3]),M.pave);m.position.set(w[0],-.2,w[1]);m.receiveShadow=true;G.add(m)});
     // lagunas: orilla de arena, agua y fondo más profundo
     const waterM=new THREE.MeshStandardMaterial({color:0x58a6c2,roughness:.18,metalness:0,transparent:true,opacity:.93});
     const deepM=new THREE.MeshStandardMaterial({color:0x2f7f9f,roughness:.25,transparent:true,opacity:.55});
@@ -1321,11 +1338,11 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       bush:flat(new THREE.IcosahedronGeometry(1,0)),rock:flat(new THREE.DodecahedronGeometry(1,0)),flower:new THREE.SphereGeometry(1,5,4),reed:new THREE.ConeGeometry(1,1,4).translate(0,.5,0),pad:new THREE.CircleGeometry(1,10).rotateX(-Math.PI/2)};
     const tint=(hex,i,v=.12)=>{col.setHex(hex);const k=1-v/2+rnd(i)*v;return new THREE.Color(col.r*k,col.g*k,col.b*k)};
     const LEAF=[0x5c8f3a,0x6b9d42,0x4f8236,0x7aa94a,0x86b352,0x638f3f],PINE=[0x2f6b3c,0x3a7a44,0x285f38,0x44854a],BLOOM=[0x9a6cc4,0xb48ad6,0xe39ab8,0xd8b84e];
-    const inLot=(x,z,mg)=>x>-10-mg&&x<1150+mg&&z>-110-mg&&z<720+mg;
+    const inLot=(x,z,mg)=>x>20-mg&&x<1070+mg&&z>24-mg&&z<522+mg;const nearRoad=(x,z,mg)=>Math.abs(ST.dist(x,z)-ROAD_OFF)<mg;
     // bosques: retícula con desorden, claros según el ruido, más densos hacia el horizonte
     let ti=0;for(let gx=-3500;gx<4700;gx+=80)for(let gz=-3400;gz<4000;gz+=80){const i=ti++;const x=gx+(rnd(i)-.5)*74,z=gz+(rnd(i+.5)-.5)*74;
-      const dc=Math.hypot(x-CX,z-CZ);if(inLot(x,z,130)||Math.abs(z-640)<120||lakeD(x,z)<40)continue;
-      if(x>180&&x<1100&&z>700&&z<900)continue;                                   // pradera abierta entre la calle y la laguna principal
+      const dc=Math.hypot(x-CX,z-CZ);if(inLot(x,z,110)||nearRoad(x,z,112)||lakeD(x,z)<40)continue;
+      if(x>330&&x<1500&&z>500&&z<1000)continue;                                   // pradera abierta entre el lote y la laguna principal
       if(fden(x,z)+ss(1900,3200,dc)*1.4+(rnd(i+.25)-.5)*.5<-.05)continue;
       const y=gy(x,z)-1,s=.8+rnd(i+.7)*.75,far=dc>1500,ry=rnd(i+.9)*6.28;
       if(Math.sin(x*.0013+3)*Math.cos(z*.0017+.5)+(rnd(i+.3)-.5)*.7>.12){             // pinos
@@ -1336,12 +1353,12 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
         put(far?'blobF':'blob',x,y+52*s,z,27*s,23*s,27*s,tint(c0,i),ry);
         for(let k=0;k<2;k++){const a=ry+k*3.1+.6;put(far?'blobF':'blob',x+Math.cos(a)*15*s,y+(40+k*9)*s,z+Math.sin(a)*15*s,18*s,15*s,18*s,tint(c0,i+k+1,.2),ry+k)}}}
     // arbustos, rocas y praderas en flor
-    for(let i=0;i<900;i++){const x=-1500+rnd(i*3+1)*4200,z=-1400+rnd(i*3+2)*3900;if(inLot(x,z,40)||Math.abs(z-640)<75||lakeD(x,z)<14)continue;const s=7+rnd(i+.4)*9;
+    for(let i=0;i<900;i++){const x=-1500+rnd(i*3+1)*4200,z=-1400+rnd(i*3+2)*3900;if(inLot(x,z,30)||nearRoad(x,z,84)||lakeD(x,z)<14)continue;const s=7+rnd(i+.4)*9;
       if(i%6===0)put('rock',x,gy(x,z)+s*.25,z,s*1.1,s*.7,s*.9,tint(0x9a9890,i,.2),rnd(i)*6);else put('bush',x,gy(x,z)+s*.45,z,s*1.25,s*.8,s*1.15,tint(i%9===1?BLOOM[i%3]:LEAF[i%6],i,.2),rnd(i)*6)}
     LAKES.forEach((L,li)=>{for(let k=0;k<26;k++){const a=rnd(li*50+k)*6.28,r=lakeR(L,a)+6+rnd(k+li)*16,s=6+rnd(k*7+li)*12;const x=L[0]+Math.cos(a)*r*L[4],z=L[1]+Math.sin(a)*r;put('rock',x,GY+s*.3,z,s*1.2,s*.7,s,tint(0xa3a096,k+li,.2),a)}});
     const FL=[[0x8a4ac0,0xb060d8,0x6a2f9c],[0xf2d24b,0xf6e27a,0xe9b83a],[0xffffff,0xf4ecd8,0xfff6c8],[0xe76fa0,0xf3a0c0,0xd94f8a],[0xe2573c,0xf08a4a,0xf2d24b]];
     for(let p=0;p<110;p++){const px=-1300+rnd(p*5+3)*3800,pz=-1200+rnd(p*5+4)*3400,pr=50+rnd(p+.6)*90,pal=FL[p%5];
-      for(let k=0;k<70;k++){const a=rnd(p*91+k)*6.28,r=Math.sqrt(rnd(p*57+k+.5))*pr,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r;if(inLot(x,z,6)||Math.abs(z-640)<70||lakeD(x,z)<8)continue;
+      for(let k=0;k<70;k++){const a=rnd(p*91+k)*6.28,r=Math.sqrt(rnd(p*57+k+.5))*pr,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r;if(inLot(x,z,6)||nearRoad(x,z,80)||lakeD(x,z)<8)continue;
         const s=2+rnd(k+p)*1.6;put('flower',x,gy(x,z)+2.5+rnd(k)*2.5,z,s,s*.8,s,new THREE.Color(pal[k%3]))}}
     // juncos y nenúfares en las lagunas
     LAKES.forEach((L,li)=>{for(let c=0;c<12;c++){const a=rnd(li*31+c+.2)*6.28;for(let k=0;k<12;k++){const aa=a+(rnd(c*13+k+li)-.5)*.3,r=lakeR(L,aa)-4-rnd(k*3+c)*20;
@@ -1351,22 +1368,22 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const SH={trunk:1,blob:1,cone:1,bush:1,rock:1};
     Object.entries(B).forEach(([k,list])=>{const mat=k==='pad'?new THREE.MeshLambertMaterial({side:THREE.DoubleSide}):new THREE.MeshLambertMaterial();
       const im=new THREE.InstancedMesh(GEO[k],mat,list.length);list.forEach((e,i)=>{im.setMatrixAt(i,e[0]);im.setColorAt(i,e[1])});im.castShadow=!!SH[k];im.receiveShadow=k!=='flower';im.frustumCulled=false;G.add(im)});
-    // senderos de tierra: del ingreso al muelle de la laguna y hacia las lagunas vecinas
+    // senderos de tierra: del lote al muelle de la laguna y hacia las lagunas vecinas
     const trailM=new THREE.MeshStandardMaterial({color:0xd3c096,roughness:1});
     const trail=(pts,w)=>{const cv=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],0,p[1]))),N=pts.length*14,pos=[],idx=[];
       for(let i=0;i<=N;i++){const p=cv.getPoint(i/N),t=cv.getTangent(i/N),nx=-t.z,nz=t.x,l=Math.hypot(nx,nz)||1;
         [-1,1].forEach(sd=>{const x=p.x+nx/l*w/2*sd,z=p.z+nz/l*w/2*sd;pos.push(x,gy(x,z)+.9,z)});if(i<N){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}}
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,trailM);m.receiveShadow=true;G.add(m)};
     const L0=LAKES[0],shoreZ=L0[1]-lakeR(L0,-Math.PI/2);
-    trail([[620,708],[604,760],[652,830],[640,shoreZ-4]],14);
-    trail([[1105,300],[1290,340],[1480,250],[1640,205]],12);
-    trail([[25,150],[-150,40],[-320,-190],[-440,-330]],12);
-    trail([[640,-75],[700,-330],[560,-640],[470,-1010]],12);
+    trail([[640,526],[700,650],[900,780],[L0[0],shoreZ-4]],14);
+    trail([[1012,300],[1290,340],[1480,250],[1640,205]],12);
+    trail([[-115,300],[-300,120],[-480,-150],[-600,-330]],12);
+    trail([[640,18],[700,-330],[560,-640],[470,-1010]],12);
     // muelle de madera y bote en la laguna principal
-    {const dk=new THREE.Mesh(new THREE.BoxGeometry(24,2,130),M.wood);dk.position.set(640,GY+7,shoreZ+50);dk.castShadow=dk.receiveShadow=true;G.add(dk);
-      for(let k=0;k<5;k++)[-10,10].forEach(dx=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,14,6),M.wood);p.position.set(640+dx,GY+3,shoreZ-10+k*30);p.castShadow=true;G.add(p)});
+    {const dk=new THREE.Mesh(new THREE.BoxGeometry(24,2,130),M.wood);dk.position.set(L0[0],GY+7,shoreZ+50);dk.castShadow=dk.receiveShadow=true;G.add(dk);
+      for(let k=0;k<5;k++)[-10,10].forEach(dx=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,14,6),M.wood);p.position.set(L0[0]+dx,GY+3,shoreZ-10+k*30);p.castShadow=true;G.add(p)});
       const boat=new THREE.Group();const hull=new THREE.Mesh(new THREE.SphereGeometry(1,12,8,0,Math.PI*2,Math.PI/2,Math.PI/2),new THREE.MeshStandardMaterial({color:0xf4f1ea,roughness:.6,side:THREE.DoubleSide}));hull.scale.set(9,6,24);hull.position.y=6;boat.add(hull);
-      [-8,6].forEach(z=>{const s=new THREE.Mesh(new THREE.BoxGeometry(15,1.2,4),M.wood);s.position.set(0,4.6,z);boat.add(s)});boat.position.set(676,GY+1,shoreZ+92);boat.rotation.y=.5;boat.traverse(o=>{if(o.isMesh)o.castShadow=true});G.add(boat)}
+      [-8,6].forEach(z=>{const s=new THREE.Mesh(new THREE.BoxGeometry(15,1.2,4),M.wood);s.position.set(0,4.6,z);boat.add(s)});boat.position.set(L0[0]+36,GY+1,shoreZ+92);boat.rotation.y=.5;boat.traverse(o=>{if(o.isMesh)o.castShadow=true});G.add(boat)}
   }
   /* planos sobre cada planta (modo casa de muñecas) */
   const loader=new THREE.TextureLoader();const slabs={};
