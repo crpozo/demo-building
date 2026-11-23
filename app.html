@@ -1554,7 +1554,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};let panMode=false;
   $('#pan3').onclick=e=>{panMode=!panMode;e.target.classList.toggle('on',panMode);el.style.cursor=panMode?'move':'grab'};
   function pan(dx,dy){const sc=tv.dist/el.clientHeight*1.3;const fx=Math.sin(tv.theta),fz=Math.cos(tv.theta);targetT.x+=(-dx*fz*sc)+(-dy*fx*sc);targetT.z+=(dx*fx*sc)+(-dy*fz*sc);targetT.x=Math.max(-2200,Math.min(2200,targetT.x));targetT.z=Math.max(-2000,Math.min(2000,targetT.z))}
-  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+19,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
+  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+23.5,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
     tv.theta+=(theta-tv.theta)*.18;tv.phi+=(phi-tv.phi)*.18;tv.dist+=(dist-tv.dist)*.18;target.lerp(targetT,.18);const th=tv.theta,ph=tv.phi;cam.position.set(target.x+tv.dist*Math.sin(ph)*Math.sin(th),target.y+tv.dist*Math.cos(ph),target.z+tv.dist*Math.sin(ph)*Math.cos(th));cam.lookAt(target)}
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
