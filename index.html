@@ -559,6 +559,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
   .kpi b{font-size:2.1rem}
 }
 </style>
+<link rel="stylesheet" href="pisos.css">
 
 <header class="top" id="top">
   <div class="wrap">
@@ -627,6 +628,11 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
     </div>
     <div class="next"><span>Siguiente paso<b>Elija su departamento</b></span><a class="btn gold" href="#departamentos">Ver departamentos</a></div>
   </div>
+</section>
+
+<!-- PISOS -->
+<section class="view" id="v-pisos">
+  <div class="pisos-app" id="pisosApp"></div>
 </section>
 
 <!-- PLANTAS -->
@@ -807,14 +813,15 @@ const SECCIONES=[
   {id:'galeria',t:'Galería',d:'Renders de fachada, patio e interiores',g:0,hub:1},
   {id:'avance',t:'Avance y métricas',d:'Etapa de la obra y actividad del showroom',g:0,hub:1},
   {id:'departamentos',t:'Departamentos',d:'Disponibilidad, áreas y fichas',g:1,hub:1},
+  {id:'pisos',t:'Pisos',d:'Planta por planta, con cada departamento',g:1,hub:1},
   {id:'planos',t:'Planos',d:'Ubique cada unidad en su planta',g:1,hub:1},
   {id:'edificio',t:'Edificio 3D',d:'Explore el edificio y visite un departamento',g:1,hub:1},
   {id:'recorrido',t:'Recorrido interior',d:'Entre a un departamento desde la fachada',g:1,hub:1}];
 const GRUPOS=['Conozca el proyecto','Elija su departamento'];
-const HUB_ORDEN=['departamentos','recorrido','edificio','avance','planos','galeria'];
-const NAV_RAPIDA=['departamentos','planos','edificio','recorrido','avance'];   // máximo cinco en la barra; el resto vive en el menú
+const HUB_ORDEN=['departamentos','pisos','recorrido','edificio','avance','planos','galeria'];
+const NAV_RAPIDA=['departamentos','pisos','edificio','recorrido','avance'];   // máximo cinco en la barra; el resto vive en el menú
 const nDisp=()=>UNITS.filter(u=>status(u.n)==='disponible').length;
-const hubDato=id=>({departamentos:nDisp()+' disponibles',recorrido:'Sala · Terraza',edificio:'Entorno · Asoleamiento',avance:obraTotal()+'% · '+OBRA.actualizado,planos:'Baja · Alta · Terraza',galeria:TOUR.length+' renders'})[id];
+const hubDato=id=>({departamentos:nDisp()+' disponibles',pisos:'Baja · Alta · Terraza',recorrido:'Sala · Terraza',edificio:'Entorno · Asoleamiento',avance:obraTotal()+'% · '+OBRA.actualizado,planos:'Baja · Alta · Terraza',galeria:TOUR.length+' renders'})[id];
 
 /* ---- recorrido del visitante: se guarda en este dispositivo y alimenta el resumen para el asesor y las métricas ---- */
 const J=(()=>{const K='alheli.visita.v1';const nuevo=()=>({inicio:Date.now(),seg:0,vistas:{},deptos:{},recorridos:{},fav:null,contacto:0});let d;
@@ -903,13 +910,13 @@ $('#menu').addEventListener('click',e=>{if(e.target.closest('a,[data-asesor]'))s
 addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
 const onScroll=()=>{};
 /* ---- navegación por hash ---- */
-const VIEWS=SECCIONES.map(x=>x.id),ALIAS={proyecto:'inicio',plantas:'planos',experiencia:'recorrido',metricas:'avance'};
+const VIEWS=SECCIONES.map(x=>x.id),ALIAS={proyecto:'inicio',plantas:'planos',experiencia:'recorrido',metricas:'avance',piso:'pisos'};
 function route(){
-  let h=(location.hash||'#inicio').slice(1);h=ALIAS[h]||h; const v=VIEWS.includes(h)?h:'inicio',sec=SECCIONES.find(x=>x.id===v);
+  let h=(location.hash||'#inicio').slice(1);h=ALIAS[h]||h;if(h.indexOf('pisos/')===0)h='pisos'; const v=VIEWS.includes(h)?h:'inicio',sec=SECCIONES.find(x=>x.id===v);
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   document.querySelectorAll('#menuCols a,#quicknav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v));
   document.body.classList.toggle('home',v==='inicio');$('#crumb').hidden=v==='inicio';$('#here').textContent=sec.t;
-  setMenu(false);J.view(v);if(v==='avance')renderMetricas();
+  setMenu(false);J.view(v);if(v==='avance')renderMetricas();if(v==='pisos'&&window.AlheliPisos)AlheliPisos.syncFromHash();
   // Recorrido interior: carga diferida del iframe; al salir de la sección se detiene y vuelve a su portada.
   const ef=document.getElementById('expFrame');
   if(v==='recorrido'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
@@ -1008,6 +1015,8 @@ document.addEventListener('click',e=>{
 function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(window.update3D)update3D()}
 renderAll(); route();
 </script>
+<script src="pisos.js"></script>
+<script>AlheliPisos.init({mount:'#pisosApp'});</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
