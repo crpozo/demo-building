@@ -382,6 +382,8 @@
         c.classList.toggle('is-on', Number(c.dataset.n) === u.n);
       });
       var stt = statusOf(u.n);
+      /* «Ver interior» solo si el visor de interiores tiene fotos de esta unidad */
+      var hasInt = !!(global.AlheliInteriores && global.AlheliInteriores.has && global.AlheliInteriores.has(u.n));
       panel.innerHTML =
         '<div class="row"><span class="pisos-ejemplo">' + PISOS_STATUS_EJEMPLO.etiqueta + '</span><button class="x" type="button" aria-label="Cerrar">×</button></div>' +
         '<div class="pisos-thumb"><img src="' + src('img/pisos/u' + u.n + '.jpg') + '" alt="Plano del departamento ' + u.n + '"></div>' +
@@ -397,7 +399,8 @@
         '</div>' +
         '<div class="actions">' +
           '<button class="btn ghost" type="button" data-plano="' + u.n + '">Ver plano</button>' +
-          '<a class="btn gold" href="#edificio" data-walk="' + u.n + '">Recorrido 3D</a>' +
+          '<a class="btn ' + (hasInt ? 'ghost' : 'gold') + '" href="#edificio" data-walk="' + u.n + '">Recorrido 3D</a>' +
+          (hasInt ? '<button class="btn gold" type="button" data-interior="' + u.n + '">Ver interior</button>' : '') +
         '</div>';
       panel.classList.add('is-open');
       panel.querySelector('.x').onclick = closePanel;
@@ -479,6 +482,8 @@
     panel.addEventListener('click', function (e) {
       var pl = e.target.closest && e.target.closest('[data-plano]');
       if (pl) { e.preventDefault(); openPlano(Number(pl.dataset.plano)); return; }
+      var it = e.target.closest && e.target.closest('[data-interior]');
+      if (it) { e.preventDefault(); if (global.AlheliInteriores) global.AlheliInteriores.open(Number(it.dataset.interior)); return; }
       var wk = e.target.closest && e.target.closest('[data-walk]');
       if (wk) {
         var n = Number(wk.dataset.walk);
