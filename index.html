@@ -1255,6 +1255,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
     {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,40);w.visible=cut||!!walk}}
+    if(lvl==='tc'){const fs=grp.getObjectByName('floor_salon');if(fs&&fs.isMesh){const sh=shape([[316,128],[531,128],[531,411],[316,411]]);sh.holes.push(new THREE.Path([[401,135.7],[448.6,135.7],[448.6,174.1],[401,174.1]].map(p=>new THREE.Vector2(p[0],-p[1]))));const ge=new THREE.ExtrudeGeometry(sh,{depth:1.2,bevelEnabled:false});ge.rotateX(-Math.PI/2);ge.translate(0,.4,0);fs.geometry.dispose();fs.geometry=ge}}   // hueco de la escalera oeste (plano de terraza)
     {const old=[];grp.traverse(o=>{if(o.isMesh&&(/^(car\d|tire)$/.test(o.material.name||'')||/^(win|light)/.test(o.name)))old.push(o)});old.forEach(o=>o.parent.remove(o))}
     grp.traverse(o=>{if(o.isMesh&&o.material&&o.material.name&&STYLES.moderno[o.material.name]!==undefined)(MATREG[o.material.name]=MATREG[o.material.name]||new Set()).add(o.material)});applyMats();
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
@@ -1349,7 +1350,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   /* elementos exteriores leídos del plano: terrazas, jardineras y terraza comunal */
   const OUT={pa:[
     ],tc:[
-      ['pingpong',363,166],['stairs',425,154],                                            // hall: ping-pong y escalera
+      ['pingpong',363,166],                                            // hall: ping-pong y escalera
       ['sofa',430,209,30,9,0],['ochair',409,222,0,0,270],['ochair',451,222,0,0,90],['ctable',430,221,18,7],   // sala del hall
       ['toilet',497,139],['basin',476,139],['toilet',497,190],['basin',476,190],          // baños
       ['counter',478,214,10,31],['counter',500,220,10,44],                                // cocina / bar
@@ -1542,16 +1543,35 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const add=(m,lvl,label)=>{m.castShadow=m.receiveShadow=true;m.userData.level=lvl;m.userData.baseY=m.position.y;m.userData.interior=true;if(label){m.userData.common=label;meshes.push(m)}root.add(m);return m};
     const elev=(x0,z0,x1,z1,lvl,door,h)=>{const y=LV[lvl];const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,h,z1-z0),conc);m.position.set((x0+x1)/2,y+h/2,(z0+z1)/2);add(m,lvl,'Ascensor');
       const dw=12,dh=Math.min(30,h-4);let d;if(door==='N'||door==='S'){d=new THREE.Mesh(new THREE.BoxGeometry(dw,dh,.8),steel);d.position.set((x0+x1)/2,y+dh/2+1,door==='N'?z0-.4:z1+.4)}else{d=new THREE.Mesh(new THREE.BoxGeometry(.8,dh,dw),steel);d.position.set(door==='W'?x0-.4:x1+.4,y+dh/2+1,(z0+z1)/2)}add(d,lvl)};
-    const stairs=(x0,z0,x1,z1,lvl,alongX)=>{const y=LV[lvl];const N=10,rise=2.4;
-      for(let f=0;f<2;f++)for(let k=0;k<N;k++){const hgt=(f*N+k+1)*rise;let m;
-        if(alongX){const zm=(z0+z1)/2,w=(z1-z0)/2-1,len=(x1-x0-8)/N;const xs=f===0?x0+len*(k+.5):x1-8-len*(k+.5);m=new THREE.Mesh(new THREE.BoxGeometry(len,hgt,w),M.pave);m.position.set(xs,y+hgt/2,f===0?z0+w/2:zm+1+w/2)}
-        else{const xm=(x0+x1)/2,w=(x1-x0)/2-1,len=(z1-z0-8)/N;const zs=f===0?z0+len*(k+.5):z1-8-len*(k+.5);m=new THREE.Mesh(new THREE.BoxGeometry(w,hgt,len),M.pave);m.position.set(f===0?x0+w/2:xm+1+w/2,y+hgt/2,zs)}
-        add(m,lvl)}
-      const land=alongX?new THREE.Mesh(new THREE.BoxGeometry(8,N*rise,z1-z0),M.pave):new THREE.Mesh(new THREE.BoxGeometry(x1-x0,N*rise,8),M.pave);
-      if(alongX)land.position.set(x1-4,y+N*rise/2,(z0+z1)/2);else land.position.set((x0+x1)/2,y+N*rise/2,z1-4);add(land,lvl)};
+    /* escaleras en U según las plantas (pág. 13-15 del brochure): 2 tramos de 7 huellas / 8 contrahuellas por piso (16 x 3 px = FH),
+       descanso al OESTE, tramo 1 = mitad SUR (arranca en el extremo ESTE y sube hacia el oeste), tramo 2 = mitad NORTE (vuelve hacia el este y llega al piso
+       superior por el NE). Cada tramo es una losa dentada con espesor constante (no bloques macizos), así que nada queda colgando ni se apila sobre el tramo inferior. */
+    const RISE=FH/16,WAIST=3;
+    const block=(x0,x1,y0,y1,z0,z1,mat,lvl,label)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),mat);m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);return add(m,lvl,label)};
+    // envolvente (muros/cubierta de la caja de escalera): se oculta con «Ver interiores» igual que los volúmenes de las unidades
+    const shellB=(x0,x1,y0,y1,z0,z1,mat,lvl)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),mat);m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);m.castShadow=m.receiveShadow=true;m.userData.level=lvl;m.userData.baseY=m.position.y;m.userData.core=1;root.add(m);return m};
+    const stairU=(S,lvl)=>{const y=LV[lvl],t=(S.xE-S.xL1)/7;
+      for(let i=0;i<7;i++){const top=y+(i+1)*RISE;block(S.xE-(i+1)*t,S.xE-i*t,top-RISE-WAIST,top,S.zS0,S.zS1,M.pave,lvl)}            // tramo 1 (sur), sube hacia el oeste
+      block(S.xL0,S.xL1,y+8*RISE-WAIST,y+8*RISE,S.zN0,S.zS1,M.pave,lvl);                                                              // descanso (oeste) a media altura
+      for(let j=0;j<7;j++){const top=y+(9+j)*RISE;block(S.xL1+j*t,S.xL1+(j+1)*t,top-RISE-WAIST,top,S.zN0,S.zN1,M.pave,lvl)}         // tramo 2 (norte), sube hacia el este
+      const zc=(S.zN1+S.zS0)/2,hw=Math.max(S.zS0-S.zN1,1.2)/2;block(S.xL1,S.xE,y,y+FH-5,zc-hw,zc+hw,conc,lvl)};                       // muro central entre tramos, del piso a la losa (oeste 3.1 px; este 1.2 px: línea simple en el plano)
+    const W_ST={xL0:401,xL1:417.9,xE:448.6,zN0:135.7,zN1:153.1,zS0:156.2,zS1:174.1};   // escalera oeste (hall de los dptos. 1-3 / 5-8)
+    const E_ST={xL0:763.1,xL1:783,xE:813.7,zN0:217.7,zN1:234.5,zS0:234.5,zS1:252.4};   // escalera este (hall de los dptos. 4 / 9-10)
+    ['pb','pa'].forEach(l=>{stairU(W_ST,l);stairU(E_ST,l)});
+    // rellanos de piso (llegada NE / arranque SE) que faltaban: el hall no tenía losa en planta alta
+    block(448.6,466.4,LV.pa-5,LV.pa,135.7,177,M.slab,'pa','Hall de planta alta');                 // oeste, entre la escalera y el muro x=466
+    block(813.7,836.6,LV.pa-5,LV.pa,186,260.8,M.slab,'pa','Hall de planta alta');                 // este, hall junto al ascensor
+    shellB(813.7,836.6,LV.tc-5,LV.tc,186,260.8,M.slab,'tc');                                       // este, losa de cubierta sobre el hall / llegada a terraza
+    // cerramientos de la escalera este (plano: jardinera al oeste x 761-763, muro sur z 252-261, caseta en terraza)
+    // (con «Ver interiores» se ocultan como el resto de envolventes: vista en corte)
+    ['pb','pa'].forEach(l=>{shellB(761,763.1,LV[l],LV[l]+FH,217.7,252.4,conc,l);shellB(763.1,813.7,LV[l],LV[l]+FH,252.4,260.8,conc,l)});
+    {const y=LV.tc,h=34;shellB(761,763.1,y,y+h,186,260.8,conc,'tc');shellB(763.1,813.7,y,y+h,252.4,260.8,conc,'tc');shellB(763.1,785,y,y+h,186,188,conc,'tc');
+      shellB(761,813.7,y+h,y+h+3,186,260.8,M.slab,'tc')}
+    // baranda del hueco en la terraza comunal (lados sur y este del tramo que sube)
+    block(401,448.6,LV.tc,LV.tc+15,174.1,175.6,steel,'tc');block(447.6,448.6,LV.tc,LV.tc+15,156.2,174.1,steel,'tc');
+    block(417.9,448.6,LV.tc,LV.tc+15,153.1,156.2,conc,'tc');
     ['pb','pa','tc'].forEach(l=>elev(361,212,390,238,l,'N',l==='tc'?34:44));
-    ['pb','pa'].forEach(l=>elev(785,188,812,214,l,'E',44));elev(785,188,812,214,'tc','E',12);
-    ['pb','pa'].forEach(l=>stairs(401,136,448,175,l,false));['pb','pa'].forEach(l=>stairs(763,219,812,250,l,true));}
+    ['pb','pa','tc'].forEach(l=>elev(785,188,812,214,l,'E',l==='tc'?34:44));}
 
   /* cámara y controles */
   let hoverCand=null,hoverN=0,missN=0;
