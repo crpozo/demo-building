@@ -26,7 +26,7 @@
           go: [{ to: 'comedor', x: 22, y: 90, rot: -85 }] },
         { id: 'dormitorio-master', name: 'Dormitorio máster', src: 'img/interiores/d3/dormitorio-master.webp', w: 1920, h: 1200,
           map: [13.3, 31.3, 16.0, 33.7],
-          go: [] }   /* la cama ocupa casi toda la foto: sin flecha en el piso */
+          go: [] }   /* sin flecha en el piso: en la foto no se ve el paso a otro ambiente */
       ]
     }
   };
