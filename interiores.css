@@ -1,7 +1,8 @@
 /* Alhelí — visor de interiores.
    El panel sigue el diseño del sitio: mismas variables (--bg, --fg, --muted, --line, --gold, --display, --body, --radius)
    y mismas clases del header y las secciones (eyebrow, btn gold, menu-btn). La foto va sobre la tinta oscura del sitio.
-   Escritorio: foto a la izquierda y panel a la derecha. Hasta 768 px: el panel es una hoja inferior que se contrae. */
+   Escritorio: foto a la izquierda y panel a la derecha. Hasta 768 px: el panel es una hoja inferior que se contrae.
+   La foto se puede arrastrar para mirar alrededor: la transformación la escribe interiores.js sobre .intr-pan. */
 html.intr-lock,html.intr-lock body{overflow:hidden}
 
 .intr{
@@ -25,12 +26,13 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 .intr-stage{
   grid-column:1;grid-row:1;
   position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--i-deep);
-  touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none;
+  touch-action:none;                    /* el arrastre y el pinch los maneja el visor (mirar alrededor y zoom) */
+  user-select:none;-webkit-user-select:none;
 }
 .intr-img{
   position:absolute;inset:0;width:100%;height:100%;
   max-width:none;                       /* el sitio declara img{max-width:100%} */
-  object-fit:contain;object-position:center;
+  object-fit:cover;object-position:center;   /* el recuadro ya tiene la proporción de la foto */
   opacity:0;transition:opacity .3s ease;
   pointer-events:none;
 }
@@ -38,9 +40,30 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 .intr-img:not([src]){visibility:hidden}
 .intr-msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;text-align:center;color:var(--i-cream);font-size:.9rem}
 
-/* caja real de la foto (la calcula interiores.js): ancla de la etiqueta, del esqueleto de carga y de las flechas del piso */
-.intr-box{position:absolute;pointer-events:none}
-.intr-gos{position:absolute;inset:0;transition:opacity .25s ease}
+/* Recuadro de la foto (lo calcula interiores.js con la proporción de la imagen): recorta lo que sobra del zoom.
+   Adentro, .intr-pan lleva las fotos y las flechas del piso y es lo que se desplaza y gira al mirar alrededor;
+   la etiqueta, el esqueleto de carga y el aviso quedan fijos. */
+.intr-box{position:absolute;overflow:hidden;cursor:grab}
+.intr.is-drag .intr-box{cursor:grabbing}
+.intr-pan{position:absolute;inset:0;transform-origin:50% 50%;transform:scale(1.18)}
+.intr.is-drag .intr-pan{will-change:transform}                 /* solo mientras se arrastra */
+.intr-gos{position:absolute;inset:0;pointer-events:none;transition:opacity .25s ease}
+.intr-skel,.intr-tag,.intr-look{pointer-events:none}
+
+/* aviso de la primera vez */
+.intr-look{
+  position:absolute;left:50%;top:44%;transform:translate(-50%,6px);
+  display:flex;align-items:center;gap:10px;white-space:nowrap;
+  padding:10px 18px 10px 13px;border-radius:999px;
+  background:rgba(var(--i-ink),.78);color:var(--i-cream);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  font-size:.8rem;letter-spacing:.03em;
+  opacity:0;transition:opacity .35s ease,transform .35s ease;
+}
+.intr.is-hint .intr-look{opacity:1;transform:translate(-50%,0)}
+.intr-look svg{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.intr.is-hint .intr-look svg{animation:intr-nudge 1.5s ease-in-out infinite}
+@keyframes intr-nudge{0%,100%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
 .intr-box.is-out .intr-gos{opacity:0}
 
 /* carga: antes de la primera foto, un esqueleto en su lugar; al cambiar de ambiente, un indicador sobre la foto anterior */
@@ -74,10 +97,10 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 .intr-go{
   --gs:clamp(48px,calc(var(--bw,800px) * .088),104px);
   position:absolute;width:var(--gs);height:var(--gs);
-  /* ancla en % de la foto, sin dejar que la flecha se salga del recuadro cuando la foto es chica (móvil) */
-  left:clamp(calc(var(--gs) * .62),var(--x,50%),calc(100% - var(--gs) * .62));
-  top:min(var(--y,85%),calc(100% - var(--gs) * .36));
-  transform:translate(-50%,-50%);
+  /* ancla en % de la foto, dentro de la zona que se ve en reposo con el zoom inicial (del 8 % al 92 %) */
+  left:clamp(calc(8% + var(--gs) * .5),var(--x,50%),calc(92% - var(--gs) * .5));
+  top:min(var(--y,85%),calc(92% - var(--gs) * .4));
+  transform:translate(-50%,-50%) scale(var(--iz,.85));           /* --iz = 1 / zoom: en pantalla no crecen con el zoom */
   perspective:calc(var(--gs) * 3.2);
   background:none;border:0;padding:0;border-radius:50%;
   pointer-events:auto;touch-action:manipulation;
@@ -241,7 +264,7 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .intr-go .c1,.intr-go .c2,.intr-th,.intr-box.is-empty .intr-skel{animation:none}
+  .intr-go .c1,.intr-go .c2,.intr-th,.intr-box.is-empty .intr-skel,.intr.is-hint .intr-look svg{animation:none}
   .intr-stage.is-loading::after{animation-duration:2.4s}
   .intr-panel,.intr-fold svg{transition:none}
 }
