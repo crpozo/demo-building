@@ -77,6 +77,9 @@
     return null;
   }
   function writeHash(fl) {
+    /* Solo dentro de la sección Pisos: init() corre en todas las vistas y, sin esto,
+       reemplazaba #edificio, #departamentos, etc. por #pisos/pb al cargar la página. */
+    if (!/^#pisos?(\/|$)/.test(location.hash || '')) return;
     var next = '#pisos/' + fl;
     if (location.hash !== next) {
       if (history.replaceState) history.replaceState(null, '', next);
@@ -511,10 +514,11 @@
     function pt(e) { return { x: e.clientX, y: e.clientY }; }
     viewport.addEventListener('pointerdown', function (e) {
       if (e.target.closest('.pisos-rail,.pisos-tools,.pisos-panel,.pisos-lb')) return;
-      viewport.setPointerCapture(e.pointerId);
+      /* La captura del puntero se toma recién al arrastrar (ver pointermove): si se captura aquí,
+         Chrome entrega el click al viewport y no al polígono/chip, y el depto nunca se abre. */
       pins.set(e.pointerId, pt(e));
       if (pins.size === 1) {
-        drag = { x: e.clientX - st.x, y: e.clientY - st.y, moved: false };
+        drag = { x: e.clientX - st.x, y: e.clientY - st.y, sx: e.clientX, sy: e.clientY, moved: false };
         viewport.classList.add('is-panning');
       }
     });
@@ -535,7 +539,10 @@
       }
       if (!drag) return;
       var nx = e.clientX - drag.x, ny = e.clientY - drag.y;
-      if (Math.hypot(nx - st.x, ny - st.y) > 3) drag.moved = true;
+      if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 3) {
+        drag.moved = true;
+        try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
+      }
       st.x = nx; st.y = ny;
       clampPan();
       applyTx();

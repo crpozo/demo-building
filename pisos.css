@@ -37,6 +37,10 @@
   pointer-events:none;
 }
 .pisos-layer.is-on{opacity:1;pointer-events:auto}
+/* Los polígonos y chips fijan su propio pointer-events, así que no heredan el none de la capa:
+   sin esto los pisos ocultos (apilados encima) reciben el clic y abren otro depto o la terraza. */
+.pisos-layer:not(.is-on) .u-hit,
+.pisos-layer:not(.is-on) .pisos-chip{pointer-events:none}
 .pisos-layer img{
   display:block;width:100%;height:100%;
   object-fit:fill;
