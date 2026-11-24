@@ -1640,16 +1640,16 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   /* recorrido en primera persona: tocar el piso para caminar hasta ahí, botones para saltar a cada ambiente, minimapa con la posición,
      arrastrar para mirar; W/S o flechas arriba/abajo avanzan, flechas izquierda/derecha giran, A/D pasos laterales */
   let walk=null,PHI_MAX=1.52;const keys={},joyV=[0,0];
-  const walkL=new THREE.PointLight(0xfff1dc,.55,420,1.2);walkL.visible=false;scene.add(walkL);
+  const walkL=new THREE.PointLight(0xffe2bf,.35,260,1.6);walkL.visible=false;scene.add(walkL);const HEMI0=[amb.color.getHex(),amb.groundColor.getHex()];
   const freeAt=(x,z)=>inZone(x,z,walk.polys,0)&&!walk.rects.some(r=>x>r[0]-1.6&&x<r[2]+1.6&&z>r[1]-1.6&&z<r[3]+1.6);
-  const clearAt=(x,z)=>freeAt(x,z)&&!walk.furn.some(r=>x>r[0]-3&&x<r[2]+3&&z>r[1]-3&&z<r[3]+3);
+  const clearAt=(x,z)=>freeAt(x,z)&&!walk.furn.some(r=>x>r[0]-7&&x<r[2]+7&&z>r[1]-7&&z<r[3]+7);   // ≥ 45 cm de los muebles al aparecer
   const wray=(x,z,a)=>{let d=0;while(d<200&&freeAt(x+Math.cos(a)*(d+4),z+Math.sin(a)*(d+4)))d+=4;return d};
   // mejor punto despejado cerca de un ambiente, mirando hacia él
   function spotNear(t){let best=null;for(let r=10;r<64;r+=4)for(let a=0;a<6.28;a+=.4){const x=t[0]+Math.cos(a)*r,z=t[1]+Math.sin(a)*r;if(!clearAt(x,z))continue;
       let open=true;for(let k=1;k<5&&open;k++)open=freeAt(x+(t[0]-x)*k/5,z+(t[1]-z)*k/5);if(!open)continue;                                   // sin muro entre el punto y el ambiente
-      let mn=1e9;for(let k=0;k<8;k++)mn=Math.min(mn,wray(x,z,k*.785));const sc=Math.min(mn,20)*4-Math.abs(r-30);if(!best||sc>best.sc)best={x,z,sc}}
+      let mn=1e9;for(let k=0;k<8;k++)mn=Math.min(mn,wray(x,z,k*.785));const sc=Math.min(mn,24)*4-Math.abs(r-42);if(!best||sc>best.sc)best={x,z,sc}}
     return best||(freeAt(t[0],t[1])?{x:t[0],z:t[1]}:null)}
-  function goRoom(i){const rm=walk.rooms[i],s=spotNear(rm.p);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.62;
+  function goRoom(i){const rm=walk.rooms[i],s=spotNear(rm.p);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.5;
     document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));wake(30)}
   function move(dx,dz){if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz;return true}if(freeAt(walk.x+dx,walk.z)){walk.x+=dx;return true}if(freeAt(walk.x,walk.z+dz)){walk.z+=dz;return true}return false}
   function stepWalk(){let mv=joyV[1],sd=0;if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d)sd+=1;if(keys.a)sd-=1;
@@ -1661,7 +1661,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
     const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(164,67,43,.25)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
     x.fillStyle='#a4432b';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
-  function exitWalk(){if(!walk)return;const p=walk.prev;walk=null;walkL.visible=false;camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
+  function exitWalk(){if(!walk)return;const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
     $('#sun').value=p.sun;daylight(p.sun);if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.3,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();
     const polys=ENC[n].concat(TER[n]||[]),all=polys.flat(),bb=[Math.min(...all.map(p=>p[0]))-4,Math.min(...all.map(p=>p[1]))-4,Math.max(...all.map(p=>p[0]))+4,Math.max(...all.map(p=>p[1]))+4];
@@ -1672,7 +1672,8 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
     mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
     walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
-    if(iso)$('#iso3').click();camP.near=1;camP.fov=86;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;
+    if(iso)$('#iso3').click();camP.near=1;camP.fov=window.innerWidth<window.innerHeight?78:64;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;gap=0;explode();
+    amb.color.setHex(0xfff1e0);amb.groundColor.setHex(0xb39878);setHQ(hq);   // luz de interior cálida (como los renders) y más rebote ambiental
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
     if(walk.rooms.length)goRoom(0);else{const ip=innerPoint(FOOT[n]);walk.x=ip[0];walk.z=ip[1]}
     J.reco('Departamento '+n+' en 3D');J.unit(n,'d3');shadowDirty();wake(40)};
