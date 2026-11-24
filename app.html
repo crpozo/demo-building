@@ -1291,9 +1291,13 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     {const FIX={pb:[[459,77,491,125,2.2,0]],                                                           // depto 3 dormitorio 2: cabecera y veladores dentro del muro
       pa:[[912,412,956,442,0,5],[829,89,874,121,0,3.8],                                                 // depto 10 dormitorio 2 y depto 9 dormitorio 1: la cama cruzaba el muro de la cabecera
         [897,317,906,328,null],[871,310,883,333,-1.3,0],[372,428,384,438,-2.8,0],                       // depto 10: velador partido por el muro (el plano no lo tiene de ese lado), lavamanos; depto 6: inodoro dentro del muro
-        [275,97,290,160,2.8,2.9],[729,86,749,141,0,5.3]]}[lvl]||[];                                     // cocinas de los deptos 7 y 9: el mesón entraba en el muro
+        [275,97,290,160,2.8,2.9],[729,86,749,141,0,5.3],                                   // cocinas de los deptos 7 y 9: el mesón entraba en el muro
+        [222,105,234,126,-2.7,0],[784,159,792,177,-1.8,0]]}[lvl]||[];                                    // salas de los deptos 7 y 9: el sillón se montaba sobre el sofá
       if(FIX.length){const del=[];grp.traverse(o=>{if(!o.isMesh||/^(floor|walls)/.test(o.name))return;o.geometry.computeBoundingBox();const b=o.geometry.boundingBox,cx=(b.min.x+b.max.x)/2+o.position.x,cz=(b.min.z+b.max.z)/2+o.position.z;
-        const f=FIX.find(q=>cx>=q[0]&&cx<=q[2]&&cz>=q[1]&&cz<=q[3]);if(!f)return;if(f[4]==null)del.push(o);else{o.position.x+=f[4];o.position.z+=f[5]}});del.forEach(o=>o.parent.remove(o))}}
+        const f=FIX.find(q=>cx>=q[0]&&cx<=q[2]&&cz>=q[1]&&cz<=q[3]);if(!f)return;if(f[4]==null)del.push(o);else{o.position.x+=f[4];o.position.z+=f[5]}});del.forEach(o=>o.parent.remove(o))}
+      /* campanas de cocina: ducto hasta el techo (colgaban en el aire) */
+      const hoods=[];grp.traverse(o=>{if(o.isMesh&&/^hood/.test(o.name))hoods.push(o)});hoods.forEach(o=>{o.geometry.computeBoundingBox();const b=o.geometry.boundingBox,h=FH-5-b.max.y;if(h<=.5)return;
+        const d=new THREE.Mesh(new THREE.BoxGeometry((b.max.x-b.min.x)*.35,h,(b.max.z-b.min.z)*.35),o.material);d.name='hood_duct';d.position.set((b.min.x+b.max.x)/2+o.position.x,b.max.y+h/2+o.position.y,(b.min.z+b.max.z)/2+o.position.z);o.parent.add(d)})}
     grp.updateMatrixWorld(true);grp.traverse(o=>{if(o.isMesh&&o.material&&UVS[o.material.name])worldUV(o,UVS[o.material.name])});   // antes de agrupar geometrías (batchContainer)
     grp.traverse(o=>{if(o.isMesh&&o.material&&o.material.name&&STYLES.moderno[o.material.name]!==undefined)(MATREG[o.material.name]=MATREG[o.material.name]||new Set()).add(o.material)});applyMats();
     grp.traverse(o=>{o.userData.level=lvl;o.userData.interior=true;if(o.isMesh){o.castShadow=o.receiveShadow=true;if(o.name.startsWith('floor'))o.userData.floor=true;if(o.material&&o.material.transparent){o.material.depthWrite=false}}});
@@ -1339,7 +1343,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
           plant(x+rw/2+3,z-rd/2-2,styleNow==='indie'?16:12,c2);if(S.plants>1)plant(x-rw/2-3,z+rd/2+2,11,c3)}
         if(k==='sofa'){const n=styleNow==='moderno'?2:3;for(let i=0;i<n;i++){const t=(i-(n-1)/2)*Math.max(w,d)*.3;put(DG.box,[c1,c2,c3][i%3],x+(w>=d?t:0),10.5,z+(w>=d?0:t),3.6,3.2,3.6,.3+i)}}      // cojines
         if(k==='bed'){const s=Math.min(w,d);put(DG.box,c1,x,11.9,z,w*(w>d?.5:.94),1.1,d*(w>d?.94:.5));put(DG.box,c2,x,12.9,z,s*.28,1.4,s*.28,.5);if(S.plants>1&&u.n%2)plant(x+w/2+7,z+d/2+2,10,c3)}   // manta y cojín
-        if(k==='dtable'||k==='round'){put(DG.cyl,c3,x,13.5,z,1.5,4,1.5);put(DG.leaf,styleNow==='tradicional'?0xb8433c:c1,x,17,z,2.6,2.2,2.6,u.n)}                                              // centro de mesa
+        if(k==='dtable'||k==='round'){put(DG.cyl,c3,x,13.5,z,1.5,4,1.5);put(DG.leaf,styleNow==='tradicional'?0xb8433c:c1,x,16.2,z,1.5,1.2,1.5,u.n)}                                              // centro de mesa
         if(k==='ctable'){put(DG.box,c2,x-1,7.6,z,4.5,.8,3.2,.3);put(DG.cyl,c1,x+2.5,8,z+1,1.6,1.4,1.6)}});
       G.traverse(o=>{if(o.isMesh)o.material.envMapIntensity=.35});root.add(G);decorG.push(G)});
     if(floor!=='all'){const b=$('#floor3 .chip.on');if(b)b.click()}shadowDirty()}
@@ -1728,6 +1732,8 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       furn:mine.map(f=>{const sw=Math.abs(f[5]||0)%180===90,w=(sw?f[4]:f[3])||(f[0]==='sala'?40:16),d=(sw?f[3]:f[4])||(f[0]==='sala'?30:16);return[f[1]-w/2,f[2]-d/2,f[1]+w/2,f[2]+d/2]})};
     // ambientes del departamento, según el mobiliario del plano
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
+    /* vistas fijas donde la cámara automática quedaba detrás del comedor o del mesón: [x, z de la cámara, x, z a donde mira] (px del plano) */
+    const VIEW={3:{Sala:[566,140,546,108],Comedor:[580,143,580,108],Cocina:[592,140,608,108]}}[n]||{};rooms.forEach(r=>{const v=VIEW[r.t];if(v){r.s={x:v[0],z:v[1]};r.p=[v[2],v[3]]}});
     /* nombres de los dormitorios como en el plano de cada departamento (los mismos de UNITS[].rooms), en el orden de las camas en FURN; el máster va primero en los botones */
     const DORMS={1:['1','máster'],2:['máster','1'],3:['máster','1'],4:['1'],5:['1','2','máster'],6:['máster','1'],7:['máster'],8:['2','1'],9:['1','2','máster'],10:['máster','1','2']}[n]||[];
     mine.filter(f=>f[0]==='bed').map((f,i,a)=>{const d=DORMS[i],r=(f[5]||0)*Math.PI/180;return{t:d?'Dormitorio '+d:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]],h:[Math.sin(r),-Math.cos(r)],o:d==='máster'?0:+d||i+1}}).sort((a,b)=>a.o-b.o).forEach(r=>rooms.push(r));   // h: hacia dónde queda la cabecera
