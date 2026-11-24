@@ -1686,7 +1686,28 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       let open=true;for(let k=1;k<5&&open;k++)open=freeAt(x+(t[0]-x)*k/5,z+(t[1]-z)*k/5);if(!open)continue;                                   // sin muro entre el punto y el ambiente
       let mn=1e9;for(let k=0;k<8;k++)mn=Math.min(mn,wray(x,z,k*.785));const sc=Math.min(mn,24)*4-Math.abs(r-42);if(!best||sc>best.sc)best={x,z,sc}}
     return best||(freeAt(t[0],t[1])?{x:t[0],z:t[1]}:null)}
-  function goRoom(i){const rm=walk.rooms[i],s=spotNear(rm.p);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.5;
+  /* cámara de cada botón de ambiente, DENTRO de su cuarto. spotNear buscaba un punto despejado a ~2,8 m del mueble y revisaba el muro solo en 4 puntos de la línea:
+     en cuartos chicos caía al otro lado de un muro, en el pasillo o en la terraza, detrás del vidrio. Ahora se arma un mapa del ambiente en celdas de 2 px con la distancia
+     al muro o al borde más cercano; el cuarto es la zona unida al mueble por celdas a ≥ 0,5 m de todo muro (eso cierra las puertas, de menos de 1 m). Dentro de esa zona se
+     elige el punto con vista libre al mueble, a ≥ 45 cm del mobiliario, a unos 2,7 m y, en dormitorios, del lado de los pies de la cama (se ve la cabecera).
+     Terrazas y patios: dentro de su propio polígono. Si no hay ningún punto así, queda el criterio anterior (spotNear). */
+  const wallD=(x,z)=>{let m=99;for(const r of walk.mrects){const d=Math.hypot(Math.max(r[0]-x,0,x-r[2]),Math.max(r[1]-z,0,z-r[3]));if(d<m)m=d}return m};
+  const edgeD=(x,z,zone)=>{let m=99;for(const q of zone)for(let i=0;i<q.length;i++){const a=q[i],b=q[(i+1)%q.length],dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz||1)));m=Math.min(m,Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t))}return m};
+  const sight=(x0,z0,x1,z1)=>{const k=Math.ceil(Math.hypot(x1-x0,z1-z0))||1;for(let i=0;i<=k;i++){const x=x0+(x1-x0)*i/k,z=z0+(z1-z0)*i/k;if(walk.mrects.some(r=>x>r[0]-.4&&x<r[2]+.4&&z>r[1]-.4&&z<r[3]+.4))return false}return true};
+  function zoneMap(zone){const M=walk.maps||(walk.maps=new Map());let m=M.get(zone);if(m)return m;const G=2,b=bbox(zone.flat()),W=Math.ceil((b[2]-b[0])/G)+1,H=Math.ceil((b[3]-b[1])/G)+1,c=new Float32Array(W*H);
+    for(let j=0;j<H;j++)for(let i=0;i<W;i++){const x=b[0]+i*G,z=b[1]+j*G;c[j*W+i]=zone.some(q=>inside([x,z],q))?Math.min(wallD(x,z),edgeD(x,z,zone)):0}
+    M.set(zone,m={G,b,W,H,c});return m}
+  function roomSpot(rm){if(rm.s!==undefined)return rm.s;const {G,b,W,H,c}=zoneMap(rm.zone||ENC[walk.u.n]),t=rm.p;let best=null;
+    for(const R of [7.5,5.5,3.5]){                                                                                                             // radio que cierra las puertas; menor solo si el ambiente es muy angosto
+      let seed=-1,sd=40;for(let k=0;k<W*H;k++){if(c[k]<R)continue;const i=k%W,x=b[0]+i*G,z=b[1]+(k-i)/W*G,d=Math.hypot(x-t[0],z-t[1]);if(d<sd&&sight(x,z,t[0],t[1])){sd=d;seed=k}}
+      if(seed<0)continue;
+      const reg=new Uint8Array(W*H),st=[seed];reg[seed]=1;while(st.length){const k=st.pop(),i=k%W;for(const q of [i<W-1?k+1:-1,i?k-1:-1,k+W,k-W])if(q>=0&&q<W*H&&!reg[q]&&c[q]>=R){reg[q]=1;st.push(q)}}
+      for(let k=0;k<W*H;k++){if(!reg[k])continue;const i=k%W,x=b[0]+i*G,z=b[1]+(k-i)/W*G,dx=t[0]-x,dz=t[1]-z,d=Math.hypot(dx,dz);
+        if(d<(rm.h?20:14)||walk.furn.some(r=>x>r[0]-7&&x<r[2]+7&&z>r[1]-7&&z<r[3]+7)||!sight(x,z,t[0],t[1]))continue;
+        const sc=-Math.abs(d-40)+Math.min(c[k],14)*1.2+(rm.h?26*(dx*rm.h[0]+dz*rm.h[1])/d:0);if(!best||sc>best.sc)best={x,z,sc}}
+      if(best)break}
+    return rm.s=best||spotNear(t)}
+  function goRoom(i){const rm=walk.rooms[i],s=roomSpot(rm);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.5;
     document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));walk.cur=i;walk.sp=[s.x,s.z];updRender();wake(30)}
   function move(dx,dz){if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz;return true}if(freeAt(walk.x+dx,walk.z)){walk.x+=dx;return true}if(freeAt(walk.x,walk.z+dz)){walk.z+=dz;return true}return false}
   function stepWalk(){let mv=joyV[1],sd=0;if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d)sd+=1;if(keys.a)sd-=1;
@@ -1707,8 +1728,11 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       furn:mine.map(f=>{const sw=Math.abs(f[5]||0)%180===90,w=(sw?f[4]:f[3])||(f[0]==='sala'?40:16),d=(sw?f[3]:f[4])||(f[0]==='sala'?30:16);return[f[1]-w/2,f[2]-d/2,f[1]+w/2,f[2]+d/2]})};
     // ambientes del departamento, según el mobiliario del plano
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
-    mine.filter(f=>f[0]==='bed').forEach((f,i,a)=>rooms.push({t:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]]}));(TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2]})});
-    walk.rooms=rooms.filter(r=>spotNear(r.p));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
+    /* nombres de los dormitorios como en el plano de cada departamento (los mismos de UNITS[].rooms), en el orden de las camas en FURN; el máster va primero en los botones */
+    const DORMS={1:['1','máster'],2:['máster','1'],3:['máster','1'],4:['1'],5:['1','2','máster'],6:['máster','1'],7:['máster'],8:['2','1'],9:['1','2','máster'],10:['máster','1','2']}[n]||[];
+    mine.filter(f=>f[0]==='bed').map((f,i,a)=>{const d=DORMS[i],r=(f[5]||0)*Math.PI/180;return{t:d?'Dormitorio '+d:a.length>1?'Dormitorio '+(i+1):'Dormitorio',p:[f[1],f[2]],h:[Math.sin(r),-Math.cos(r)],o:d==='máster'?0:+d||i+1}}).sort((a,b)=>a.o-b.o).forEach(r=>rooms.push(r));   // h: hacia dónde queda la cabecera
+    (TER[n]||[]).forEach((p,i,a)=>{const b=bbox(p);rooms.push({t:a.length>1?u.extName.replace(/s$/,'')+' '+(i+1):u.extName,p:[(b[0]+b[2])/2,(b[1]+b[3])/2],zone:[p]})});
+    walk.rooms=rooms.filter(r=>roomSpot(r));$('#rooms3').innerHTML=walk.rooms.map((r,i)=>`<button class="chip" data-room="${i}">${r.t}</button>`).join('');
     if(iso)$('#iso3').click();camP.near=1;camP.fov=window.innerWidth<window.innerHeight?78:64;camP.updateProjectionMatrix();PHI_MAX=2.0;$('#sun').value=18;daylight(18);walkL.visible=true;gap=0;explode();
     amb.color.setHex(0xfff1e0);amb.groundColor.setHex(0xeadccb);setHQ(hq);   // luz de interior cálida (como los renders) y más rebote ambiental
     auto=false;sel=null;el.classList.add('walk');$('#where3').textContent='Departamento '+n+' · '+PLANTA[lvl];labels.forEach(l=>l.visible=false);applyCut();paint();
@@ -1724,7 +1748,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const RENDER_REF={pb:{Sala:['r-depto-pb'],Comedor:['r-depto-pb']},
     pa:{Sala:['r-depto-pa'],Comedor:['r-depto-pa'],Cocina:['r-cocina-pa'],Dormitorio:['r-dorm-pa-1','r-dorm-pa-2']}};
   const RENDER_TXT={'r-depto-pb':'Departamento planta baja','r-depto-pa':'Departamento planta alta','r-cocina-pa':'Cocina planta alta','r-dorm-pa-1':'Dormitorio planta alta','r-dorm-pa-2':'Dormitorio planta alta'};
-  const renderList=(lvl,t)=>(RENDER_REF[lvl]||{})[String(t).replace(/ \d+$/,'')]||[];
+  const renderList=(lvl,t)=>(RENDER_REF[lvl]||{})[String(t).replace(/ (\d+|máster)$/,'')]||[];
   let rlbList=[],rlbI=0,rlbKey='';
   function updRender(){if(!walk||!walk.rooms||!walk.rooms.length)return;let i=walk.cur;   // ambiente elegido; si la persona camina, el más cercano
     if(i==null||(walk.sp&&Math.hypot(walk.x-walk.sp[0],walk.z-walk.sp[1])>15)){let best=1e9;walk.rooms.forEach((r,k)=>{const d=Math.hypot(walk.x-r.p[0],walk.z-r.p[1]);if(d<best){best=d;i=k}})}
