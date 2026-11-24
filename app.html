@@ -174,6 +174,16 @@ section.view.on{display:block}
 .stage3.walk .walkbar{display:flex}
 .walkbar .chip{backdrop-filter:blur(6px);background:rgba(43,29,46,.55);color:#fff;border-color:rgba(255,255,255,.3)}
 .walkbar .chip.on{background:var(--gold);border-color:var(--gold);color:#1e1420}
+/* «Ver render»: botón en la barra de ambientes y visor a pantalla completa (dentro de #stage3 para que se vea también en pantalla completa) */
+#walkRender{white-space:nowrap}#walkRender[hidden]{display:none}
+.rlb{position:fixed;inset:0;z-index:1000;background:rgba(14,12,11,.92);display:flex;align-items:center;justify-content:center;padding:60px 12px calc(24px + env(safe-area-inset-bottom,0px));touch-action:manipulation}
+.rlb[hidden]{display:none}
+.rlb figure{margin:0;width:100%;max-width:1600px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.rlb img{max-width:100%;max-height:calc(100vh - 170px);object-fit:contain;border-radius:6px;background:#2a2624;min-height:120px}
+.rlb figcaption{color:#f3efe8;font-size:.92rem;text-align:center;line-height:1.35;padding:0 8px}
+.rlb figcaption small{display:block;opacity:.72;font-size:.78rem;margin-top:2px}
+.rlb-x,.rlb-n{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.55);background:rgba(0,0,0,.45);color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.rlb-x{top:12px;right:12px}.rlb-n{top:50%;transform:translateY(-50%);font-size:28px}#rlbPrev{left:10px}#rlbNext{right:10px}.rlb-n[hidden]{display:none}
 .where{position:absolute;left:50%;top:calc(110px + env(safe-area-inset-top,0px));transform:translateX(-50%);pointer-events:none;background:rgba(43,29,46,.6);color:#fff;padding:6px 14px;border-radius:999px;font-size:.78rem;display:none;white-space:nowrap}
 .stage3.walk .where{display:block}
 @media (max-width:900px){.v3 .stage3{height:calc(100vh - 61px - env(safe-area-inset-top,0px))}.v3 .side{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));top:auto;bottom:16px;width:auto;max-height:42%}}
@@ -678,7 +688,8 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
           </div>
         </aside>
         <div class="where" id="where3"></div>
-        <div class="walkbar"><div id="rooms3"></div><button class="chip on" id="walkExit">Salir</button></div>
+        <div class="walkbar"><div id="rooms3"></div><button class="chip" id="walkRender" hidden title="Render del brochure de este tipo de ambiente">Ver render</button><button class="chip on" id="walkExit">Salir</button></div>
+        <div class="rlb" id="rlb" hidden role="dialog" aria-modal="true" aria-label="Render referencial"><button class="rlb-x" id="rlbX" aria-label="Cerrar">✕</button><figure><img id="rlbImg" alt="" decoding="async"><figcaption id="rlbCap"></figcaption></figure><button class="rlb-n" id="rlbPrev" aria-label="Render anterior">‹</button><button class="rlb-n" id="rlbNext" aria-label="Render siguiente">›</button></div>
         <canvas class="mini3" id="mini3" width="360" height="300"></canvas>
         <p class="walkhint">Toque el piso para caminar hasta ahí · arrastre para mirar · flechas o W A S D en el teclado</p>
         <div class="joy" id="joy"><i></i></div>
@@ -1592,7 +1603,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   const HOME={theta:Math.PI/4+Math.PI,phi:.96,dist:1250};let panMode=false;
   $('#pan3').onclick=e=>{panMode=!panMode;e.target.classList.toggle('on',panMode);el.style.cursor=panMode?'move':'grab'};
   function pan(dx,dy){const sc=tv.dist/el.clientHeight*1.3;const fx=Math.sin(tv.theta),fz=Math.cos(tv.theta);targetT.x+=(-dx*fz*sc)+(-dy*fx*sc);targetT.z+=(dx*fx*sc)+(-dy*fz*sc);targetT.x=Math.max(-1000,Math.min(1000,targetT.x));targetT.z=Math.max(-900,Math.min(900,targetT.z))}
-  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+23.5,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
+  function place(){if(walk){tv.theta+=(theta-tv.theta)*.14;tv.phi+=(phi-tv.phi)*.14;stepWalk();const th=tv.theta,ph=tv.phi;cam.position.set(walk.x-PW/2,LV[walk.lvl]+23.5,walk.z+walk.dz-PH/2);walkL.position.copy(cam.position);miniMap();updRender();cam.lookAt(cam.position.x-Math.sin(ph)*Math.sin(th),cam.position.y-Math.cos(ph),cam.position.z-Math.sin(ph)*Math.cos(th));return}
     tv.theta+=(theta-tv.theta)*.18;tv.phi+=(phi-tv.phi)*.18;tv.dist+=(dist-tv.dist)*.18;target.lerp(targetT,.18);const th=tv.theta,ph=tv.phi;cam.position.set(target.x+tv.dist*Math.sin(ph)*Math.sin(th),target.y+tv.dist*Math.cos(ph),target.z+tv.dist*Math.sin(ph)*Math.cos(th));cam.lookAt(target)}
   let drag=null,moved=false,pinch=null;
   const pos=e=>({x:e.clientX,y:e.clientY});
@@ -1645,7 +1656,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       let mn=1e9;for(let k=0;k<8;k++)mn=Math.min(mn,wray(x,z,k*.785));const sc=Math.min(mn,24)*4-Math.abs(r-42);if(!best||sc>best.sc)best={x,z,sc}}
     return best||(freeAt(t[0],t[1])?{x:t[0],z:t[1]}:null)}
   function goRoom(i){const rm=walk.rooms[i],s=spotNear(rm.p);if(!s)return;walk.x=s.x;walk.z=s.z;walk.goal=null;theta=tv.theta=Math.atan2(s.x-rm.p[0],s.z-rm.p[1]);phi=tv.phi=1.5;
-    document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));wake(30)}
+    document.querySelectorAll('#rooms3 button').forEach((b,k)=>b.classList.toggle('on',k===i));walk.cur=i;walk.sp=[s.x,s.z];updRender();wake(30)}
   function move(dx,dz){if(freeAt(walk.x+dx,walk.z+dz)){walk.x+=dx;walk.z+=dz;return true}if(freeAt(walk.x+dx,walk.z)){walk.x+=dx;return true}if(freeAt(walk.x,walk.z+dz)){walk.z+=dz;return true}return false}
   function stepWalk(){let mv=joyV[1],sd=0;if(keys.w||keys.arrowup)mv+=1;if(keys.s||keys.arrowdown)mv-=1;if(keys.d)sd+=1;if(keys.a)sd-=1;
     const turn=(keys.arrowright?1:0)-(keys.arrowleft?1:0)+joyV[0]*.8;if(turn){theta-=turn*.016;wake(6)}
@@ -1656,7 +1667,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
     const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(164,67,43,.25)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
     x.fillStyle='#a4432b';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
-  function exitWalk(){if(!walk)return;const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
+  function exitWalk(){if(!walk)return;closeRender();$('#walkRender').hidden=true;rlbKey='';const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
     $('#sun').value=p.sun;daylight(p.sun);if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.3,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();
     const polys=ENC[n].concat(TER[n]||[]),all=polys.flat(),bb=[Math.min(...all.map(p=>p[0]))-4,Math.min(...all.map(p=>p[1]))-4,Math.max(...all.map(p=>p[0]))+4,Math.max(...all.map(p=>p[1]))+4];
@@ -1677,6 +1688,27 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   function walkTo(e){const r=canvas.getBoundingClientRect(),v=new THREE.Vector3((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1,.5).unproject(camP).sub(camP.position);if(v.y>-.02)return;
     const t=(LV[walk.lvl]+1-camP.position.y)/v.y,x=camP.position.x+v.x*t+PW/2,z=camP.position.z+v.z*t+PH/2-walk.dz;walk.goal=[x,z,1200];document.querySelectorAll('#rooms3 button').forEach(b=>b.classList.remove('on'));wake(10)}
   $('#walkExit').onclick=exitWalk;
+  /* «Ver render»: abre el render del brochure del tipo de ambiente actual (solo donde el brochure tiene uno: págs. 7-11).
+     Son imágenes REFERENCIALES por tipo de ambiente y planta, no del departamento exacto. Sin render, el botón no aparece. */
+  const RENDER_REF={pb:{Sala:['r-depto-pb'],Comedor:['r-depto-pb']},
+    pa:{Sala:['r-depto-pa'],Comedor:['r-depto-pa'],Cocina:['r-cocina-pa'],Dormitorio:['r-dorm-pa-1','r-dorm-pa-2']}};
+  const RENDER_TXT={'r-depto-pb':'Departamento planta baja','r-depto-pa':'Departamento planta alta','r-cocina-pa':'Cocina planta alta','r-dorm-pa-1':'Dormitorio planta alta','r-dorm-pa-2':'Dormitorio planta alta'};
+  const renderList=(lvl,t)=>(RENDER_REF[lvl]||{})[String(t).replace(/ \d+$/,'')]||[];
+  let rlbList=[],rlbI=0,rlbKey='';
+  function updRender(){if(!walk||!walk.rooms||!walk.rooms.length)return;let i=walk.cur;   // ambiente elegido; si la persona camina, el más cercano
+    if(i==null||(walk.sp&&Math.hypot(walk.x-walk.sp[0],walk.z-walk.sp[1])>15)){let best=1e9;walk.rooms.forEach((r,k)=>{const d=Math.hypot(walk.x-r.p[0],walk.z-r.p[1]);if(d<best){best=d;i=k}})}
+    const list=renderList(walk.lvl,walk.rooms[i].t),key=list.join();if(key===rlbKey)return;rlbKey=key;rlbList=list;$('#walkRender').hidden=!list.length}
+  function showRender(){const s=rlbList[rlbI];if(!s)return;const im=$('#rlbImg');im.src='img/'+s+'.jpg';im.alt='Render referencial · '+RENDER_TXT[s];   // carga diferida: solo al abrir
+    $('#rlbCap').innerHTML='Render referencial · '+RENDER_TXT[s]+(rlbList.length>1?' ('+(rlbI+1)+'/'+rlbList.length+')':'')+'<small>Imagen del brochure Alhelí. No corresponde necesariamente a este departamento.</small>';
+    $('#rlbPrev').hidden=$('#rlbNext').hidden=rlbList.length<2}
+  function openRender(){if(!rlbList.length)return;rlbI=0;Object.keys(keys).forEach(k=>keys[k]=false);joyV[0]=joyV[1]=0;if(walk)walk.goal=null;showRender();$('#rlb').hidden=false;$('#rlbX').focus()}
+  function closeRender(){const r=$('#rlb');if(r.hidden)return;r.hidden=true;$('#walkRender').focus&&$('#walkRender').focus()}
+  $('#walkRender').onclick=openRender;$('#rlbX').onclick=closeRender;
+  $('#rlbPrev').onclick=()=>{rlbI=(rlbI+rlbList.length-1)%rlbList.length;showRender()};$('#rlbNext').onclick=()=>{rlbI=(rlbI+1)%rlbList.length;showRender()};
+  $('#rlb').addEventListener('click',e=>{if(e.target.id==='rlb'||e.target.tagName==='FIGURE')closeRender()});   // tocar fuera de la imagen cierra
+  ['pointerdown','pointermove','pointerup','wheel','touchstart','touchmove','dblclick'].forEach(t=>$('#rlb').addEventListener(t,e=>e.stopPropagation(),{passive:true}));   // el 3D no recibe gestos con el visor abierto
+  addEventListener('keydown',e=>{if($('#rlb').hidden)return;e.stopImmediatePropagation();e.preventDefault();   // pausa W/A/S/D, flechas y Esc del recorrido mientras el visor está abierto
+    if(e.key==='Escape')closeRender();else if(e.key==='ArrowLeft')$('#rlbPrev').click();else if(e.key==='ArrowRight')$('#rlbNext').click()},true);
   $('#walkGo').onclick=()=>{if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
   addEventListener('keydown',e=>{if(!walk)return;if(e.key==='Escape'){exitWalk();return}keys[e.key.toLowerCase()]=true;wake(6)});
   addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
