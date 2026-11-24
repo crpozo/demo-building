@@ -761,6 +761,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="pisos.js"></script>
 <script>
 const UNITS=[
  {n:1,planta:'pb',dorm:2,cub:116.08,ext:29.59,extName:'Patio',bbq:12.42,rooms:['Sala','Comedor','Cocina','Lavandería','Baño social','Dormitorio máster','Dormitorio 1','BBQ','Patio'],pos:[41.3,44.8]},
@@ -790,9 +791,11 @@ const TOUR=[
 const PLANTA={pb:'Planta baja',pa:'Planta alta'};
 const AMB={pb:['r-depto-pb','r-patio'],pa:['r-depto-pa','r-dorm-pa-2']};
 
-/* ---- disponibilidad (editar aquí: disponible | reservado | vendido) ---- */
-const STATUS={1:'disponible',2:'disponible',3:'disponible',4:'disponible',5:'disponible',6:'disponible',7:'disponible',8:'disponible',9:'disponible',10:'disponible'};
-const status=n=>STATUS[n]||'disponible';
+/* ---- disponibilidad: ESTADOS DE EJEMPLO. Una sola fuente para todo el sitio (Pisos, fichas, planos y edificio 3D):
+   PISOS_STATUS_EJEMPLO, en pisos.js. Editar allí: disponible | reservado | vendido ---- */
+const EST=(window.AlheliPisos&&AlheliPisos.STATUS_EJEMPLO)||{map:{},etiqueta:''};
+const status=n=>EST.map[n]||'disponible';
+const EJ=EST.etiqueta?`<span class="pisos-ejemplo">${EST.etiqueta}</span>`:'';   // aviso visible junto al estado
 const m2=v=>v.toFixed(2).replace('.',',')+' m²';
 const $=s=>document.querySelector(s);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800)}
@@ -953,12 +956,16 @@ function renderPlan(){
   if(!u){side.innerHTML='<p class="empty">Toque un número sobre el plano para ver el departamento.</p>';return}
   side.innerHTML=sideHTML(u);
 }
-function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div>${badge(u.n)}</div>
+function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div><span style="display:grid;justify-items:end;gap:3px">${badge(u.n)}${EJ}</span></div>
    <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
    <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button><button class="btn" data-walk="${u.n}">Recorrer por dentro</button>${window.AlheliInteriores&&AlheliInteriores.has(u.n)?`<button class="btn" data-interior="${u.n}">Ver interior</button>`:''}<button class="btn gold" data-asesor="${u.n}">Me interesa</button></div>`}
+   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button>${intBtn(u.n,'btn')||`<button class="btn" data-walk="${u.n}">Recorrer por dentro</button>`}<button class="btn gold" data-asesor="${u.n}">Me interesa</button></div>`}
 const total=u=>u.cub+u.ext+(u.bbq||0);
 const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
+/* Unidades con fotos en el visor de interiores (interiores.js): «Ver interior» reemplaza al recorrido 3D; las demás siguen como antes.
+   Al pintar el botón se precargan sus fotos, para que el visor no abra en negro. */
+const hasInt=n=>!!(window.AlheliInteriores&&AlheliInteriores.has(n));
+const intBtn=(n,cls)=>{if(!hasInt(n))return '';AlheliInteriores.preload(n);return `<button class="${cls}" data-interior="${n}">Ver interior</button>`};
 
 /* ---- departamentos ---- */
 let f={dorm:'all',planta:'all',disp:false};
@@ -986,12 +993,12 @@ function openUnit(n){
   const u=UNITS.find(x=>x.n===n);J.unit(n,'ficha');$('#sheet').className='sheet';
   $('#sheet').innerHTML=`<div class="ph"><img src="img/u${n}.jpg" alt="Plano del departamento ${n}"></div>
   <div class="bd">
-    <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">${PLANTA[u.planta]} · ${u.dorm} dormitorio${u.dorm>1?'s':''}</div>${badge(n)}<button class="close" aria-label="Cerrar">×</button></div>
+    <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">${PLANTA[u.planta]} · ${u.dorm} dormitorio${u.dorm>1?'s':''}</div>${badge(n)}${EJ}<button class="close" aria-label="Cerrar">×</button></div>
     <h2 id="mTitle">Departamento ${n}</h2>
     <div class="rooms">${u.rooms.map(r=>`<span>${r}</span>`).join('')}</div>
     <div class="kv"><span>Área cubierta</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span class="tot">Total</span><b class="tot">${m2(total(u))}</b></div>
     <div class="amb">${AMB[u.planta].map(s=>`<img src="img/${s}.jpg" alt="Ambiente de referencia">`).join('')}</div>
-    <div class="actions"><a class="btn ghost" href="#planos" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a><button class="btn ghost" data-walk="${n}">Recorrer por dentro</button>${window.AlheliInteriores&&AlheliInteriores.has(n)?`<button class="btn ghost" data-interior="${n}">Ver interior</button>`:''}<button class="btn gold" data-asesor="${n}">Me interesa</button></div>
+    <div class="actions"><a class="btn ghost" href="#planos" data-plan="${u.planta}" data-sel="${n}">Ver en planta</a><a class="btn ghost" href="#edificio" data-sel3="${n}">Ver en 3D</a>${intBtn(n,'btn ghost')||`<button class="btn ghost" data-walk="${n}">Recorrer por dentro</button>`}<button class="btn gold" data-asesor="${n}">Me interesa</button></div>
   </div>`;
   $('#modal').classList.add('on'); $('#sheet .close').focus();
 }
@@ -1001,7 +1008,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* ---- delegación global ---- */
 document.addEventListener('click',e=>{
-  const wk=e.target.closest('[data-walk]'); if(wk){closeModal();const n=+wk.dataset.walk;if(location.hash!=='#edificio')location.hash='#edificio';setTimeout(()=>{if(window.walk3D)walk3D(n)},80);return}
+  const wk=e.target.closest('[data-walk]'); if(wk){closeModal();const n=+wk.dataset.walk;if(hasInt(n)){e.preventDefault();AlheliInteriores.open(n);return}if(location.hash!=='#edificio')location.hash='#edificio';setTimeout(()=>{if(window.walk3D)walk3D(n)},80);return}
   const it=e.target.closest('[data-interior]'); if(it){closeModal();if(window.AlheliInteriores)AlheliInteriores.open(+it.dataset.interior);return}
   const as=e.target.closest('[data-asesor]'); if(as){openAsesor(+as.dataset.asesor||null);return}
   const vs=e.target.closest('[data-visit]'); if(vs){if(window.visit3D)visit3D(+vs.dataset.visit);return}
@@ -1012,7 +1019,6 @@ document.addEventListener('click',e=>{
 function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(window.update3D)update3D()}
 renderAll(); route();
 </script>
-<script src="pisos.js"></script>
 <script>AlheliPisos.init({mount:'#pisosApp'});</script>
 <script src="interiores.js"></script>
 <script>AlheliInteriores.init();</script>
@@ -1727,7 +1733,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
     const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(164,67,43,.25)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
     x.fillStyle='#a4432b';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
-  function exitWalk(){if(!walk)return;closeRender();$('#walkRender').hidden=true;rlbKey='';const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
+  function exitWalk(){if(!walk)return;closeRender();$('#walkRender').hidden=true;rlbKey='';rlbInt=null;const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
     $('#sun').value=p.sun;daylight(p.sun);if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.3,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();
     const polys=ENC[n].concat(TER[n]||[]),all=polys.flat(),bb=[Math.min(...all.map(p=>p[0]))-4,Math.min(...all.map(p=>p[1]))-4,Math.max(...all.map(p=>p[0]))+4,Math.max(...all.map(p=>p[1]))+4];
@@ -1759,14 +1765,14 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     pa:{Sala:['r-depto-pa'],Comedor:['r-depto-pa'],Cocina:['r-cocina-pa'],Dormitorio:['r-dorm-pa-1','r-dorm-pa-2']}};
   const RENDER_TXT={'r-depto-pb':'Departamento planta baja','r-depto-pa':'Departamento planta alta','r-cocina-pa':'Cocina planta alta','r-dorm-pa-1':'Dormitorio planta alta','r-dorm-pa-2':'Dormitorio planta alta'};
   const renderList=(lvl,t)=>(RENDER_REF[lvl]||{})[String(t).replace(/ (\d+|máster)$/,'')]||[];
-  let rlbList=[],rlbI=0,rlbKey='';
+  let rlbList=[],rlbI=0,rlbKey='',rlbInt=null;   // rlbInt: ambiente equivalente en el visor de interiores, si la unidad tiene fotos
   function updRender(){if(!walk||!walk.rooms||!walk.rooms.length)return;let i=walk.cur;   // ambiente elegido; si la persona camina, el más cercano
     if(i==null||(walk.sp&&Math.hypot(walk.x-walk.sp[0],walk.z-walk.sp[1])>15)){let best=1e9;walk.rooms.forEach((r,k)=>{const d=Math.hypot(walk.x-r.p[0],walk.z-r.p[1]);if(d<best){best=d;i=k}})}
-    const list=renderList(walk.lvl,walk.rooms[i].t),key=list.join();if(key===rlbKey)return;rlbKey=key;rlbList=list;$('#walkRender').hidden=!list.length}
+    const hi=hasInt(walk.u.n),ir=hi?AlheliInteriores.roomFor(walk.u.n,walk.rooms[i].t):null,list=hi?[]:renderList(walk.lvl,walk.rooms[i].t),key=hi?'int:'+ir:list.join();if(key===rlbKey)return;rlbKey=key;rlbList=list;rlbInt=ir;$('#walkRender').hidden=hi?!ir:!list.length}
   function showRender(){const s=rlbList[rlbI];if(!s)return;const im=$('#rlbImg');im.src='img/'+s+'.jpg';im.alt='Render referencial · '+RENDER_TXT[s];   // carga diferida: solo al abrir
     $('#rlbCap').innerHTML='Render referencial · '+RENDER_TXT[s]+(rlbList.length>1?' ('+(rlbI+1)+'/'+rlbList.length+')':'')+'<small>Imagen del brochure Alhelí. No corresponde necesariamente a este departamento.</small>';
     $('#rlbPrev').hidden=$('#rlbNext').hidden=rlbList.length<2}
-  function openRender(){if(!rlbList.length)return;rlbI=0;Object.keys(keys).forEach(k=>keys[k]=false);joyV[0]=joyV[1]=0;if(walk)walk.goal=null;showRender();$('#rlb').hidden=false;$('#rlbX').focus()}
+  function openRender(){if(rlbInt&&walk){Object.keys(keys).forEach(k=>keys[k]=false);joyV[0]=joyV[1]=0;walk.goal=null;AlheliInteriores.open(walk.u.n,rlbInt);return}if(!rlbList.length)return;rlbI=0;Object.keys(keys).forEach(k=>keys[k]=false);joyV[0]=joyV[1]=0;if(walk)walk.goal=null;showRender();$('#rlb').hidden=false;$('#rlbX').focus()}
   function closeRender(){const r=$('#rlb');if(r.hidden)return;r.hidden=true;$('#walkRender').focus&&$('#walkRender').focus()}
   $('#walkRender').onclick=openRender;$('#rlbX').onclick=closeRender;
   $('#rlbPrev').onclick=()=>{rlbI=(rlbI+rlbList.length-1)%rlbList.length;showRender()};$('#rlbNext').onclick=()=>{rlbI=(rlbI+1)%rlbList.length;showRender()};
@@ -1774,7 +1780,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   ['pointerdown','pointermove','pointerup','wheel','touchstart','touchmove','dblclick'].forEach(t=>$('#rlb').addEventListener(t,e=>e.stopPropagation(),{passive:true}));   // el 3D no recibe gestos con el visor abierto
   addEventListener('keydown',e=>{if($('#rlb').hidden)return;e.stopImmediatePropagation();e.preventDefault();   // pausa W/A/S/D, flechas y Esc del recorrido mientras el visor está abierto
     if(e.key==='Escape')closeRender();else if(e.key==='ArrowLeft')$('#rlbPrev').click();else if(e.key==='ArrowRight')$('#rlbNext').click()},true);
-  $('#walkGo').onclick=()=>{if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
+  $('#walkGo').onclick=()=>{if(sel&&hasInt(sel))AlheliInteriores.open(sel);else if(sel)walk3D(sel);else toast('Elija primero un departamento (1 a 10)')};
   addEventListener('keydown',e=>{if(!walk)return;if(e.key==='Escape'){exitWalk();return}keys[e.key.toLowerCase()]=true;wake(6)});
   addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
   addEventListener('hashchange',()=>{if(walk&&location.hash!=='#edificio')exitWalk()});
@@ -1921,7 +1927,9 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   ['pointermove','pointerdown','pointerup','wheel','keydown','keyup','touchstart','touchmove','click','input','change'].forEach(t=>addEventListener(t,()=>wake(),{passive:true,capture:true}));
   addEventListener('hashchange',()=>wake());
   let lastFrame=0,lastRender=0;
-  (function loop(now){requestAnimationFrame(loop);if(!$('#v-edificio').classList.contains('on')){lastFrame=0;return}
+  (function loop(now){
+    if(window.AlheliInteriores&&AlheliInteriores.isOpen()){lastFrame=0;addEventListener('alheli:interior-close',()=>requestAnimationFrame(loop),{once:true});return}   // visor de interiores abierto: el 3D no dibuja ni pide cuadros; se reanuda al cerrarlo
+    requestAnimationFrame(loop);if(!$('#v-edificio').classList.contains('on')){lastFrame=0;return}
     resize();if(auto)theta+=.002;explode();const ov=easeOverlays();place();let hm=false;
     if(window.__hoodMats){const tgt=(tv.phi>1.0||tv.dist<900)?.22:1;__hoodMats.forEach(m=>{const d=tgt-m.opacity;if(Math.abs(d)>.003)hm=true;m.opacity+=d*.1;m.depthWrite=m.opacity>.6})}
     const exploding=Math.abs(gapT-gap)>.05;if(exploding)renderer.shadowMap.needsUpdate=true;
