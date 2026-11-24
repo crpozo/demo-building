@@ -1236,9 +1236,23 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       root.add(g);meshes.push(pane);
     }
   }
+  /* ventanas SEGÚN EL PLANO (auditoría 24-nov): un vano por cada hueco del muro exterior de WALLS2 que en la planta es ventana (sin puertas de ingreso).
+     [eje, línea de fachada, desde, hasta, haciaTerraza, lado interior ±1] en px del plano (15 px = 1 m). eje 'x' = muro horizontal (z = línea); 'z' = muro vertical (x = línea). El vidrio va en la línea de la fachada (ENC) para verse desde afuera; dintel y antepecho, justo por dentro.
+     Alto (SUPUESTO, la planta no lo indica): ventana con antepecho 0,37 m y dintel 2,57 m; hacia terraza propia, puerta-ventana de piso a dintel (como en los renders). */
+  const VANOS={"1":[["z",566,219.4,274.6,1,-1],["z",566,277.7,341.6,1,-1],["z",360,252.1,266.9,0,1],["z",360,279.2,332.4,0,1]],"2":[["x",72,212.7,256.7,0,1],["x",72,258.8,359.5,0,1],["x",72,364.1,383.5,0,1],["z",290,156.5,186,0,1],["x",186,223,262.8,0,-1],["x",186,278.2,290,0,-1]],"3":[["x",72,407.6,419.3,0,1],["x",72,421.4,442.3,0,1],["x",72,462.3,505.7,0,1],["x",72,507.8,516.5,0,1],["x",72,530.8,626.4,0,1],["x",148,614.7,627.4,0,-1]],"4":[["x",72,704.7,773.2,0,1],["x",72,775.7,806.9,0,1],["x",72,811.5,870,0,1],["z",870,72,152,0,-1]],"5":[["z",531,241.9,296.6,1,-1],["z",562,299.1,343.1,0,-1],["z",562,352.3,363,0,-1],["x",434,500.1,558.4,1,-1],["x",444,448.5,489.9,0,-1]],"6":[["x",298,364.1,393.2,0,1],["x",298,395.3,410.1,0,1],["x",451,345.2,359,0,-1],["x",451,382.5,411.1,0,-1],["z",290,353.4,443.4,1,1],["z",316,301.2,346.2,0,1]],"7":[["x",95,313,360,0,1],["x",95,364.1,395.3,0,1],["x",176,217.3,263.4,0,-1],["x",176,291.5,340.1,0,-1],["z",213,118.1,171.3,1,1]],"8":[["x",92,409.6,488.9,0,1],["x",92,497,520.6,0,1],["x",92,530.8,590,0,1],["z",590,99.7,118,1,-1],["x",118,593.7,636.6,1,1],["x",205,583.5,597.8,0,-1]],"9":[["x",90,651.5,723.6,0,1],["x",90,745.6,787.5,0,1],["x",90,801.8,810,0,1],["z",876,94.6,169.8,0,-1],["z",910,186.1,226,0,-1],["z",925,232.2,302.2,0,-1],["x",158,651.5,730,1,1]],"10":[["z",953,304.8,366.6,0,-1],["z",957,369.2,416.8,1,-1],["z",957,418.8,472,1,-1],["x",472,809,860.6,0,-1],["x",472,934.3,957,0,-1],["x",441,713.4,797.7,1,-1]]};
+  function glazingPlan(n,y,data){(VANOS[n]||[]).forEach(v=>{const w=v[3]-v[2],c=(v[2]+v[3])/2,door=!!v[4],y0=door?1.2:5.5,y1=38.5,T=2.4,zi=v[5]*(T/2+.1);
+      const g=new THREE.Group();const add=(m,px,py,pz=0)=>{m.position.set(px,py,pz);g.add(m);return m};
+      const pane=add(new THREE.Mesh(new THREE.BoxGeometry(w-1.5,y1-y0,.6),M.glass.clone()),0,(y0+y1)/2);pane.userData.pane=true;
+      const fr=(ww,hh,px,py)=>add(new THREE.Mesh(new THREE.BoxGeometry(ww,hh,1.2),M.wood),px,py);
+      fr(w,1.5,0,y1);fr(w,1.5,0,y0);fr(1.5,y1-y0,-w/2+.75,(y0+y1)/2);fr(1.5,y1-y0,w/2-.75,(y0+y1)/2);
+      const nm=Math.max(0,Math.round(w/(door?20:16))-1);for(let k=1;k<=nm;k++)fr(1,y1-y0,-w/2+w*k/(nm+1),(y0+y1)/2);   // montantes cada ~1,1-1,3 m
+      add(new THREE.Mesh(new THREE.BoxGeometry(w,FH-5-y1-.75,T),M.plaster),0,(y1+.75+FH-5)/2,zi);                    // dintel hasta la losa
+      if(!door)add(new THREE.Mesh(new THREE.BoxGeometry(w,y0-.75,T),M.plaster),0,(y0-.75)/2,zi);                      // antepecho
+      if(v[0]==='x')g.position.set(c,y,v[1]);else{g.position.set(v[1],y,c);g.rotation.y=Math.PI/2}
+      g.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;Object.assign(o.userData,data)}});root.add(g);meshes.push(pane)})}
   UNITS.forEach(u=>{
     const y=LV[u.planta];const data={unit:u.n,level:u.planta};
-    ENC[u.n].forEach(p=>{meshes.push(prism(p,y,FH-5,facade[u.n],data));glazing(p,u.planta,y,data)});
+    ENC[u.n].forEach(p=>{meshes.push(prism(p,y,FH-5,facade[u.n],data))});glazingPlan(u.n,y,data);   // antes: glazing() ponía una ventana genérica (62 % centrada) en cada lado del contorno
     (TER[u.n]||[]).forEach(p=>{meshes.push(prism(p,y,2,M.deck,data));
       const [x0,y0,x1,y1]=bbox(p);[[x0,y0,x1,y0+2],[x0,y1-2,x1,y1],[x0,y0,x0+2,y1],[x1-2,y0,x1,y1]].forEach(w=>{const m=box(w[0],w[1],w[2],w[3],y,14,facade[u.n],data);meshes.push(m)})});
     if(u.planta==='pa')(TER[u.n]||[]).forEach(p=>{const [a,b,c,d]=bbox(p);meshes.push(box(a-3,b-3,c+3,d+3,y+FH-5,5,M.slab,data));meshes.push(box(a,b,c,d,y+FH-6.2,1.2,M.wood,data))});   // marquesina de hormigón con cielo de madera sobre cada terraza
