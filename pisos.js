@@ -45,7 +45,7 @@
     }
   };
 
-  var MIN_Z = 1, MAX_Z = 4;
+  var MIN_Z = 0.7, MAX_Z = 4;
 
   function statusOf(n) {
     return (PISOS_STATUS_EJEMPLO.map && PISOS_STATUS_EJEMPLO.map[n]) || 'disponible';
@@ -175,6 +175,34 @@
     var st = { floor: 'pb', sel: null, scale: 1, x: 0, y: 0, bw: 0, bh: 0, fitted: 1 };
     var fading = false;
 
+    /* Encuadre del edificio (ENC+TER+núcleos, con margen), no de toda la lámina. */
+    var FLOOR_FRAME = { pb: [160, 16, 948, 400], pa: [137, 16, 1045, 528], tc: [250, 80, 860, 450] };
+
+    function isNarrow() {
+      return viewport.getBoundingClientRect().width < 720;
+    }
+    function visibleRect() {
+      var r = viewport.getBoundingClientRect();
+      var left = 0, top = 0, right = r.width, bottom = r.height;
+      function cutBottom(el, gap) {
+        if (!el) return;
+        var b = el.getBoundingClientRect();
+        var y = b.top - r.top - (gap || 8);
+        if (b.bottom > r.top && y < bottom) bottom = y;
+      }
+      if (panel.classList.contains('is-open') && isNarrow()) {
+        cutBottom(panel, 10);
+      } else if (isNarrow()) {
+        cutBottom(rail, 10);
+      } else if (panel.classList.contains('is-open')) {
+        var b = panel.getBoundingClientRect();
+        var x = b.right - r.left + 12;
+        if (x > left && x < right - 80) left = x;
+      }
+      if (bottom - top < 80) bottom = top + 80;
+      if (right - left < 80) right = left + 80;
+      return { x: left, y: top, w: right - left, h: bottom - top };
+    }
     function fitSize() {
       var r = viewport.getBoundingClientRect();
       var vw = r.width, vh = r.height;
@@ -190,27 +218,56 @@
       pctEl.textContent = Math.round(st.scale * 100) + '%';
       updateMini();
     }
-    function centerFit() {
-      var r = viewport.getBoundingClientRect();
-      st.scale = 1;
-      st.x = (r.width - st.bw) / 2;
-      var extra = r.height - st.bh;
-      /* En móvil vertical el plano es apaisado: se alinea arriba, no en el centro, para no dejar un hueco enorme. */
-      st.y = (r.width < 720 && extra > 120) ? Math.min(20, Math.max(8, extra * 0.08)) : extra / 2;
+    function easeTx() {
+      world.classList.add('is-easing');
       applyTx();
+      clearTimeout(easeTx._t);
+      easeTx._t = setTimeout(function () { world.classList.remove('is-easing'); }, 260);
+    }
+    function bboxOfPolys(polys) {
+      var xs = [], ys = [];
+      (polys || []).forEach(function (poly) {
+        poly.forEach(function (pt) { xs.push(pt[0]); ys.push(pt[1]); });
+      });
+      if (!xs.length) return [0, 0, PLAN_W, PLAN_H];
+      return [Math.min.apply(null, xs) - 10, Math.min.apply(null, ys) - 10, Math.max.apply(null, xs) + 10, Math.max.apply(null, ys) + 10];
+    }
+    function fitBBox(bbox, animate) {
+      if (!st.bw || !bbox) return;
+      var vis = visibleRect();
+      var boxW = Math.max(40, (bbox[2] - bbox[0]) / PLAN_W * st.bw);
+      var boxH = Math.max(40, (bbox[3] - bbox[1]) / PLAN_H * st.bh);
+      var s = Math.min(MAX_Z, vis.w / boxW * 0.94, vis.h / boxH * 0.94);
+      if (s < 0.7) s = 0.7;
+      st.scale = s;
+      var sw = boxW * s, sh = boxH * s;
+      var ox = (bbox[0] / PLAN_W) * st.bw * s;
+      var oy = (bbox[1] / PLAN_H) * st.bh * s;
+      st.x = vis.x + (vis.w - sw) / 2 - ox;
+      var extraY = vis.h - sh;
+      st.y = vis.y + (extraY > 20 ? Math.min(14, extraY * 0.08) : extraY / 2) - oy;
+      if (animate) easeTx(); else applyTx();
+    }
+    function centerFit() {
+      fitBBox(FLOOR_FRAME[st.floor] || [0, 0, PLAN_W, PLAN_H], false);
     }
     function clampPan() {
-      var r = viewport.getBoundingClientRect();
+      var vis = visibleRect();
       var w = st.bw * st.scale, h = st.bh * st.scale;
-      if (w <= r.width) st.x = (r.width - w) / 2;
-      else st.x = Math.min(0, Math.max(r.width - w, st.x));
-      if (h <= r.height) st.y = (r.height - h) / 2;
-      else st.y = Math.min(0, Math.max(r.height - h, st.y));
+      if (w <= vis.w) st.x = vis.x + (vis.w - w) / 2;
+      else st.x = Math.min(vis.x, Math.max(vis.x + vis.w - w, st.x));
+      if (h <= vis.h) {
+        var extra = vis.h - h;
+        var topAlign = isNarrow() || panel.classList.contains('is-open');
+        st.y = vis.y + (topAlign && extra > 20 ? Math.min(14, extra * 0.08) : extra / 2);
+      } else {
+        st.y = Math.min(vis.y, Math.max(vis.y + vis.h - h, st.y));
+      }
     }
     function zoomTo(next, cx, cy) {
-      var r = viewport.getBoundingClientRect();
-      cx = cx == null ? r.width / 2 : cx;
-      cy = cy == null ? r.height / 2 : cy;
+      var vis = visibleRect();
+      cx = cx == null ? vis.x + vis.w / 2 : cx;
+      cy = cy == null ? vis.y + vis.h / 2 : cy;
       next = Math.max(MIN_Z, Math.min(MAX_Z, next));
       var k = next / st.scale;
       st.x = cx - (cx - st.x) * k;
@@ -219,6 +276,46 @@
       clampPan();
       applyTx();
     }
+    function ensureVisible(bbox, animate) {
+      if (!st.bw || !bbox) return;
+      var vis = visibleRect();
+      var pad = 16;
+      function scr(x, y) {
+        return {
+          x: st.x + (x / PLAN_W) * st.bw * st.scale,
+          y: st.y + (y / PLAN_H) * st.bh * st.scale
+        };
+      }
+      var a = scr(bbox[0], bbox[1]), b = scr(bbox[2], bbox[3]);
+      var x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y);
+      var x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y);
+      var uw = x1 - x0, uh = y1 - y0;
+      if (uw > vis.w - pad * 2 || uh > vis.h - pad * 2) {
+        var ns = st.scale * Math.min((vis.w - pad * 2) / Math.max(uw, 1), (vis.h - pad * 2) / Math.max(uh, 1));
+        ns = Math.max(MIN_Z, Math.min(st.scale, ns));
+        var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+        var k = ns / st.scale;
+        st.x = cx - (cx - st.x) * k;
+        st.y = cy - (cy - st.y) * k;
+        st.scale = ns;
+        a = scr(bbox[0], bbox[1]); b = scr(bbox[2], bbox[3]);
+        x0 = Math.min(a.x, b.x); y0 = Math.min(a.y, b.y);
+        x1 = Math.max(a.x, b.x); y1 = Math.max(a.y, b.y);
+      }
+      var dx = 0, dy = 0;
+      if (x0 < vis.x + pad) dx = vis.x + pad - x0;
+      if (x1 > vis.x + vis.w - pad) dx = vis.x + vis.w - pad - x1;
+      if (x1 - x0 > vis.w - pad * 2) dx = vis.x + vis.w / 2 - (x0 + x1) / 2;
+      if (y0 < vis.y + pad) dy = vis.y + pad - y0;
+      if (y1 > vis.y + vis.h - pad) dy = vis.y + vis.h - pad - y1;
+      if (y1 - y0 > vis.h - pad * 2) dy = vis.y + vis.h / 2 - (y0 + y1) / 2;
+      st.x += dx; st.y += dy;
+      if (animate) easeTx(); else applyTx();
+    }
+    function afterPanel(fn) {
+      requestAnimationFrame(function () { requestAnimationFrame(fn); });
+    }
+
     function updateMini() {
       var r = viewport.getBoundingClientRect();
       var mw = mini.clientWidth, mh = mini.clientHeight;
@@ -270,6 +367,7 @@
       miniImg.src = src(floorById(id).img);
       miniImg.onerror = function () { miniImg.src = src(floorById(id).fallback); };
       if (!fromHash) writeHash(id);
+      afterPanel(function () { fitBBox(FLOOR_FRAME[id] || [0, 0, PLAN_W, PLAN_H], true); });
     }
 
     function openUnit(u) {
@@ -283,7 +381,7 @@
       var stt = statusOf(u.n);
       panel.innerHTML =
         '<div class="row"><span class="pisos-ejemplo">' + PISOS_STATUS_EJEMPLO.etiqueta + '</span><button class="x" type="button" aria-label="Cerrar">×</button></div>' +
-        '<div class="ph"><img src="' + src('img/pisos/u' + u.n + '.jpg') + '" alt="Plano del departamento ' + u.n + '"></div>' +
+        '<div class="pisos-thumb"><img src="' + src('img/pisos/u' + u.n + '.jpg') + '" alt="Plano del departamento ' + u.n + '"></div>' +
         '<div class="row"><h3>Departamento ' + u.n + '</h3><span class="pisos-badge ' + stt + '">' + stt + '</span></div>' +
         '<div class="spec">' +
           '<div><span>Dormitorios</span><b>' + u.dorm + '</b></div>' +
@@ -300,12 +398,13 @@
         '</div>';
       panel.classList.add('is-open');
       panel.querySelector('.x').onclick = closePanel;
+      afterPanel(function () { ensureVisible(bboxOfPolys(POLYS[u.n]), true); });
     }
     function openTerraza() {
       st.sel = 'tc';
       panel.innerHTML =
         '<div class="row"><span class="pisos-ejemplo">Áreas comunes</span><button class="x" type="button" aria-label="Cerrar">×</button></div>' +
-        '<div class="ph"><img src="' + src('img/r-terraza.jpg') + '" alt="Terraza comunal"></div>' +
+        '<div class="pisos-thumb"><img src="' + src('img/r-terraza.jpg') + '" alt="Terraza comunal"></div>' +
         '<div class="row"><h3>Terraza comunal</h3></div>' +
         '<p style="margin:0;font-size:.9rem;color:var(--muted,#6f6472)">Salón con cocina, baños y terraza abierta sobre la cubierta, con jardineras perimetrales. Un espacio compartido para los diez departamentos.</p>' +
         '<div class="actions">' +
@@ -313,12 +412,14 @@
         '</div>';
       panel.classList.add('is-open');
       panel.querySelector('.x').onclick = closePanel;
+      afterPanel(function () { ensureVisible(bboxOfPolys([TC_POLY]), true); });
     }
     function closePanel() {
       st.sel = null;
       panel.classList.remove('is-open');
       panel.innerHTML = '';
       root.querySelectorAll('.u-hit.is-on,.pisos-chip.is-on').forEach(function (el) { el.classList.remove('is-on'); });
+      afterPanel(function () { clampPan(); easeTx(); });
     }
 
     function openPlano(n) {
@@ -492,7 +593,7 @@
       var fl = parseHash() || st.floor || 'pb';
       setFloor(fl, true);
       fitSize();
-      if (st.bw) { clampPan(); if (st.scale === 1 && st.x === 0 && st.y === 0) centerFit(); else applyTx(); }
+      if (st.bw) fitBBox(FLOOR_FRAME[st.floor] || [0, 0, PLAN_W, PLAN_H], false);
     }
 
     fitSize();
