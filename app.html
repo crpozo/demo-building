@@ -1431,6 +1431,9 @@ window.start3D=function(){
   // núcleos, salón de terraza, cubierta
   prism(CORES[2],0,FH-5,M.terra,{core:1});
   const salonRoof=box(318,128,512,243,LV.tc+42,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
+  // piso de todo el nivel de terraza (salón, hall y circulación), con el vacío de la escalera
+  {const sh=shape([[316,128],[531,128],[531,411],[316,411]]);sh.holes.push(new THREE.Path([[401,135.7],[448.6,135.7],[448.6,174.1],[401,174.1]].map(p=>new THREE.Vector2(p[0],-p[1]))));
+    const m=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:1.9,bevelEnabled:false}),M.deck);m.rotation.x=-Math.PI/2;m.position.y=LV.tc;m.receiveShadow=true;Object.assign(m.userData,{common:'Terraza comunal',level:'tc'});root.add(m);meshes.push(m)}
   const terr=prism([[333,243],[513,243],[513,399],[333,399]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
   // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
   {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(333,243,513,399,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);
