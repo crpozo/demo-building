@@ -89,6 +89,8 @@ function build() {
         '<button class="intr-fold" type="button" aria-expanded="true" aria-label="Contraer el panel">' + ARROW('M6 9.5l6 6 6-6') + '</button></div>' +
       '<div class="intr-body">' +
         '<div class="intr-map"><p class="eyebrow">En el plano</p><div class="intr-plan rec-plan"><img alt="" draggable="false"><i class="rec-yo" aria-hidden="true"></i></div></div>' +
+        '<div class="rec-estilos"><p class="eyebrow">Estilo</p><div class="rec-est" role="group" aria-label="Estilo de decoración">' +
+          Object.keys(ESTILOS).map(k => '<button type="button" data-estilo="' + k + '"><i style="background:' + ESTILOS[k].muestra + '"></i>' + ESTILOS[k].t + '</button>').join('') + '</div></div>' +
         '<div class="intr-rooms"><p class="eyebrow">Ambientes</p><div class="intr-thumbs" role="group" aria-label="Ambientes"></div></div>' +
       '</div>' +
       '<div class="intr-foot"><button class="btn gold" type="button" data-asesor>Hablar con un asesor</button>' +
@@ -104,6 +106,7 @@ function build() {
   ui.fold.addEventListener('click', () => { const f = root.classList.toggle('is-folded'); ui.fold.setAttribute('aria-expanded', String(!f)); onResize(); });
   root.addEventListener('click', e => {
     if (e.target.closest('[data-asesor]')) { close(); return; }              // el sitio abre su formulario
+    const es = e.target.closest('[data-estilo]'); if (es) { estilo = es.getAttribute('data-estilo'); aplicarEstilo(); return; }
     const b = e.target.closest('[data-room]'); if (b) irA(b.getAttribute('data-room'));
   });
   /* clic en el plano: la cámara va a ese punto si es caminable */
@@ -191,6 +194,20 @@ function crearGL() {
   marca.visible = false; marca.renderOrder = 3; scene.add(marca);
   gl = { renderer, scene, cam, marca, modelo: null, frames: 0, fpsT: 0, fps: 0 };
   return gl;
+}
+/* Estilos de decoración: tiñen los materiales del modelo (muebles, carpintería, piso y muros). «Natural» es el modelo tal como viene. */
+const ESTILOS = {
+  natural:     { t: 'Natural',     muestra: '#e8dcc8', muebles: 0xffffff, carp: 0xffffff, piso: 0xffffff, muros: 0xffffff },
+  moderno:     { t: 'Moderno',     muestra: '#8d9299', muebles: 0xa9aeb6, carp: 0x6f6f72, piso: 0xdcdcdc, muros: 0xf2f3f4 },
+  indie:       { t: 'Indie',       muestra: '#c9805a', muebles: 0xe0a47e, carp: 0xc98a52, piso: 0xe2bf96, muros: 0xf6e7cf },
+  tradicional: { t: 'Tradicional', muestra: '#7a4f38', muebles: 0xc9a482, carp: 0x8a5c40, piso: 0xb98f68, muros: 0xeee0c8 },
+  lila:        { t: 'Lila',        muestra: '#b9a4cc', muebles: 0xcbbbdc, carp: 0xb9a4a0, piso: 0xe9e2ec, muros: 0xf3eef6 }
+};
+let estilo = 'natural';
+function aplicarEstilo() {
+  const E = ESTILOS[estilo];
+  if (gl && gl.modelo) gl.modelo.traverse(o => { if (!o.isMesh || o.material.transparent) return; const k = (o.material.name || '').split('_').pop(); if (E[k] !== undefined) o.material.color.setHex(E[k]); });
+  if (ui) ui.root.querySelectorAll('[data-estilo]').forEach(b => b.classList.toggle('is-on', b.getAttribute('data-estilo') === estilo));
 }
 function cargarModelo(cfg, token) {
   const movil = esMovil();
@@ -328,6 +345,7 @@ async function open(n, roomId) {
     if (!c.scene) c.scene = await cargarModelo(cfg, token);
     if (token !== st.token) return true;
     if (gl.modelo !== c.scene) { if (gl.modelo) gl.scene.remove(gl.modelo); gl.scene.add(c.scene); gl.modelo = c.scene; }
+    aplicarEstilo();
     ui.bar.style.width = '100%'; ui.pct.textContent = '100 %';
     onResize(); st.last = performance.now(); gl.fpsT = st.last; gl.frames = 0;
     if (!st.raf) st.raf = requestAnimationFrame(frame);
