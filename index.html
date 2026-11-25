@@ -558,6 +558,8 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
   .visit3>span{display:none}.visit3{padding-left:7px;z-index:3}
   .kpi b{font-size:2.1rem}
 }
+.side-x{align-self:flex-end;flex:none;width:34px;height:34px;margin:-6px -6px -10px 0;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--fg);font-size:1.25rem;line-height:1;display:grid;place-items:center;position:sticky;top:0;z-index:1}
+.side-x:hover{border-color:var(--fg)}
 </style>
 <link rel="stylesheet" href="pisos.css">
 <link rel="stylesheet" href="interiores.css">
@@ -1800,6 +1802,10 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     $('#match3').textContent=f3on()?(ms.length?ms.length+(ms.length===1?' departamento: ':' departamentos: ')+ms.map(u=>u.n).join(', '):'Ningún departamento cumple'):''}
   function easeOverlays(){let mv=false;UNITS.forEach(u=>{const o=overlays[u.n];const d=o.userData.target-o.material.opacity;if(Math.abs(d)>.003)mv=true;o.material.opacity+=d*.18;const e=o.userData.edge;if(e){const de=(o.userData.edgeTarget||0)-e.material.opacity;if(Math.abs(de)>.003)mv=true;e.material.opacity+=de*.18}});return mv}
   window.update3D=paint;
+  /* la ficha lateral del 3D siempre lleva una X para cerrarla (también con Esc) */
+  {const sd=$('#side3'),close=()=>{if(sd.hidden)return;sd.hidden=true;sel=null;paint();wake()};
+    new MutationObserver(()=>{if(!sd.querySelector('.side-x'))sd.insertAdjacentHTML('afterbegin','<button class="side-x" aria-label="Cerrar ficha" title="Cerrar">×</button>')}).observe(sd,{childList:true});
+    sd.addEventListener('click',e=>{if(e.target.closest('.side-x'))close()});addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('on'))close()})}
   window.select3D=n=>{sel=n;J.unit(n,'d3');($('#side3').hidden=false,$('#side3')).innerHTML=sideHTML(UNITS.find(x=>x.n===n));paint();auto=false;const u=units[n];theta=Math.atan2(u.cx-PW/2,u.cz-PH/2)+Math.PI*.15;dist=Math.min(dist,900);targetT.set(u.cx-PW/2,u.y+20,u.cz-PH/2)};
   $('#status3').onclick=e=>{showStatus=!showStatus;e.target.classList.toggle('on',showStatus);paint()};
   /* plantas */
