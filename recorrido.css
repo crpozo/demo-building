@@ -41,6 +41,8 @@
 
 @media (max-width:768px){
   .rec-yo::before{left:-26px;top:-26px;width:52px;height:52px}
+  .rec .rec-sinfotos{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:max-content}
+  .rec .rec-sinfotos button{white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){.rec-bar i,.rec-tip{transition:none}}
 
