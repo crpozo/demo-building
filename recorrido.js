@@ -11,7 +11,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 /* Por unidad: planta, tamaño del jpg del plano y cómo pasar de metros del modelo a px del jpg (px = x0 + m * k),
    y si ya tiene panorámicas de respaldo. Los archivos salen del número: models/d<N>.glb, d<N>_m.glb, d<N>_nav.json,
    img/pisos/u<N>.jpg, img/interiores/d<N>/pano_<ambiente>.webp.  PUBLICADOS = unidades cuyo GLB ya está subido. */
-const PUBLICADOS = [1, 2, 3, 4, 5];
+const PUBLICADOS = [1, 2, 3, 4, 5, 6, 7, 8];
 const PLANOS = {
   1: ['pb', 920, 608, 33, 31, 50], 2: ['pb', 712, 670, 34, 31, 50], 3: ['pb', 904, 608, 33, 31, 50], 4: ['pb', 923, 670, 29, 31, 50],
   5: ['pa', 647, 671, 31, 32, 42.86], 6: ['pa', 712, 671, 116, 32, 42.86], 7: ['pa', 815, 552, 35, 31, 50], 8: ['pa', 931, 616, 33, 31, 50],
