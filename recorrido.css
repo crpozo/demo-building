@@ -1,0 +1,45 @@
+/* Alhelí — recorrido libre en 3D (recorrido.js). Usa el armazón del visor de interiores (.intr, interiores.css):
+   acá solo va lo propio del recorrido: lienzo, pantalla de carga, punto y cono del minimapa, joystick. */
+.rec .rec-stage{cursor:grab;background:#d9d4cb}
+.rec .rec-stage:active{cursor:grabbing}
+.rec-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:0}
+.rec-canvas[hidden],.rec-pano[hidden],.rec-load[hidden]{display:none}
+.rec-pano{position:absolute;inset:0;background-repeat:repeat-x;background-color:#d9d4cb}
+.rec .intr-tag{position:absolute;left:16px;right:auto;top:auto;bottom:14px;width:auto;height:auto;z-index:2;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:#fff;background:rgba(20,18,17,.46);padding:5px 9px;border-radius:4px;pointer-events:none}
+
+/* pantalla de carga: nunca negro; barra con el avance real de la descarga */
+.rec-load{position:absolute;inset:0;z-index:5;display:grid;place-items:center;background:var(--bg,#f4f0e8);color:var(--fg,#141211);text-align:center;padding:24px}
+.rec-load>div{width:min(320px,80%)}
+.rec-bar{height:4px;margin:16px 0 10px;background:var(--line,#d6d1c7);border-radius:2px;overflow:hidden}
+.rec-bar i{display:block;height:100%;width:0;background:var(--gold,#a4432b);transition:width .15s linear}
+.rec-pct{font-size:.8rem;color:var(--muted,#5e5850);font-variant-numeric:tabular-nums}
+.rec-load.is-err .rec-bar,.rec-load.is-err .rec-pct{display:none}
+
+/* ayuda de controles: se va al primer gesto */
+.rec-tip{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:3;max-width:calc(100% - 32px);
+  background:rgba(20,18,17,.62);color:#fff;font-size:.8rem;letter-spacing:.02em;padding:9px 14px;border-radius:999px;
+  pointer-events:none;transition:opacity .4s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-tip.is-off{opacity:0}
+
+/* minimapa en vivo: punto y cono de visión */
+.rec-plan{cursor:crosshair}
+.rec-yo{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:2;--giro:0deg;--cono:75deg}
+.rec-yo::before{content:"";position:absolute;left:-34px;top:-34px;width:68px;height:68px;border-radius:50%;
+  background:conic-gradient(from calc(var(--giro) - var(--cono) / 2),color-mix(in srgb,var(--gold,#a4432b) 55%,transparent) 0 var(--cono),transparent 0);
+  -webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.15) 68%,transparent 70%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.15) 68%,transparent 70%)}
+.rec-yo::after{content:"";position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;
+  background:var(--gold,#a4432b);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);box-sizing:border-box}
+
+/* joystick (solo táctil y en modo 3D) */
+.rec-joy{display:none;position:absolute;left:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:4;width:96px;height:96px;border-radius:50%;
+  background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.55);touch-action:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.rec-joy i{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 1px 6px rgba(0,0,0,.3)}
+.rec.is-touch:not(.is-pano) .rec-joy{display:block}
+.rec.is-touch .intr-tag{left:auto;right:12px;top:auto;bottom:12px}
+.rec.is-touch .rec-tip{bottom:auto;top:calc(18px + env(safe-area-inset-top,0px));left:12px;transform:none;max-width:calc(100% - 84px);font-size:.74rem}
+
+@media (max-width:768px){
+  .rec-yo::before{left:-26px;top:-26px;width:52px;height:52px}
+}
+@media (prefers-reduced-motion:reduce){.rec-bar i,.rec-tip{transition:none}}

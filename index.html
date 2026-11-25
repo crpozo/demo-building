@@ -564,6 +564,8 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 </style>
 <link rel="stylesheet" href="pisos.css">
 <link rel="stylesheet" href="interiores.css">
+<link rel="stylesheet" href="recorrido.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 
 <header class="top" id="top">
   <div class="wrap">
@@ -1034,6 +1036,7 @@ renderAll(); route();
 <script>AlheliPisos.init({mount:'#pisosApp'});</script>
 <script src="interiores.js"></script>
 <script>AlheliInteriores.init();</script>
+<script type="module" src="recorrido.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
