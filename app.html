@@ -555,6 +555,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 }
 .side-x{align-self:flex-end;flex:none;width:34px;height:34px;margin:-6px -6px -10px 0;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--fg);font-size:1.25rem;line-height:1;display:grid;place-items:center;position:sticky;top:0;z-index:1}
 .side-x:hover{border-color:var(--fg)}
+.load3{position:absolute;inset:0;margin:0;display:grid;place-items:center;font-size:.9rem;color:var(--muted);background:#eef1ea;z-index:1}
 </style>
 <link rel="stylesheet" href="pisos.css">
 <link rel="stylesheet" href="interiores.css">
@@ -658,6 +659,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
   <div class="wrap wrap3">
     <div class="v3">
       <div class="stage3" id="stage3">
+        <p class="load3" id="load3">Cargando el edificio…</p>
         <canvas id="c3"></canvas>
         <button class="chip p3-toggle" id="p3Toggle" aria-expanded="true" aria-controls="p3">Filtros y vista</button>
         <aside class="p3" id="p3" aria-label="Filtros y vista del edificio">
@@ -922,6 +924,7 @@ function route(){
   const ef=document.getElementById('expFrame');
   if(v==='recorrido'){if(!ef.getAttribute('src'))ef.src=ef.dataset.src}
   else if(ef.getAttribute('src')&&ef.contentWindow)ef.contentWindow.postMessage({type:'alheli:reset'},'*');
+  if(v==='edificio'&&window.start3D)setTimeout(start3D,30);
   window.scrollTo({top:0});onScroll();
 }
 addEventListener('hashchange',route);
@@ -1010,14 +1013,16 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* ---- delegación global ---- */
 document.addEventListener('click',e=>{
-  const wk=e.target.closest('[data-walk]'); if(wk){closeModal();const n=+wk.dataset.walk;if(hasInt(n)){e.preventDefault();AlheliInteriores.open(n);return}if(location.hash!=='#edificio')location.hash='#edificio';setTimeout(()=>{if(window.walk3D)walk3D(n)},80);return}
+  const wk=e.target.closest('[data-walk]'); if(wk){closeModal();const n=+wk.dataset.walk;if(hasInt(n)){e.preventDefault();AlheliInteriores.open(n);return}if(location.hash!=='#edificio')location.hash='#edificio';on3D(()=>walk3D(n));return}
   const it=e.target.closest('[data-interior]'); if(it){closeModal();if(window.AlheliInteriores)AlheliInteriores.open(+it.dataset.interior);return}
   const as=e.target.closest('[data-asesor]'); if(as){openAsesor(+as.dataset.asesor||null);return}
-  const vs=e.target.closest('[data-visit]'); if(vs){if(window.visit3D)visit3D(+vs.dataset.visit);return}
+  const vs=e.target.closest('[data-visit]'); if(vs){on3D(()=>visit3D(+vs.dataset.visit));return}
   const o=e.target.closest('[data-open]'); if(o){openUnit(+o.dataset.open);return}
-  const s3=e.target.closest('[data-sel3]'); if(s3){closeModal();if(window.select3D)select3D(+s3.dataset.sel3);return}
+  const s3=e.target.closest('[data-sel3]'); if(s3){closeModal();const n=+s3.dataset.sel3;on3D(()=>select3D(n));return}
   const s=e.target.closest('[data-sel]'); if(s){plan=s.dataset.plan;planSel=+s.dataset.sel;closeModal();renderPlan()}
 });
+/* el 3D se construye al abrir su sección: las acciones que lo necesitan esperan a que esté listo */
+function on3D(fn){if(window.select3D)return fn();let k=0;const t=setInterval(()=>{if(window.select3D){clearInterval(t);fn()}else if(++k>150)clearInterval(t)},100)}
 function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(window.update3D)update3D()}
 renderAll(); route();
 </script>
@@ -1085,8 +1090,8 @@ pa:[
 tc:[['round',425,240],['sofa',360,215,12,30,270],['sofa',360,262,12,30,270],['counter',470,240,10,40],['toilet',500,205],['osofa',365,330,90],['osofa',485,330,270],['round',425,345],['ochairs',425,400],['osofa',425,425,180]]};
 const CARS=[];for(let i=0;i<9;i++)CARS.push([262+i*42,388,0]);for(let i=0;i<7;i++)CARS.push([728+i*38,388,0]);[[870,322],[908,322],[948,322]].forEach(c=>CARS.push([c[0],c[1],0]));
 const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,hover:0xd4b27a};
-(function(){
-  if(!window.THREE) return;
+window.start3D=function(){
+  if(window.__3dOn||!window.THREE) return;window.__3dOn=true;
   const el=$('#stage3'), canvas=$('#c3');
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',stencil:false});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -1530,7 +1535,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
       const m=ss(1050,3000,Math.hypot(x-CX,z-CZ))*ss(170,700,Math.abs(ST.dist(x,z)-ROAD_OFF))*ss(60,520,lakeD(x,z));return m*(60+Math.max(-.3,n)*200)};
     const fden=(x,z)=>Math.sin(x*.0021+.4)*Math.cos(z*.0026+1.9)+.6*Math.sin((x+z)*.0043+2.2)+.35*Math.cos(x*.0081-z*.0067);   // densidad del bosque
     const groundT=ctex((x,s)=>noise(x,s,'#9aba68',.13,5000),256,56);
-    {const tg=new THREE.PlaneGeometry(15000,15000,150,150);tg.rotateX(-Math.PI/2);const tp=tg.attributes.position,tc=new Float32Array(tp.count*3);
+    {const tg=new THREE.PlaneGeometry(15000,15000,96,96);tg.rotateX(-Math.PI/2);const tp=tg.attributes.position,tc=new Float32Array(tp.count*3);
       for(let i=0;i<tp.count;i++){const x=tp.getX(i)+CX,z=tp.getZ(i)+CZ;tp.setY(i,hill(x,z));
         const f=ss(-.5,.5,fden(x,z)),w=ss(-.2,.9,Math.sin(x*.0037+1)*Math.sin(z*.0031+2));
         tc[i*3]=(1-.3*f)*(1+.07*w);tc[i*3+1]=(1-.16*f)*(1+.02*w);tc[i*3+2]=(1-.3*f)*(1-.16*w)}
@@ -1550,16 +1555,16 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     const flat=g=>{const n=g.index?g.toNonIndexed():g;n.computeVertexNormals();return n};
     const trunkG=new THREE.CylinderGeometry(.7,1,1,6);trunkG.translate(0,.5,0);const coneG=flat(new THREE.ConeGeometry(1,1,7));coneG.translate(0,.5,0);
     const GEO={trunk:trunkG,trunkF:trunkG,blob:flat(new THREE.IcosahedronGeometry(1,1)),blobF:flat(new THREE.IcosahedronGeometry(1,0)),cone:coneG,coneF:coneG,
-      bush:flat(new THREE.IcosahedronGeometry(1,0)),rock:flat(new THREE.DodecahedronGeometry(1,0)),flower:new THREE.SphereGeometry(1,5,4),reed:new THREE.ConeGeometry(1,1,4).translate(0,.5,0),pad:new THREE.CircleGeometry(1,10).rotateX(-Math.PI/2)};
+      bush:flat(new THREE.IcosahedronGeometry(1,0)),rock:flat(new THREE.DodecahedronGeometry(1,0)),flower:new THREE.OctahedronGeometry(1,0),reed:new THREE.ConeGeometry(1,1,4).translate(0,.5,0),pad:new THREE.CircleGeometry(1,10).rotateX(-Math.PI/2)};
     const tint=(hex,i,v=.12)=>{col.setHex(hex);const k=1-v/2+rnd(i)*v;return new THREE.Color(col.r*k,col.g*k,col.b*k)};
     const LEAF=[0x5c8f3a,0x6b9d42,0x4f8236,0x7aa94a,0x86b352,0x638f3f],PINE=[0x2f6b3c,0x3a7a44,0x285f38,0x44854a],BLOOM=[0x9a6cc4,0xb48ad6,0xe39ab8,0xd8b84e];
     const inLot=(x,z,mg)=>x>20-mg&&x<1070+mg&&z>24-mg&&z<522+mg;const nearRoad=(x,z,mg)=>Math.abs(ST.dist(x,z)-ROAD_OFF)<mg;
     // bosques: retícula con desorden, claros según el ruido, más densos hacia el horizonte
-    let ti=0;for(let gx=-3500;gx<4700;gx+=80)for(let gz=-3400;gz<4000;gz+=80){const i=ti++;const x=gx+(rnd(i)-.5)*74,z=gz+(rnd(i+.5)-.5)*74;
+    let ti=0;for(let gx=-2300;gx<3500;gx+=96)for(let gz=-2300;gz<2900;gz+=96){const i=ti++;const x=gx+(rnd(i)-.5)*74,z=gz+(rnd(i+.5)-.5)*74;
       const dc=Math.hypot(x-CX,z-CZ);if(inLot(x,z,110)||nearRoad(x,z,112)||lakeD(x,z)<40)continue;
       if(x>330&&x<1500&&z>500&&z<1000)continue;                                   // pradera abierta entre el lote y la laguna principal
       if(fden(x,z)+ss(1900,3200,dc)*1.4+(rnd(i+.25)-.5)*.5<-.05)continue;
-      const y=gy(x,z)-1,s=.8+rnd(i+.7)*.75,far=dc>1500,ry=rnd(i+.9)*6.28;
+      const y=gy(x,z)-1,s=.8+rnd(i+.7)*.75,far=dc>650,ry=rnd(i+.9)*6.28;
       if(Math.sin(x*.0013+3)*Math.cos(z*.0017+.5)+(rnd(i+.3)-.5)*.7>.12){             // pinos
         put(far?'trunkF':'trunk',x,y,z,2.8*s,22*s,2.8*s,tint(0x5d4a3a,i));
         for(let k=0;k<3;k++)put(far?'coneF':'cone',x,y+(13+k*19)*s,z,(23-k*5.5)*s,(40-k*3)*s,(23-k*5.5)*s,tint(PINE[i%4],i+k,.16),ry)}
@@ -1568,12 +1573,12 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
         put(far?'blobF':'blob',x,y+52*s,z,27*s,23*s,27*s,tint(c0,i),ry);
         for(let k=0;k<2;k++){const a=ry+k*3.1+.6;put(far?'blobF':'blob',x+Math.cos(a)*15*s,y+(40+k*9)*s,z+Math.sin(a)*15*s,18*s,15*s,18*s,tint(c0,i+k+1,.2),ry+k)}}}
     // arbustos, rocas y praderas en flor
-    for(let i=0;i<900;i++){const x=-1500+rnd(i*3+1)*4200,z=-1400+rnd(i*3+2)*3900;if(inLot(x,z,30)||nearRoad(x,z,84)||lakeD(x,z)<14)continue;const s=7+rnd(i+.4)*9;
+    for(let i=0;i<520;i++){const x=-1500+rnd(i*3+1)*4200,z=-1400+rnd(i*3+2)*3900;if(inLot(x,z,30)||nearRoad(x,z,84)||lakeD(x,z)<14)continue;const s=7+rnd(i+.4)*9;
       if(i%6===0)put('rock',x,gy(x,z)+s*.25,z,s*1.1,s*.7,s*.9,tint(0x9a9890,i,.2),rnd(i)*6);else put('bush',x,gy(x,z)+s*.45,z,s*1.25,s*.8,s*1.15,tint(i%9===1?BLOOM[i%3]:LEAF[i%6],i,.2),rnd(i)*6)}
     LAKES.forEach((L,li)=>{for(let k=0;k<26;k++){const a=rnd(li*50+k)*6.28,r=lakeR(L,a)+6+rnd(k+li)*16,s=6+rnd(k*7+li)*12;const x=L[0]+Math.cos(a)*r*L[4],z=L[1]+Math.sin(a)*r;put('rock',x,GY+s*.3,z,s*1.2,s*.7,s,tint(0xa3a096,k+li,.2),a)}});
     const FL=[[0x8a4ac0,0xb060d8,0x6a2f9c],[0xf2d24b,0xf6e27a,0xe9b83a],[0xffffff,0xf4ecd8,0xfff6c8],[0xe76fa0,0xf3a0c0,0xd94f8a],[0xe2573c,0xf08a4a,0xf2d24b]];
-    for(let p=0;p<110;p++){const px=-1300+rnd(p*5+3)*3800,pz=-1200+rnd(p*5+4)*3400,pr=50+rnd(p+.6)*90,pal=FL[p%5];
-      for(let k=0;k<70;k++){const a=rnd(p*91+k)*6.28,r=Math.sqrt(rnd(p*57+k+.5))*pr,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r;if(inLot(x,z,6)||nearRoad(x,z,80)||lakeD(x,z)<8)continue;
+    for(let p=0;p<70;p++){const px=-1300+rnd(p*5+3)*3800,pz=-1200+rnd(p*5+4)*3400,pr=50+rnd(p+.6)*90,pal=FL[p%5];
+      for(let k=0;k<45;k++){const a=rnd(p*91+k)*6.28,r=Math.sqrt(rnd(p*57+k+.5))*pr,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r;if(inLot(x,z,6)||nearRoad(x,z,80)||lakeD(x,z)<8)continue;
         const s=2+rnd(k+p)*1.6;put('flower',x,gy(x,z)+2.5+rnd(k)*2.5,z,s,s*.8,s,new THREE.Color(pal[k%3]))}}
     // juncos y nenúfares en las lagunas
     LAKES.forEach((L,li)=>{for(let c=0;c<12;c++){const a=rnd(li*31+c+.2)*6.28;for(let k=0;k<12;k++){const aa=a+(rnd(c*13+k+li)-.5)*.3,r=lakeR(L,aa)-4-rnd(k*3+c)*20;
@@ -1914,10 +1919,10 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     gone.forEach(c=>{if(c.parent===root)root.remove(c)})}
   batchStatic();
   /* calidad adaptable: arranca según la tarjeta gráfica y baja o sube la resolución y las sombras según los cuadros por segundo */
-  const QL=[{pr:2,sh:2048,soft:1},{pr:1.5,sh:2048,soft:1},{pr:1.25,sh:1024,soft:0},{pr:1,sh:1024,soft:0},{pr:.85,sh:0},{pr:.7,sh:0}];
+  const QL=[{pr:1.5,sh:2048,soft:1},{pr:1.25,sh:1024,soft:1},{pr:1,sh:1024,soft:0},{pr:1,sh:0},{pr:.8,sh:0},{pr:.65,sh:0},{pr:.5,sh:0}];
   const gpu=(()=>{try{const gl=renderer.getContext(),e=gl.getExtension('WEBGL_debug_renderer_info');return String(e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)).toLowerCase()}catch(e){return ''}})();
   let q=/swiftshader|llvmpipe|software|basic render/.test(gpu)?4:(/intel|uhd|iris|hd graphics|mali|adreno|powervr|radeon\(tm\) graphics|radeon graphics|vega \d\b/.test(gpu)||matchMedia('(pointer:coarse)').matches)?2:0;
-  if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)q=Math.max(q,2);
+  if(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)q=Math.max(q,3);if(navigator.deviceMemory&&navigator.deviceMemory<=4)q=Math.max(q,3);
   let ema=16.7,slow=0,fast=0,cool=30;const fails=QL.map(()=>0);
   // ?calidad=0..5 fija el nivel (0 = máximo) y desactiva el ajuste automático
   const qFix=new URLSearchParams(location.search).get('calidad');if(qFix!==null&&QL[+qFix]){q=+qFix;cool=Infinity}
@@ -1927,7 +1932,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
     if(sh&&sunL.shadow.mapSize.x!==sh){sunL.shadow.mapSize.set(sh,sh);if(sunL.shadow.map){sunL.shadow.map.dispose();sunL.shadow.map=null}}
     resize(true);shadowDirty();window.__q3=q}
   function adapt(dt){ema+=(dt-ema)*.08;if(cool>0){cool--;return}
-    if(ema>26){if(++slow>40&&q<QL.length-1){fails[q]++;q++;applyQ();slow=fast=0;cool=45;ema=16.7}}else slow=Math.max(0,slow-2);
+    if(ema>23){if(++slow>18&&q<QL.length-1){fails[q]++;q++;applyQ();slow=fast=0;cool=45;ema=16.7}}else slow=Math.max(0,slow-2);
     if(ema<18.5&&q>0&&fails[q-1]<2){if(++fast>360){q--;applyQ();fast=slow=0;cool=45;ema=16.7}}else fast=0}
   applyQ();
   ['pointermove','pointerdown','pointerup','wheel','keydown','keyup','touchstart','touchmove','click','input','change'].forEach(t=>addEventListener(t,()=>wake(),{passive:true,capture:true}));
@@ -1946,5 +1951,7 @@ const COL={disponible:0x2b2826,reservado:0xb07a1f,vendido:0x8a8a8a,sel:0xc9a06a,
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{labels.forEach(l=>{l.userData.tex=l.userData.mk(l.userData.unit,false);l.userData.texSel=l.userData.mk(l.userData.unit,true);l.material.map=sel===l.userData.unit?l.userData.texSel:l.userData.tex;l.material.needsUpdate=true})});
   buildDecor();
   paint();
-})();
+  {const l=$('#load3');if(l)l.remove()}
+};
+if(document.getElementById('v-edificio').classList.contains('on'))setTimeout(start3D,30);
 </script>

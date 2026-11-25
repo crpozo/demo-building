@@ -493,8 +493,8 @@
            Forzamos el hash por si el <a> no llega a cambiarlo. */
         if (location.hash !== '#edificio') location.hash = '#edificio';
         setTimeout(function () {
-          if (typeof global.walk3D === 'function') global.walk3D(n);
-          else if (typeof global.visit3D === 'function') global.visit3D(n);
+          if (typeof global.on3D === 'function') global.on3D(function () { global.walk3D(n); });
+          else if (typeof global.walk3D === 'function') global.walk3D(n);
         }, 120);
       }
     });
@@ -552,7 +552,7 @@
       }
       st.x = nx; st.y = ny;
       clampPan();
-      applyTx();
+      if (!applyTx._q) { applyTx._q = true; requestAnimationFrame(function () { applyTx._q = false; applyTx(); }); }   // un solo repintado por cuadro
     });
     function endPtr(e) {
       pins.delete(e.pointerId);
