@@ -964,7 +964,7 @@ function renderPlan(){
 function sideHTML(u){return `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">${PLANTA[u.planta]}</div><span style="display:grid;justify-items:end;gap:3px">${badge(u.n)}${EJ}</span></div>
    <h3>Departamento ${u.n}</h3><img src="img/u${u.n}.jpg" alt="Plano del departamento ${u.n}">
    <div class="spec"><span>Dormitorios</span><b>${u.dorm}</b><span>Cubierto</span><b>${m2(u.cub)}</b><span>${u.extName}</span><b>${m2(u.ext)}</b>${u.bbq?`<span>BBQ</span><b>${m2(u.bbq)}</b>`:''}<span>Total</span><b>${m2(total(u))}</b></div>
-   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button>${intBtn(u.n,'btn')||`<button class="btn" data-walk="${u.n}">Recorrer por dentro</button>`}<button class="btn gold" data-asesor="${u.n}">Me interesa</button></div>`}
+   <div class="actions"><button class="btn" data-open="${u.n}">Ver ficha</button>${intBtn(u.n,'btn')||`<button class="btn gold" data-walk="${u.n}">Entrar en primera persona</button>`}<button class="btn gold" data-asesor="${u.n}">Me interesa</button></div>`}
 const total=u=>u.cub+u.ext+(u.bbq||0);
 const badge=n=>`<span class="badge ${status(n)}">${status(n)}</span>`;
 /* Unidades con fotos en el visor de interiores (interiores.js): «Ver interior» reemplaza al recorrido 3D; las demás siguen como antes.
@@ -1766,6 +1766,8 @@ window.start3D=function(){
   function walkTo(e){const r=canvas.getBoundingClientRect(),v=new THREE.Vector3((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1,.5).unproject(camP).sub(camP.position);if(v.y>-.02)return;
     const t=(LV[walk.lvl]+1-camP.position.y)/v.y,x=camP.position.x+v.x*t+PW/2,z=camP.position.z+v.z*t+PH/2-walk.dz;walk.goal=[x,z,1200];document.querySelectorAll('#rooms3 button').forEach(b=>b.classList.remove('on'));wake(10)}
   $('#walkExit').onclick=exitWalk;
+  // doble clic (o doble toque) sobre un departamento o su número: entrar directo en primera persona
+  el.addEventListener('dblclick',e=>{if(walk||e.target!==canvas)return;const n=sel||hover;if(!n)return;if(hasInt(n))AlheliInteriores.open(n);else walk3D(n)});
   /* «Ver render»: abre el render del brochure del tipo de ambiente actual (solo donde el brochure tiene uno: págs. 7-11).
      Son imágenes REFERENCIALES por tipo de ambiente y planta, no del departamento exacto. Sin render, el botón no aparece. */
   const RENDER_REF={pb:{Sala:['r-depto-pb'],Comedor:['r-depto-pb']},
