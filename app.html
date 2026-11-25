@@ -1413,7 +1413,7 @@ window.start3D=function(){
   /* terraza comunal reconstruida en Blender (models/terraza-tc.glb, en metros): hall y bar con sus muros, ventanas y puertas, baños,
      cocina, BBQ, mobiliario, jardineras con vegetación y pretiles. Mismo origen y escala que la planta baja. */
   gltf.load('models/terraza-tc.glb',g=>{const SX=14.58,SZ=14.65,SY=14.6,OX=24+35.45*SX,OZ=28+16.54*SZ;g.scene.updateMatrixWorld(true);
-    const skip=/Cubiertas_inaccesibles|Circulacion_vertical|Losa/,B={solid:{p:[],c:[]},glass:{p:[],c:[]}};
+    const skip=/Cubiertas_inaccesibles|Circulacion_vertical|Losa terraza/,B={solid:{p:[],c:[]},glass:{p:[],c:[]}};
     g.scene.traverse(o=>{if(!o.isMesh||skip.test(o.name))return;let ge=o.geometry.clone();ge.applyMatrix4(o.matrixWorld);if(ge.index)ge=ge.toNonIndexed();
       const pos=ge.attributes.position,col=ge.attributes.color,k=col&&col.array instanceof Uint8Array?1/255:1,t=/Vidrio/.test(o.name)?B.glass:B.solid;
       for(let i=0;i<pos.count;i++){t.p.push(pos.getX(i),pos.getY(i),pos.getZ(i));if(col)t.c.push(Math.pow(col.getX(i)*k,2.2),Math.pow(col.getY(i)*k,2.2),Math.pow(col.getZ(i)*k,2.2));else t.c.push(.85,.83,.78)}});
