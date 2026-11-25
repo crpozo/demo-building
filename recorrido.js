@@ -11,7 +11,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 /* Por unidad: planta, tamaño del jpg del plano y cómo pasar de metros del modelo a px del jpg (px = x0 + m * k),
    y si ya tiene panorámicas de respaldo. Los archivos salen del número: models/d<N>.glb, d<N>_m.glb, d<N>_nav.json,
    img/pisos/u<N>.jpg, img/interiores/d<N>/pano_<ambiente>.webp.  PUBLICADOS = unidades cuyo GLB ya está subido. */
-const PUBLICADOS = [1, 2, 3];
+const PUBLICADOS = [1, 2, 3, 4, 5];
 const PLANOS = {
   1: ['pb', 920, 608, 33, 31, 50], 2: ['pb', 712, 670, 34, 31, 50], 3: ['pb', 904, 608, 33, 31, 50], 4: ['pb', 923, 670, 29, 31, 50],
   5: ['pa', 647, 671, 31, 32, 42.86], 6: ['pa', 712, 671, 116, 32, 42.86], 7: ['pa', 815, 552, 35, 31, 50], 8: ['pa', 931, 616, 33, 31, 50],
@@ -38,6 +38,7 @@ const esMovil = () => mq('(pointer:coarse)') || window.innerWidth <= 820;
 const params = new URLSearchParams(location.search);
 const ARROW = d => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
 
+let previo = null;                   // API original del visor de fotos (AlheliInteriores), antes del enganche
 let ui = null, gl = null;            // nodos del visor · estado WebGL (renderer, escena, cámara)
 const cache = {};                    // por unidad: { nav, scene }
 const st = { open: false, n: null, cfg: null, nav: null, modo: null, yaw: 0, pitch: 0, x: 0, z: 0, fov: FOV0,
@@ -306,6 +307,7 @@ function textos() {
 async function open(n, roomId) {
   if (!has(n)) return false;
   if (!ui) build();
+  if (previo && previo.isOpen()) previo.close();          // p. ej. enlace directo #interior/3: el visor de fotos alcanzó a abrirse antes
   const cfg = RECORRIDOS[n], token = ++st.token;
   if (!st.open) { st.prevHash = /^#interior\//.test(location.hash) ? '' : location.hash; st.focus = document.activeElement; }
   Object.assign(st, { open: true, n: Number(n), cfg, keys: {}, joy: [0, 0], goal: null, fly: null, fov: FOV0, pitch: 0 });
@@ -355,7 +357,7 @@ const api = { has, open, close, roomFor, isOpen: () => st.open, estado: () => ({
 window.AlheliRecorrido = api;
 const A = window.AlheliInteriores;
 if (A) {
-  const o = { has: A.has, open: A.open, isOpen: A.isOpen, preload: A.preload, roomFor: A.roomFor, close: A.close };
+  const o = previo = { has: A.has, open: A.open, isOpen: A.isOpen, preload: A.preload, roomFor: A.roomFor, close: A.close };
   A.has = n => has(n) || o.has(n);
   A.open = (n, room) => has(n) ? open(n, room) : o.open(n, room);
   A.isOpen = () => st.open || o.isOpen();
