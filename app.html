@@ -278,10 +278,10 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
    Fondo blanco y tinta casi negra; un único acento terracota (el ladrillo del edificio) usado con moderación.
    Cormorant Garamond para títulos, IBM Plex Sans para texto; jerarquía por tamaño y peso.
    Grilla asimétrica alineada a la izquierda; líneas finas en lugar de tarjetas, sombras o desenfoques. */
-:root{--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light;
+:root{--bg:#fff;--bg2:#fff;--fg:#241f27;--muted:#655c6b;--line:#d9d3de;--gold:#8c6fb0;--gold2:#b9a4cc;--plum:#241f27;--plum2:#3a3140;--lilac:#b9a4cc;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light;
   --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;--radius:2px}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light} }
-:root[data-theme="dark"]{--bg:#fff;--bg2:#fff;--fg:#141211;--muted:#5e5850;--line:#d6d1c7;--gold:#a4432b;--gold2:#a4432b;--plum:#141211;--plum2:#2b2826;--lilac:#d6d1c7;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--bg:#fff;--bg2:#fff;--fg:#241f27;--muted:#655c6b;--line:#d9d3de;--gold:#8c6fb0;--gold2:#b9a4cc;--plum:#241f27;--plum2:#3a3140;--lilac:#b9a4cc;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light} }
+:root[data-theme="dark"]{--bg:#fff;--bg2:#fff;--fg:#241f27;--muted:#655c6b;--line:#d9d3de;--gold:#8c6fb0;--gold2:#b9a4cc;--plum:#241f27;--plum2:#3a3140;--lilac:#b9a4cc;--ok:#3f6b45;--warn:#96650f;--bad:#9c3d3d;--shadow:none;color-scheme:light}
 body::before{background:var(--bg)}
 .wrap{max-width:1320px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 h2{font-size:clamp(2rem,3.8vw,3.1rem);letter-spacing:-.005em}
@@ -353,22 +353,22 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
 .menu-btn i{display:grid;gap:4px}
 .menu-btn i span{display:block;height:1.5px;width:16px;background:currentColor}
 .menu-btn i span:nth-child(2){width:10px}
-.menu{position:fixed;inset:0;z-index:40;background:#141211;color:#f2eee6;overflow:auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) max(20px,calc((100vw - 1320px)/2 + 20px)) 28px}
+.menu{position:fixed;inset:0;z-index:40;background:#241f27;color:#f2eee6;overflow:auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) max(20px,calc((100vw - 1320px)/2 + 20px)) 28px}
 .menu-top{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid rgba(242,238,230,.25);padding-bottom:12px}
-.menu-top .eyebrow{color:#a69f94}
+.menu-top .eyebrow{color:#b3a8bd}
 .menu-x{width:44px;height:37px;border-radius:2px;border:1px solid #f2eee6;background:transparent;color:#f2eee6;font-size:1.3rem;line-height:1}
-.menu-x:hover{background:#f2eee6;color:#141211}
+.menu-x:hover{background:#f2eee6;color:#241f27}
 .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,64px);margin-block:auto;padding-block:32px;align-items:start}
-.menu-cols h4{margin:0 0 4px;font:500 .7rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:#a69f94;padding-bottom:12px;border-bottom:1px solid #f2eee6}
+.menu-cols h4{margin:0 0 4px;font:500 .7rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:#b3a8bd;padding-bottom:12px;border-bottom:1px solid #f2eee6}
 .menu-cols a{display:grid;grid-template-columns:38px 1fr;gap:6px;align-items:baseline;padding:14px 0;color:inherit;text-decoration:none;border-bottom:1px solid rgba(242,238,230,.16)}
-.menu-cols a i{font:400 .74rem var(--body);font-style:normal;color:#a69f94;font-variant-numeric:tabular-nums}
+.menu-cols a i{font:400 .74rem var(--body);font-style:normal;color:#b3a8bd;font-variant-numeric:tabular-nums}
 .menu-cols a b{display:block;font-family:var(--display);font-weight:500;font-size:clamp(1.6rem,2.6vw,2.3rem);line-height:1.08}
-.menu-cols a small{display:block;font-size:.84rem;color:#a69f94;margin-top:3px}
+.menu-cols a small{display:block;font-size:.84rem;color:#b3a8bd;margin-top:3px}
 .menu-cols a:hover b{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
-.menu-cols a.on i{color:#e08a6c;font-weight:600}
-.menu-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;font-size:.76rem;color:#a69f94}
+.menu-cols a.on i{color:#b9a4cc;font-weight:600}
+.menu-foot{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;font-size:.76rem;color:#b3a8bd}
 .menu-foot .btn{border-color:#f2eee6;color:#f2eee6}
-.menu-foot .btn:hover{background:#f2eee6;color:#141211}
+.menu-foot .btn:hover{background:#f2eee6;color:#241f27}
 
 /* portada partida: texto a la izquierda, fotografía sin velo a la derecha */
 #v-inicio.view{padding-top:0}
@@ -461,7 +461,8 @@ nav.quicknav a.on{border-bottom-color:var(--gold);font-weight:600}
 .btn,.chip,.menu-btn,.menu-x,.ibtn,.sun,.hint3,.where,.sheet .close,.builder input,.builder select,.sheet select,.toast,.tip3,.rooms span{border-radius:8px}
 .visit3{border-radius:12px}.visit3 button{border-radius:7px}
 .v3 .side,.sheet,.card .ph,.plan,.stage img,.intro figure img,.amb img,.side img{border-radius:12px}
-.sheet,.plan,.card .ph{overflow:hidden}
+.plan,.card .ph{overflow:hidden}
+.sheet{overflow:auto;overscroll-behavior:contain}
 .thumbs button img{border-radius:6px}
 .stage .arrows button{border-radius:8px}
 .intro figcaption{border-radius:0 8px 0 12px}
@@ -1302,7 +1303,7 @@ window.start3D=function(){
     [[252,385],[295,385],[338,385],[382,385],[467,385],[504,385],[583,387],[622.5,387],[723,370],[764,370],[804,370],[846,370],[886,370],[926,370],[967.5,370],[886,291],[926,291],[967.5,291]].forEach((c,i)=>mk(c[0],c[1],Math.PI/2,i));[[88,71],[105,112]].forEach((c,i)=>mk(c[0],c[1],ST.rot,i+2))}
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
-  ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
+  ['pb','pa'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
     {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=lvl==='pb'&&PBREC.rects?new THREE.BufferGeometry():wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,FH-5);/* hasta la losa: con 40 quedaba una franja de cielo de 0,2 m entre muro y techo */w.visible=cut||!!walk}}
     if(lvl==='tc'){const fs=grp.getObjectByName('floor_salon');if(fs&&fs.isMesh){const sh=shape([[316,128],[531,128],[531,411],[316,411]]);sh.holes.push(new THREE.Path([[401,135.7],[448.6,135.7],[448.6,174.1],[401,174.1]].map(p=>new THREE.Vector2(p[0],-p[1]))));const ge=new THREE.ExtrudeGeometry(sh,{depth:1.2,bevelEnabled:false});ge.rotateX(-Math.PI/2);ge.translate(0,.4,0);fs.geometry.dispose();fs.geometry=ge}}   // hueco de la escalera oeste (plano de terraza)
     {const old=[];grp.traverse(o=>{if(o.isMesh&&(/^(car\d|tire)$/.test(o.material.name||'')||/^(win|light)/.test(o.name)))old.push(o)});old.forEach(o=>o.parent.remove(o))}
@@ -1385,6 +1386,18 @@ window.start3D=function(){
     mk(B.solid,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95}));mk(B.glass,new THREE.MeshPhysicalMaterial({color:0x9fc0d0,roughness:.1,transparent:true,opacity:.28,depthWrite:false}));
     root.add(grp);PBREC.rects=rects;root.traverse(o=>{if(o.isMesh&&o.name==='walls'&&o.userData.level==='pb'&&!grp.children.includes(o)){o.geometry.dispose();o.geometry=new THREE.BufferGeometry()}});   // retira los muros trazados de planta baja
     if(cut)applyCut();if(floor!=='all'){const b=$('#floor3 .chip.on');if(b)b.click()}shadowDirty()},undefined,()=>{});
+  /* terraza comunal reconstruida en Blender (models/terraza-tc.glb, en metros): hall y bar con sus muros, ventanas y puertas, baños,
+     cocina, BBQ, mobiliario, jardineras con vegetación y pretiles. Mismo origen y escala que la planta baja. */
+  gltf.load('models/terraza-tc.glb',g=>{const SX=14.58,SZ=14.65,SY=14.6,OX=24+35.45*SX,OZ=28+16.54*SZ;g.scene.updateMatrixWorld(true);
+    const skip=/Cubiertas_inaccesibles|Circulacion_vertical|Losa/,B={solid:{p:[],c:[]},glass:{p:[],c:[]}};
+    g.scene.traverse(o=>{if(!o.isMesh||skip.test(o.name))return;let ge=o.geometry.clone();ge.applyMatrix4(o.matrixWorld);if(ge.index)ge=ge.toNonIndexed();
+      const pos=ge.attributes.position,col=ge.attributes.color,k=col&&col.array instanceof Uint8Array?1/255:1,t=/Vidrio/.test(o.name)?B.glass:B.solid;
+      for(let i=0;i<pos.count;i++){t.p.push(pos.getX(i),pos.getY(i),pos.getZ(i));if(col)t.c.push(Math.pow(col.getX(i)*k,2.2),Math.pow(col.getY(i)*k,2.2),Math.pow(col.getZ(i)*k,2.2));else t.c.push(.85,.83,.78)}});
+    const grp=new THREE.Group();grp.scale.set(SX,SY,SZ);grp.position.set(OX,LV.tc+2+LIDX.tc*gap,OZ);Object.assign(grp.userData,{level:'tc',baseY:LV.tc+2});
+    const mk=(t,mat)=>{if(!t.p.length)return;const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(t.p,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(t.c,3));ge.computeVertexNormals();
+      const m=new THREE.Mesh(ge,mat);m.castShadow=m.receiveShadow=true;m.userData.level='tc';grp.add(m)};
+    mk(B.solid,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95}));mk(B.glass,new THREE.MeshPhysicalMaterial({color:0x9fc0d0,roughness:.1,transparent:true,opacity:.28,depthWrite:false}));
+    root.add(grp);if(floor!=='all'){const b=$('#floor3 .chip.on');if(b)b.click()}shadowDirty()},undefined,()=>{});
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
   const brick=new THREE.MeshStandardMaterial({color:0x9e4f36,roughness:.9});
   const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<8;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.count=k;cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
@@ -1393,8 +1406,7 @@ window.start3D=function(){
   [[300,112],[742,118],[862,330]].forEach(p=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,18,10),new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:.5,metalness:.4}));c.position.set(p[0],LV.pa+FH+9,p[1]+PA_DZ);c.castShadow=true;c.userData.level='pa';root.add(c)});   // chimeneas
   // núcleos, salón de terraza, cubierta
   prism(CORES[2],0,FH-5,M.terra,{core:1});
-  const salonRoof=box(325,130,507,243,LV.tc+33.4,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
-  glazing([[362,243],[505,243]],'pa',LV.tc-6,{common:'Salón de la terraza comunal'});
+  const salonRoof=box(318,128,512,243,LV.tc+42,4,M.slab,{common:'Salón de la terraza comunal',level:'tc'});meshes.push(salonRoof);
   const terr=prism([[333,243],[513,243],[513,399],[333,399]],LV.tc,2,M.deck,{common:'Terraza comunal abierta',level:'tc'});meshes.push(terr);
   // pérgola techada de la terraza: cubierta de madera sobre columnas delgadas, con ventiladores (según el render)
   {const roofM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.8});const cover=box(333,243,513,399,LV.tc+34,4,roofM,{common:'Terraza comunal techada',level:'tc'});cover.userData.level='tc';meshes.push(cover);
@@ -1453,10 +1465,9 @@ window.start3D=function(){
       ['sofa',505,316,28,10,90],['sofa',486,335,28,10,180],['ctable',482,316,14,8],       // sala exterior este (L)
       ['counter',456,372,112,12],                                                         // BBQ
     ]};
-  Object.entries(OUT).forEach(([lvl,items])=>items.forEach(it=>{const [t,cx,cy,w,d,rot]=it;const g=new THREE.Group();F[t](g,w||10,d||10);g.position.set(cx,LV[lvl]+1.6,cy);g.rotation.y=-(rot||0)*Math.PI/180;g.userData.level=lvl;g.userData.interior=true;root.add(g)}));
+  Object.entries(OUT).filter(e=>e[0]!=='tc').forEach(([lvl,items])=>items.forEach(it=>{const [t,cx,cy,w,d,rot]=it;const g=new THREE.Group();F[t](g,w||10,d||10);g.position.set(cx,LV[lvl]+1.6,cy);g.rotation.y=-(rot||0)*Math.PI/180;g.userData.level=lvl;g.userData.interior=true;root.add(g)}));
   // jardineras de planta alta (triángulos junto al lindero este) y de la terraza comunal (banda perimetral)
   [[[905,190],[950,190],[950,300],[935,300]],[[940,330],[960,330],[960,365],[950,365]]].forEach(p=>{prism(p,LV.pa,10,M.planter);const [x0,y0,x1,y1]=bbox(p);for(let i=0;i<6;i++){const f=new THREE.Mesh(new THREE.SphereGeometry(5,7,6),M.leaf[i%4]);f.position.set(x0+5+((i*31)%(x1-x0-8)),LV.pa+13,y0+5+((i*17)%(y1-y0-8)));f.userData.level='pa';root.add(f)}});
-  [[316,274,333,411],[513,132,531,411],[316,399,531,411]].forEach(b=>{box(b[0],b[1],b[2],b[3],LV.tc,10,M.planter);for(let x=b[0]+6;x<b[2];x+=14)for(let z=b[1]+6;z<b[3];z+=14){const f=new THREE.Mesh(new THREE.SphereGeometry(4.5,7,6),M.leaf[(x+z)%4]);f.position.set(x,LV.tc+13,z);f.userData.level='tc';root.add(f)}});
   {const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1.2,34,8),M.column);m.position.set(353,LV.tc+17,375);m.userData.level='tc';root.add(m);const h=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),lampM);h.position.set(353,LV.tc+35,375);h.userData.level='tc';root.add(h)}
   };
   __outdoor();
@@ -1756,9 +1767,9 @@ window.start3D=function(){
     else if(walk.goal){const gx=walk.goal[0]-walk.x,gz=walk.goal[1]-walk.z,l=Math.hypot(gx,gz);if(l<3||!move(gx/l*.55,gz/l*.55)||--walk.goal[2]<0)walk.goal=null;wake(6)}}
   function miniMap(){const c=$('#mini3'),x=c.getContext('2d'),b=walk.bb,sc=Math.min(c.width/(b[2]-b[0]),c.height/(b[3]-b[1]))*.9,ox=(c.width-(b[2]-b[0])*sc)/2-b[0]*sc,oz=(c.height-(b[3]-b[1])*sc)/2-b[1]*sc;
     x.clearRect(0,0,c.width,c.height);x.fillStyle='#f1eee7';walk.polys.forEach(p=>{x.beginPath();p.forEach((q,i)=>i?x.lineTo(q[0]*sc+ox,q[1]*sc+oz):x.moveTo(q[0]*sc+ox,q[1]*sc+oz));x.fill()});
-    x.fillStyle='#141211';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
-    const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(164,67,43,.25)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
-    x.fillStyle='#a4432b';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
+    x.fillStyle='#241f27';walk.mrects.forEach(r=>x.fillRect(r[0]*sc+ox,r[1]*sc+oz,Math.max(1.5,(r[2]-r[0])*sc),Math.max(1.5,(r[3]-r[1])*sc)));
+    const px=walk.x*sc+ox,pz=walk.z*sc+oz,fx=-Math.sin(tv.theta),fz=-Math.cos(tv.theta);x.fillStyle='rgba(140,111,176,.3)';x.beginPath();x.moveTo(px,pz);x.arc(px,pz,34,Math.atan2(fz,fx)-.55,Math.atan2(fz,fx)+.55);x.fill();
+    x.fillStyle='#8c6fb0';x.beginPath();x.arc(px,pz,5,0,7);x.fill()}
   function exitWalk(){if(!walk)return;closeRender();$('#walkRender').hidden=true;rlbKey='';rlbInt=null;const p=walk.prev;walk=null;walkL.visible=false;amb.color.setHex(HEMI0[0]);amb.groundColor.setHex(HEMI0[1]);setHQ(hq);camP.near=40;camP.fov=38;camP.updateProjectionMatrix();PHI_MAX=1.52;el.classList.remove('walk');labels.forEach(l=>l.visible=true);applyCut();
     $('#sun').value=p.sun;daylight(p.sun);if(p.iso&&!iso)$('#iso3').click();theta=p.theta;phi=Math.min(1.3,p.phi);dist=p.dist;Object.keys(keys).forEach(k=>keys[k]=false);paint();wake(30)}
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();

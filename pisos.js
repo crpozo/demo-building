@@ -26,23 +26,12 @@
   /* Salón de la terraza comunal: contorno del piso del modelo (shape floor_salon). */
   var TC_POLY = [[316,128],[531,128],[531,411],[316,411]];
 
-  /* ESTADOS DE EJEMPLO. El brochure no publica disponibilidad ni precios.
+  /* Disponibilidad: hoy las diez unidades están disponibles.
      Editar solo este objeto: 'disponible' | 'reservado' | 'vendido'. */
   var PISOS_STATUS_EJEMPLO = {
-    ejemplo: true,
-    etiqueta: 'Estados de ejemplo',
-    map: {
-      1: 'disponible',
-      2: 'disponible',
-      3: 'vendido',
-      4: 'disponible',
-      5: 'reservado',
-      6: 'disponible',
-      7: 'vendido',
-      8: 'disponible',
-      9: 'disponible',
-      10: 'reservado'
-    }
+    ejemplo: false,
+    etiqueta: '',
+    map: { 1: 'disponible', 2: 'disponible', 3: 'disponible', 4: 'disponible', 5: 'disponible', 6: 'disponible', 7: 'disponible', 8: 'disponible', 9: 'disponible', 10: 'disponible' }
   };
 
   var MIN_Z = 0.7, MAX_Z = 4;
@@ -108,7 +97,7 @@
         '<div class="pisos-mini" aria-hidden="true"><img alt=""><div class="box"></div></div>' +
       '</div>' +
       '<aside class="pisos-panel" aria-live="polite"></aside>' +
-      '<div class="pisos-note">' + PISOS_STATUS_EJEMPLO.etiqueta + '</div>' +
+      (PISOS_STATUS_EJEMPLO.etiqueta ? '<div class="pisos-note">' + PISOS_STATUS_EJEMPLO.etiqueta + '</div>' : '') +
       '<div class="pisos-lb" hidden><button class="x" type="button" aria-label="Cerrar">×</button><img alt="Plano del departamento"></div>';
 
     var viewport = root.querySelector('.pisos-viewport');
