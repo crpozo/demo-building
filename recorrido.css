@@ -43,3 +43,9 @@
   .rec-yo::before{left:-26px;top:-26px;width:52px;height:52px}
 }
 @media (prefers-reduced-motion:reduce){.rec-bar i,.rec-tip{transition:none}}
+
+/* unidades sin panorámicas todavía: ambientes como lista de texto */
+.rec .rec-sinfotos{grid-template-columns:1fr 1fr;gap:8px}
+.rec .rec-sinfotos button{border:1px solid var(--line,#d6d1c7);border-radius:var(--radius,2px);padding:9px 10px}
+.rec .rec-sinfotos .intr-cap{margin-top:0}
+.rec .rec-sinfotos button.is-on{border-color:var(--fg,#141211)}

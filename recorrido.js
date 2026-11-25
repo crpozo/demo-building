@@ -8,17 +8,25 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-const RECORRIDOS = {
-  1: {
-    piso: 'Planta baja',
-    glb: 'models/d1.glb', glbMovil: 'models/d1_m.glb', nav: 'models/d1_nav.json',
-    entorno: 'models/entorno.webp', entornoMovil: 'models/entorno_m.webp',
-    /* plano de la unidad y cómo pasar de metros del modelo a px del jpg: px = x0 + m * k */
-    plano: { src: 'img/pisos/u1.jpg', w: 920, h: 608, x0: 33, y0: 31, k: 49.9 },
-    panos: 'img/interiores/d1/pano_',
-    nombres: { sala: 'Sala', comedor: 'Comedor', cocina: 'Cocina', dormitorio_1: 'Dormitorio 1', dormitorio_master: 'Dormitorio máster' }
-  }
+/* Por unidad: planta, tamaño del jpg del plano y cómo pasar de metros del modelo a px del jpg (px = x0 + m * k),
+   y si ya tiene panorámicas de respaldo. Los archivos salen del número: models/d<N>.glb, d<N>_m.glb, d<N>_nav.json,
+   img/pisos/u<N>.jpg, img/interiores/d<N>/pano_<ambiente>.webp.  PUBLICADOS = unidades cuyo GLB ya está subido. */
+const PUBLICADOS = [1, 2, 3];
+const PLANOS = {
+  1: ['pb', 920, 608, 33, 31, 50], 2: ['pb', 712, 670, 34, 31, 50], 3: ['pb', 904, 608, 33, 31, 50], 4: ['pb', 923, 670, 29, 31, 50],
+  5: ['pa', 647, 671, 31, 32, 42.86], 6: ['pa', 712, 671, 116, 32, 42.86], 7: ['pa', 815, 552, 35, 31, 50], 8: ['pa', 931, 616, 33, 31, 50],
+  9: ['pa', 931, 670, 29, 31, 40.65], 10: ['pa', 912, 552, 33, 31, 40.65]
 };
+const CON_PANOS = [1, 2, 3];
+const NOMBRES = { sala: 'Sala', comedor: 'Comedor', cocina: 'Cocina', sala_de_estar: 'Sala de estar', dormitorio_master: 'Dormitorio máster',
+  dormitorio_1: 'Dormitorio 1', dormitorio_2: 'Dormitorio 2' };
+const RECORRIDOS = {};
+PUBLICADOS.forEach(n => { const p = PLANOS[n]; RECORRIDOS[n] = {
+  piso: p[0] === 'pb' ? 'Planta baja' : 'Planta alta',
+  glb: `models/d${n}.glb`, glbMovil: `models/d${n}_m.glb`, nav: `models/d${n}_nav.json`,
+  entorno: 'models/entorno.webp', entornoMovil: 'models/entorno_m.webp',
+  plano: { src: `img/pisos/u${n}.jpg`, w: p[1], h: p[2], x0: p[3], y0: p[4], k: p[5] },
+  panos: CON_PANOS.includes(n) ? `img/interiores/d${n}/pano_` : null, nombres: NOMBRES }; });
 
 const ALTURA = 1.55, VEL = 1.9, PITCH_MAX = THREE.MathUtils.degToRad(60), FOV0 = 62, FOV_MIN = 50, FOV_MAX = 75;
 const has = n => Object.prototype.hasOwnProperty.call(RECORRIDOS, String(n));
@@ -195,7 +203,9 @@ function cargarModelo(cfg, token) {
     g.scene.traverse(o => {
       if (!o.isMesh) return;
       if (o.material.map) o.material.map.anisotropy = aniso;
-      if (o.material.transparent) { o.material.depthWrite = false; o.renderOrder = 2; }
+      if (o.material.transparent) {            // vidrio: casi invisible, para que no lave el color del jardín
+        o.material.depthWrite = false; o.renderOrder = 2; o.material.color.setRGB(0.45, 0.52, 0.5); o.material.opacity = 0.07;
+      }
     });
     /* fondo detrás de los vidrios: el mismo HDRI de los renders, ya con su look, en vez de un cielo plano */
     new THREE.TextureLoader().load(movil ? cfg.entornoMovil : cfg.entorno, t => {
@@ -256,8 +266,9 @@ function armarPanel() {
   const cfg = st.cfg, n = st.n;
   ui.unit.textContent = 'Departamento ' + n; ui.count.textContent = cfg.piso;
   ui.planImg.src = cfg.plano.src; ui.planImg.alt = 'Plano del departamento ' + n;
+  ui.thumbs.classList.toggle('rec-sinfotos', !cfg.panos);
   ui.thumbs.innerHTML = st.nav.puntos.map((p, k) =>
-    `<button type="button" data-room="${esc(p.id)}"><span class="intr-th"><img src="${esc(cfg.panos + p.id)}_m.webp" alt="" draggable="false" decoding="async"></span>` +
+    `<button type="button" data-room="${esc(p.id)}">` + (cfg.panos ? `<span class="intr-th"><img src="${esc(cfg.panos + p.id)}_m.webp" alt="" draggable="false" decoding="async"></span>` : '') +
     `<span class="intr-cap"><i>${k < 9 ? '0' : ''}${k + 1}</i>${esc(cfg.nombres[p.id] || p.nombre)}</span></button>`).join('');
   ui.thumbs.querySelectorAll('img').forEach(im => { const ok = () => im.classList.add('is-ready'); if (im.complete && im.naturalWidth) ok(); else im.addEventListener('load', ok); });
   st.room = null;
@@ -309,7 +320,7 @@ async function open(n, roomId) {
     st.x = pt ? pt.pos[0] : ini.pos[0]; st.z = pt ? pt.pos[2] : ini.pos[2];
     st.yaw = Math.atan2(ini.mirar[0] - ini.pos[0], -(ini.mirar[2] - ini.pos[2]));      // arranca mirando hacia la sala y el comedor
     armarPanel();
-    if (sinWebGL()) throw new Error('sin WebGL');
+    if (sinWebGL()) { if (!cfg.panos) { ui.load.classList.add('is-err'); ui.loadT.textContent = 'Este recorrido necesita un navegador con WebGL.'; return false; } throw new Error('sin WebGL'); }
     st.modo = '3d'; ui.pano.hidden = true; ui.canvas.hidden = false; textos();
     crearGL();
     if (!c.scene) c.scene = await cargarModelo(cfg, token);
@@ -322,6 +333,7 @@ async function open(n, roomId) {
   } catch (err) {
     if (token !== st.token) return true;
     if (!st.nav) { ui.load.classList.add('is-err'); ui.loadT.textContent = 'No se pudo cargar el recorrido de este departamento.'; return false; }
+    if (!cfg.panos) { ui.load.classList.add('is-err'); ui.loadT.textContent = 'No se pudo cargar el recorrido de este departamento.'; return false; }
     st.modo = 'pano'; ui.canvas.hidden = true; ui.pano.hidden = false; textos();      // respaldo: panorámicas
     panoShow(roomId || st.nav.puntos[0].id); ui.load.hidden = true;
   }
@@ -339,7 +351,7 @@ function close() {
 }
 
 /* ---------- enganche con el sitio ---------- */
-const api = { has, open, close, roomFor, isOpen: () => st.open, estado: () => ({ modo: st.modo, x: st.x, z: st.z, yaw: st.yaw, fps: gl ? gl.fps : 0, movil: esMovil() }), _st: st };
+const api = { has, open, close, roomFor, isOpen: () => st.open, estado: () => ({ modo: st.modo, x: st.x, z: st.z, yaw: st.yaw, fps: gl ? gl.fps : 0, movil: esMovil() }), _st: st, _mover: mover, _caminable: (x, z) => caminable(x, z) };
 window.AlheliRecorrido = api;
 const A = window.AlheliInteriores;
 if (A) {
@@ -354,7 +366,7 @@ if (A) {
 /* #interior/1 o #interior/1/sala: abre directo */
 function desdeHash() {
   const m = /^#interior\/(\d+)(?:\/([\w-]+))?\/?$/.exec(location.hash || '');
-  if (m && has(m[1])) { if (!st.open || st.n !== Number(m[1])) open(Number(m[1]), m[2] || null); }
+  if (m && has(m[1])) { if (!st.open || st.n !== Number(m[1])) open(Number(m[1]), m[2] || null); else if (m[2] && st.nav) irA(m[2]); }
   else if (st.open && !/^#interior\//.test(location.hash)) close();
 }
 window.addEventListener('hashchange', desdeHash);
