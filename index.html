@@ -563,10 +563,20 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 .side-x:hover{border-color:var(--fg)}
 .load3{position:absolute;inset:0;margin:0;display:grid;place-items:center;font-size:.9rem;color:var(--muted);background:#eef1ea;z-index:1}
 .sheet.solo{width:min(480px,100%)}.sheet.solo h2{font-size:1.9rem}.sheet.solo .bd{padding:22px}
+.p3,.v3 .side{touch-action:pan-y;overscroll-behavior:contain}
+.p3-n{min-height:0}.p3-n:empty{display:none}
+.p3-g{padding:9px 0;gap:4px}
+.p3-more summary{font:600 .78rem var(--body);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:2px 0}
+.p3-more summary::-webkit-details-marker{display:none}
+.p3-more summary::after{content:'+';font-size:1.1rem;font-weight:400}
+.p3-more[open] summary::after{content:'–'}
+.p3-more[open] summary{margin-bottom:6px}
+.p3-sub{margin-top:6px!important}
+.p3{overflow-x:hidden;overflow-y:auto}
 </style>
-<link rel="stylesheet" href="pisos.css">
-<link rel="stylesheet" href="interiores.css">
-<link rel="stylesheet" href="recorrido.css">
+<link rel="stylesheet" href="pisos.css?v=1125b">
+<link rel="stylesheet" href="interiores.css?v=1125b">
+<link rel="stylesheet" href="recorrido.css?v=1125b">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 
 <header class="top" id="top">
@@ -672,7 +682,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
         <canvas id="c3"></canvas>
         <button class="chip p3-toggle" id="p3Toggle" aria-expanded="true" aria-controls="p3">Filtros y vista</button>
         <aside class="p3" id="p3" aria-label="Filtros y vista del edificio">
-          <div class="p3-g"><h4>Planta</h4>
+          <div class="p3-g"><h4>Piso</h4>
             <div class="seg" id="floor3">
               <button class="chip on" data-fl="all">Todo</button>
               <button class="chip" data-fl="pb">Baja</button>
@@ -680,7 +690,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
               <button class="chip" data-fl="tc">Terraza</button>
             </div>
           </div>
-          <div class="p3-g"><h4>Departamentos</h4>
+          <div class="p3-g"><h4>Dormitorios</h4>
             <div class="seg" id="dorm3">
               <button class="chip on" data-d="all">Todos</button>
               <button class="chip" data-d="1">1 dorm.</button>
@@ -688,24 +698,25 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
               <button class="chip" data-d="3">3 dorm.</button>
             </div>
             <button class="chip tg" id="disp3" aria-pressed="false">Solo disponibles</button>
-            <button class="chip tg" id="status3">Colorear por estado</button>
+            <button class="chip tg" id="status3" hidden>Colorear por estado</button>
             <p class="p3-n" id="match3"></p>
           </div>
           <div class="p3-g"><h4>Interiores</h4>
-            <button class="chip tg" id="cut3">Ver interiores</button>
-            <button class="chip tg" id="explode3">Separar plantas</button>
+            <button class="chip tg" id="cut3">Ver por dentro, sin techos</button>
+            <button class="chip tg" id="explode3">Separar los pisos</button>
+            <h4 class="p3-sub">Decoración</h4>
             <div class="seg" id="style3" aria-label="Estilo de decoración">
               <button class="chip on" data-st="moderno">Moderno</button>
               <button class="chip" data-st="indie">Indie</button>
               <button class="chip" data-st="tradicional">Tradicional</button>
             </div>
           </div>
-          <div class="p3-g"><h4>Cámara y hora</h4>
+          <details class="p3-g p3-more"><summary>Cámara y hora del día</summary>
             <button class="chip tg on" id="iso3">Isométrica</button>
             <button class="chip tg" id="pan3" title="Arrastrar para desplazarse">Arrastrar para mover</button>
             <label class="sun"><span aria-hidden="true">Día</span><input type="range" id="sun" min="0" max="100" value="58" aria-label="Hora del día"><span aria-hidden="true">Noche</span></label>
             <div class="p3-r"><button class="ibtn" id="home3" aria-label="Centrar vista" title="Centrar vista">Centrar</button><button class="ibtn" id="full3" aria-label="Pantalla completa" title="Pantalla completa">Pantalla completa</button></div>
-          </div>
+          </details>
         </aside>
         <div class="where" id="where3"></div>
         <div class="walkbar"><div id="rooms3"></div><button class="chip" id="walkRender" hidden title="Render del brochure de este tipo de ambiente">Ver render</button><button class="chip on" id="walkExit">Salir</button></div>
@@ -774,7 +785,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
-<script src="pisos.js"></script>
+<script src="pisos.js?v=1125b"></script>
 <script>
 const UNITS=[
  {n:1,planta:'pb',dorm:2,cub:116.08,ext:29.59,extName:'Patio',bbq:12.42,rooms:['Sala','Comedor','Cocina','Lavandería','Baño social','Dormitorio máster','Dormitorio 1','BBQ','Patio'],pos:[41.3,44.8]},
@@ -1033,9 +1044,9 @@ function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(wind
 renderAll(); route();
 </script>
 <script>AlheliPisos.init({mount:'#pisosApp'});</script>
-<script src="interiores.js"></script>
+<script src="interiores.js?v=1125b"></script>
 <script>AlheliInteriores.init();</script>
-<script type="module" src="recorrido.js"></script>
+<script type="module" src="recorrido.js?v=1125b"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
@@ -1715,7 +1726,7 @@ window.start3D=function(){
     pick(e,false)});
   el.addEventListener('pointerup',e=>{if(drag&&!moved){if(walk)walkTo(e);else pick(e,true)}drag=null});
   el.addEventListener('pointercancel',()=>drag=null);
-  el.addEventListener('wheel',e=>{e.preventDefault();if(walk)return;auto=false;
+  el.addEventListener('wheel',e=>{if(e.target.closest('.p3,.side'))return;   /* los paneles hacen scroll normal */e.preventDefault();if(walk)return;auto=false;
     if(e.shiftKey){pan(0,-e.deltaY*.6);return}
     if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){pan(-e.deltaX*.6,0);return}
     const k=Math.exp(Math.sign(e.deltaY)*.12);const nd=Math.min(2300,Math.max(140,dist*k));
