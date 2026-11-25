@@ -562,6 +562,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 .side-x{align-self:flex-end;flex:none;width:34px;height:34px;margin:-6px -6px -10px 0;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--fg);font-size:1.25rem;line-height:1;display:grid;place-items:center;position:sticky;top:0;z-index:1}
 .side-x:hover{border-color:var(--fg)}
 .load3{position:absolute;inset:0;margin:0;display:grid;place-items:center;font-size:.9rem;color:var(--muted);background:#eef1ea;z-index:1}
+.sheet.solo{width:min(480px,100%)}.sheet.solo h2{font-size:1.9rem}.sheet.solo .bd{padding:22px}
 </style>
 <link rel="stylesheet" href="pisos.css">
 <link rel="stylesheet" href="interiores.css">
@@ -855,21 +856,18 @@ function pasos(){const d=J.d,n=J.top(),u=UNITS.find(x=>x.n===n),rec=Object.keys(
     {ok:!!d.vistas.edificio,t:'Edificio 3D y entorno',s:d.vistas.edificio?'Visto '+d.vistas.edificio+(d.vistas.edificio>1?' veces':' vez'):'Pendiente',k:'cómo se ubica en el edificio'},
     {ok:!!d.vistas.planos,t:'Planos',s:d.vistas.planos?'Consultados':'Pendiente',k:'la distribución de la planta'},
     {ok:!!d.vistas.avance,t:'Avance de obra',s:d.vistas.avance?'Al día: '+obraTotal()+'% a '+OBRA.actualizado:'Pendiente',k:'en qué etapa está la obra'}]}
-function mensaje(n){const u=UNITS.find(x=>x.n===n),ok=pasos().slice(1).filter(p=>p.ok).map(p=>p.t.toLowerCase());
-  return 'Hola, recorrí el showroom virtual de Alhelí.'+(u?' Me interesa el '+unitLine(u)+'.':'')+(ok.length?' Ya vi: '+ok.join(', ')+'.':'')+' Quisiera coordinar una visita.'}
+function mensaje(n){const u=UNITS.find(x=>x.n===n);return 'Hola, vi el showroom virtual de Alhelí.'+(u?' Me interesa el Departamento '+u.n+' ('+PLANTA[u.planta].toLowerCase()+', '+u.dorm+' dormitorio'+(u.dorm>1?'s':'')+', '+m2(total(u))+').':'')+' Quisiera coordinar una visita.'}
 function openAsesor(n){if(n){J.d.fav=n;J.save()}const sel=n||J.top()||'';
   const sh=$('#sheet');sh.className='sheet solo';
   sh.innerHTML=`<div class="bd">
     <div style="display:flex;align-items:center;gap:10px"><div class="eyebrow">Asesor comercial</div><button class="close" aria-label="Cerrar">×</button></div>
     <h2 id="mTitle">Hablar con un asesor</h2>
-    <p class="muted" style="font-size:.9rem">El asesor recibe lo que usted ya recorrió, para que la reunión empiece donde quedó el showroom.</p>
-    <ul class="steps">${pasos().map(p=>`<li class="${p.ok?'ok':''}"><i>✓</i><span>${p.t}<small>${p.s}</small></span></li>`).join('')}</ul>
     <label>Departamento de interés<select id="asSel"><option value="">Aún no lo decido</option>${UNITS.map(u=>`<option value="${u.n}"${u.n===sel?' selected':''}>Departamento ${u.n} · ${u.dorm} dorm. · ${m2(total(u))} · ${status(u.n)}</option>`).join('')}</select></label>
     <div class="msg" id="asMsg"></div>
     <div class="actions"><a class="btn gold" id="asWa" target="_blank" rel="noopener">Enviar por WhatsApp</a><button class="btn ghost" id="asCopy">Copiar mensaje</button></div>
   </div>`;
   const upd=()=>{const v=+$('#asSel').value||null;if(v!==J.d.fav){J.d.fav=v;J.save()}const m=mensaje(v);$('#asMsg').textContent=m;$('#asWa').href='https://wa.me/'+CONTACTO.whatsapp+'?text='+encodeURIComponent(m)};
-  $('#asSel').onchange=()=>{upd();const li=$('#sheet .steps li'),p=pasos()[0];li.className=p.ok?'ok':'';li.querySelector('span').innerHTML=`${p.t}<small>${p.s}</small>`};
+  $('#asSel').onchange=upd;
   $('#asWa').onclick=()=>{J.d.contacto++;J.save()};
   $('#asCopy').onclick=()=>{const m=$('#asMsg').textContent;(navigator.clipboard?navigator.clipboard.writeText(m):Promise.reject()).then(()=>toast('Mensaje copiado'),()=>toast('No se pudo copiar; selecciónelo manualmente'));J.d.contacto++;J.save()};
   upd();$('#modal').classList.add('on');$('#sheet .close').focus()}
