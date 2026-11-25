@@ -205,19 +205,80 @@ function crearGL() {
   gl = { renderer, scene, cam, marca, cesped, modelo: null, frames: 0, fpsT: 0, fps: 0 };
   return gl;
 }
-/* Estilos de decoración: tiñen los materiales del modelo (muebles, carpintería, piso y muros). «Natural» es el modelo tal como viene. */
+/* Estilos de decoración. Cada estilo cambia el diseño, no solo el color: alfombra propia (forma y dibujo), plantas, lámpara de pie,
+   puf o mesa auxiliar, ubicados con las huellas de los muebles del nav (caminable.huecos). El tinte de superficies es leve. */
 const ESTILOS = {
   natural:     { t: 'Natural',     muestra: '#e8dcc8', muebles: 0xffffff, carp: 0xffffff, piso: 0xffffff, muros: 0xffffff },
-  moderno:     { t: 'Moderno',     muestra: '#8d9299', muebles: 0xa9aeb6, carp: 0x6f6f72, piso: 0xdcdcdc, muros: 0xf2f3f4 },
-  indie:       { t: 'Indie',       muestra: '#c9805a', muebles: 0xe0a47e, carp: 0xc98a52, piso: 0xe2bf96, muros: 0xf6e7cf },
-  tradicional: { t: 'Tradicional', muestra: '#7a4f38', muebles: 0xc9a482, carp: 0x8a5c40, piso: 0xb98f68, muros: 0xeee0c8 },
-  lila:        { t: 'Lila',        muestra: '#b9a4cc', muebles: 0xcbbbdc, carp: 0xb9a4a0, piso: 0xe9e2ec, muros: 0xf3eef6 }
+  moderno:     { t: 'Moderno',     muestra: '#8d9299', muebles: 0xdfe1e4, carp: 0x8f8a86, piso: 0xeeeeee, muros: 0xf6f6f6 },
+  indie:       { t: 'Indie',       muestra: '#c9805a', muebles: 0xf6e6d2, carp: 0xe0b58a, piso: 0xf3e2c8, muros: 0xfaf0dc },
+  tradicional: { t: 'Tradicional', muestra: '#7a4f38', muebles: 0xead9c2, carp: 0xa87850, piso: 0xdcc3a2, muros: 0xf3e8d4 },
+  lila:        { t: 'Lila',        muestra: '#b9a4cc', muebles: 0xf1ebf5, carp: 0xd8ccc8, piso: 0xf2eef4, muros: 0xf6f2f8 }
 };
-let estilo = 'natural';
+let estilo = 'natural', decor = null;
+const texCache = {};
+function texAlfombra(tipo) {
+  if (texCache[tipo]) return texCache[tipo];
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  const R = (col, a, b, w, h) => { x.fillStyle = col; x.fillRect(a, b, w, h); };
+  if (tipo === 'moderno') { R('#9a9da2', 0, 0, 256, 256); for (let i = 0; i < 256; i += 6) R('rgba(255,255,255,.07)', 0, i, 256, 2); R('#3a3d42', 0, 0, 256, 6); R('#3a3d42', 0, 250, 256, 6); R('#3a3d42', 0, 0, 6, 256); R('#3a3d42', 250, 0, 6, 256); R('#e9e9ea', 150, 20, 5, 216); }
+  else if (tipo === 'indie') { const cs = ['#c8623c', '#e7c56a', '#2f7f7a', '#f1e3c8', '#b5475f']; for (let i = 0; i < 16; i++) R(cs[i % 5], 0, i * 16, 256, 16); x.fillStyle = '#f1e3c8'; for (let i = 0; i < 8; i++) for (let k = 0; k < 4; k++) { x.beginPath(); x.moveTo(i * 32 + 16, k * 64 + 20); x.lineTo(i * 32 + 28, k * 64 + 32); x.lineTo(i * 32 + 16, k * 64 + 44); x.lineTo(i * 32 + 4, k * 64 + 32); x.fill(); } }
+  else if (tipo === 'tradicional') { R('#7a1f24', 0, 0, 256, 256); R('#e2c38a', 10, 10, 236, 236); R('#7a1f24', 18, 18, 220, 220); R('#1f3350', 30, 30, 196, 196); R('#7a1f24', 38, 38, 180, 180); x.strokeStyle = '#e2c38a'; x.lineWidth = 3; for (let r = 20; r <= 70; r += 25) { x.beginPath(); x.ellipse(128, 128, r, r * 1.05, 0, 0, 7); x.stroke(); } x.fillStyle = '#e2c38a'; for (let a = 0; a < 8; a++) { x.beginPath(); x.arc(128 + Math.cos(a * .785) * 48, 128 + Math.sin(a * .785) * 48, 6, 0, 7); x.fill(); } }
+  else { R('#cbbbdc', 0, 0, 256, 256); x.strokeStyle = '#f3eef6'; x.lineWidth = 5; for (let i = -256; i < 256; i += 32) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 256, 256); x.stroke(); x.beginPath(); x.moveTo(i + 256, 0); x.lineTo(i, 256); x.stroke(); } R('#8c6fb0', 0, 0, 256, 8); R('#8c6fb0', 0, 248, 256, 8); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return texCache[tipo] = t;
+}
+const dentro = (x, z, p) => { let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) { const a = p[i], b = p[j]; if ((a[1] > z) !== (b[1] > z) && x < (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+function armarDecor() {
+  if (!gl) return;
+  if (decor) { gl.scene.remove(decor); decor.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } }); decor = null; }
+  const nav = st.nav; if (estilo === 'natural' || !nav || !nav.caminable || st.modo !== '3d') return;
+  const G = decor = new THREE.Group(), Y = nav.pisoY || 0, ext = nav.caminable.exterior, hs = nav.caminable.huecos || [];
+  const M = (c, o) => new THREE.MeshBasicMaterial(Object.assign({ color: c }, o || {}));
+  const add = (geo, mat, x, y, z, ry) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); if (ry) m.rotation.y = ry; G.add(m); return m; };
+  const libre = (x, z, r) => { for (let a = 0; a < 6.28; a += .785) { const px = x + Math.cos(a) * r, pz = z + Math.sin(a) * r; if (!dentro(px, pz, ext) || hs.some(h => dentro(px, pz, h))) return false; } return dentro(x, z, ext) && !hs.some(h => dentro(x, z, h)); };
+  const lejos = (x, z) => Math.min.apply(null, nav.puntos.map(p => Math.hypot(p.pos[0] - x, p.pos[2] - z)));
+  const planta = (x, z, h, maceta, hoja, tipo) => {
+    add(new THREE.CylinderGeometry(.17, .13, .34, 14), M(maceta), x, Y + .17, z);
+    if (tipo === 'lanza') for (let k = 0; k < 7; k++) { const a = k * .9; add(new THREE.ConeGeometry(.045, h, 5), M(k % 2 ? hoja : 0x2f5a34), x + Math.cos(a) * .07, Y + .34 + h / 2, z + Math.sin(a) * .07).rotation.set(Math.cos(a) * .16, 0, -Math.sin(a) * .16); }
+    else { add(new THREE.CylinderGeometry(.02, .025, h * .6, 6), M(0x5a4030), x, Y + .34 + h * .3, z); for (let k = 0; k < 5; k++) { const a = k * 1.26; add(new THREE.IcosahedronGeometry(.2 + (k % 2) * .06, 0), M(k % 2 ? hoja : 0x4f8a45), x + Math.cos(a) * .16, Y + .34 + h * (.55 + k * .09), z + Math.sin(a) * .16, a); } }
+  };
+  const lampara = (x, z, tipo) => {
+    add(new THREE.CylinderGeometry(.14, .16, .03, 18), M(tipo === 'moderno' ? 0x1c1c1e : 0x6a4a34), x, Y + .015, z);
+    add(new THREE.CylinderGeometry(.012, .012, 1.5, 8), M(tipo === 'moderno' ? 0x1c1c1e : 0x8a6a3a), x, Y + .75, z);
+    if (tipo === 'moderno') add(new THREE.SphereGeometry(.13, 18, 12), M(0xfff6e0), x, Y + 1.56, z);
+    else add(new THREE.CylinderGeometry(.14, .22, .3, 18, 1, true), M(tipo === 'tradicional' ? 0xf0dfc0 : tipo === 'lila' ? 0xe6dcf0 : 0xe9c38a, { side: THREE.DoubleSide }), x, Y + 1.58, z);
+  };
+  let nPl = 0;
+  hs.forEach((h, k) => {
+    let x0 = 1e9, z0 = 1e9, x1 = -1e9, z1 = -1e9; h.forEach(p => { x0 = Math.min(x0, p[0]); z0 = Math.min(z0, p[1]); x1 = Math.max(x1, p[0]); z1 = Math.max(z1, p[1]); });
+    const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0, d = z1 - z0; if (w * d < 1.6 || w * d > 16) return;
+    const pt = nav.puntos.slice().sort((a, b) => Math.hypot(a.pos[0] - cx, a.pos[2] - cz) - Math.hypot(b.pos[0] - cx, b.pos[2] - cz))[0]; if (!pt || !/sala|comedor|dormitorio/.test(pt.id)) return;
+    const esSala = /sala/.test(pt.id), esDorm = /dormitorio/.test(pt.id), m = esDorm ? .3 : .22, t = texAlfombra(estilo).clone(); t.needsUpdate = true;
+    // alfombra: redonda en Indie para sala y comedor, rectangular en el resto; nunca fuera del piso del departamento
+    let geo;
+    if (estilo === 'indie' && !esDorm) geo = new THREE.CircleGeometry(Math.max(w, d) / 2 + m, 48); else geo = new THREE.PlaneGeometry(w + m * 2, d + m * 2);
+    geo.rotateX(-Math.PI / 2); const al = add(geo, M(0xffffff, { map: t, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -6 }), cx, Y + .006, cz);
+    const esq = [[x0 - m, z0 - m], [x1 + m, z0 - m], [x1 + m, z1 + m], [x0 - m, z1 + m]]; if (!esq.every(e => dentro(e[0], e[1], ext))) { G.remove(al); }
+    if (esDorm) return;
+    // esquinas libres alrededor del mueble, las más apartadas del paso primero
+    const cand = []; [[x0, z0, -1, -1], [x1, z0, 1, -1], [x1, z1, 1, 1], [x0, z1, -1, 1]].forEach(c => { const px = c[0] + c[2] * .42, pz = c[1] + c[3] * .42; if (libre(px, pz, .26)) cand.push([px, pz, lejos(px, pz)]); });
+    cand.sort((a, b) => b[2] - a[2]);
+    const hoja = estilo === 'lila' ? 0x8fae8a : 0x5f9a4a, maceta = { moderno: 0x2a2a2c, indie: 0xc8623c, tradicional: 0x2f4a6a, lila: 0xb9a4cc }[estilo];
+    if (cand[0] && nPl < 4) { planta(cand[0][0], cand[0][1], estilo === 'indie' ? 1.25 : 1, maceta, hoja, estilo === 'moderno' ? 'lanza' : 'copa'); nPl++; }
+    if (esSala && cand[1]) lampara(cand[1][0], cand[1][1], estilo);
+    if (estilo === 'indie' && cand[2]) { planta(cand[2][0], cand[2][1], .8, 0xe7c56a, hoja, 'lanza'); nPl++; }
+    if (esSala && cand.length > 2) { const c = cand[cand.length - 1];                                             // puf o mesa auxiliar
+      if (estilo === 'indie') add(new THREE.CylinderGeometry(.24, .26, .36, 20), M(0xe7c56a), c[0], Y + .18, c[1]);
+      else if (estilo === 'tradicional') { add(new THREE.CylinderGeometry(.24, .24, .03, 20), M(0x5c3b26), c[0], Y + .55, c[1]); add(new THREE.CylinderGeometry(.03, .1, .54, 10), M(0x5c3b26), c[0], Y + .27, c[1]); add(new THREE.SphereGeometry(.08, 12, 8), M(0x2f4a6a), c[0], Y + .64, c[1]); }
+      else if (estilo === 'lila') add(new THREE.CylinderGeometry(.22, .22, .38, 20), M(0x8c6fb0), c[0], Y + .19, c[1]);
+      else add(new THREE.BoxGeometry(.4, .42, .4), M(0x2a2a2c), c[0], Y + .21, c[1]); }
+  });
+  gl.scene.add(G);
+}
 function aplicarEstilo() {
   const E = ESTILOS[estilo];
   if (gl && gl.modelo) gl.modelo.traverse(o => { if (!o.isMesh || o.material.transparent) return; const k = (o.material.name || '').split('_').pop(); if (E[k] !== undefined) o.material.color.setHex(E[k]); });
   if (ui) ui.root.querySelectorAll('[data-estilo]').forEach(b => b.classList.toggle('is-on', b.getAttribute('data-estilo') === estilo));
+  armarDecor();
 }
 function cargarModelo(cfg, token) {
   const movil = esMovil();

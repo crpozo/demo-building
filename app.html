@@ -569,9 +569,9 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 .p3-sub{margin-top:6px!important}
 .p3{overflow-x:hidden;overflow-y:auto}
 </style>
-<link rel="stylesheet" href="pisos.css?v=1125b">
-<link rel="stylesheet" href="interiores.css?v=1125b">
-<link rel="stylesheet" href="recorrido.css?v=1125b">
+<link rel="stylesheet" href="pisos.css?v=1125c">
+<link rel="stylesheet" href="interiores.css?v=1125c">
+<link rel="stylesheet" href="recorrido.css?v=1125c">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 
 <header class="top" id="top">
@@ -692,7 +692,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
               <button class="chip" data-d="2">2 dorm.</button>
               <button class="chip" data-d="3">3 dorm.</button>
             </div>
-            <button class="chip tg" id="disp3" aria-pressed="false">Solo disponibles</button>
+            <button class="chip tg" id="disp3" hidden aria-pressed="false">Solo disponibles</button>
             <button class="chip tg" id="status3" hidden>Colorear por estado</button>
             <p class="p3-n" id="match3"></p>
           </div>
@@ -780,7 +780,7 @@ nav.quicknav a.on{background:var(--fg);color:#fff;font-weight:500}
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
 
-<script src="pisos.js?v=1125b"></script>
+<script src="pisos.js?v=1125c"></script>
 <script>
 const UNITS=[
  {n:1,planta:'pb',dorm:2,cub:116.08,ext:29.59,extName:'Patio',bbq:12.42,rooms:['Sala','Comedor','Cocina','Lavandería','Baño social','Dormitorio máster','Dormitorio 1','BBQ','Patio'],pos:[41.3,44.8]},
@@ -1039,9 +1039,9 @@ function renderAll(){renderHub();renderObra();renderUnits();renderPlan();if(wind
 renderAll(); route();
 </script>
 <script>AlheliPisos.init({mount:'#pisosApp'});</script>
-<script src="interiores.js?v=1125b"></script>
+<script src="interiores.js?v=1125c"></script>
 <script>AlheliInteriores.init();</script>
-<script type="module" src="recorrido.js?v=1125b"></script>
+<script type="module" src="recorrido.js?v=1125c"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
