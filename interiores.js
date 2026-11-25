@@ -11,10 +11,9 @@
        map        caja del ambiente en el plano de la unidad: [x, y, ancho, alto] en % del jpg
        prev, next dónde apoyan en el piso las flechas hacia el ambiente anterior y el siguiente del recorrido:
                   x, y en % de la foto; rot 0 = hacia el fondo, 90 = a la derecha, -90 = a la izquierda;
-                  lab (opcional) mueve la etiqueta para que no pise a la otra: 'r' o 'l' al costado, 's' o 'e' arriba pero
-                  alineada al borde izquierdo o derecho de la flecha
-                  La foto se muestra con zoom (BASE), así que en reposo solo se ve del 8 % al 92 % de cada eje:
-                  las flechas van dentro de esa zona.
+                  lab (opcional) 'r' o 'l' pone la etiqueta al costado de la flecha en vez de arriba
+                  La foto se muestra con zoom y llenando el escenario, así que en reposo sus bordes quedan fuera de
+                  la vista: placeGos() corre las flechas lo necesario para que se vean enteras.
      El recorrido sigue el orden de la lista y es circular: del último se pasa al primero y al revés. */
   var INTERIORES = {
     3: {
@@ -23,7 +22,7 @@
       rooms: [
         { id: 'sala', name: 'Sala', src: 'img/interiores/d3/sala.webp', w: 1920, h: 1194,
           map: [55.3, 32.9, 12.7, 32.9],
-          prev: { x: 52.5, y: 85.5, rot: -90, lab: 'e' }, next: { x: 85, y: 86.5, rot: 85 } },
+          prev: { x: 52.5, y: 85.5, rot: -90 }, next: { x: 85, y: 86.5, rot: 85 } },
         { id: 'comedor', name: 'Comedor', src: 'img/interiores/d3/comedor.webp', w: 1920, h: 1200,
           map: [68.0, 32.9, 11.6, 32.9],
           prev: { x: 37, y: 85, rot: -90 }, next: { x: 78.5, y: 88, rot: 80 } },
@@ -192,15 +191,24 @@
     var ar = (im.naturalWidth && im.naturalHeight && im.getAttribute('data-room-id') === room.id) ? im.naturalWidth / im.naturalHeight : room.w / room.h;
     var sw = ui.stage.clientWidth, sh = ui.stage.clientHeight;
     if (!sw || !sh) return;
-    var w = Math.min(sw, sh * ar), h = w / ar;
+    /* La foto llena el escenario, sin franjas: se agranda hasta cubrirlo y lo que queda fuera se alcanza arrastrando.
+       Tope FILL: si para cubrirlo hubiera que agrandarla demasiado (pantalla vertical, móvil), crece hasta ahí y
+       queda una franja menor, para no mostrar solo un recorte angosto de la foto. */
+    var hc = Math.min(sh, sw / ar), hv = Math.max(sh, sw / ar);          /* alto de la foto: entera (contain) y cubriendo (cover) */
+    var ph = Math.min(hv, hc * FILL), pw = ph * ar;                        /* tamaño de la foto */
+    var w = Math.min(sw, pw), h = Math.min(sh, ph);                        /* recuadro visible */
     ui.box.style.left = (sw - w) / 2 + 'px';
     ui.box.style.top = (sh - h) / 2 + 'px';
     ui.box.style.width = w + 'px';
     ui.box.style.height = h + 'px';
-    ui.box.style.setProperty('--bw', w + 'px');
-    look.W = w; look.H = h; look.lim = {};
+    ui.pan.style.left = (w - pw) / 2 + 'px';
+    ui.pan.style.top = (h - ph) / 2 + 'px';
+    ui.pan.style.width = pw + 'px';
+    ui.pan.style.height = ph + 'px';
+    look.W = w; look.H = h; look.IW = pw; look.IH = ph; look.lim = {};
     lookClamp();
     lookApply();
+    placeGos();
   }
 
   /* ---------- mirar alrededor ----------
@@ -211,6 +219,7 @@
      El desplazamiento se limita de modo que nunca se vea el borde de la foto: se proyectan sus cuatro esquinas con la misma
      transformación del CSS y se comprueba que el recuadro siga cubierto. */
   var BASE = 1.18, ZMAX = 1.6;          /* zoom inicial y máximo */
+  var FILL = 1.35;                      /* cuánto puede crecer la foto, respecto de verse entera, para llenar el escenario */
   var MAXX = 0.07, MAXY = 0.03;         /* desplazamiento máximo con el zoom inicial: ±7 % del ancho, ±3 % del alto */
   var ROTY = 4, ROTX = 2;               /* giro máximo, en grados */
   var PARA = 0.015;                     /* parallax con el mouse, sin arrastrar: ±1,5 % */
@@ -218,7 +227,8 @@
   var DIR = -1;                         /* -1: la foto va en sentido contrario al arrastre (girar la cabeza); 1: la foto sigue al dedo */
   var HINT_KEY = 'alheli.interiores.mirar';
   var RAD = Math.PI / 180;
-  var look = { x: 0, y: 0, z: BASE, px: 0, py: 0, tz: BASE, par: [0, 0], raf: 0, drag: null, pts: {}, pinch: null, tap: null, W: 0, H: 0, lim: {}, hint: 0 };
+  /* W, H: recuadro visible; IW, IH: tamaño de la foto sin zoom (igual o mayor que el recuadro) */
+  var look = { x: 0, y: 0, z: BASE, px: 0, py: 0, tz: BASE, par: [0, 0], raf: 0, drag: null, pts: {}, pinch: null, tap: null, W: 0, H: 0, IW: 0, IH: 0, lim: {}, hint: 0 };
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function lookRot(x, y) {              /* el giro acompaña al desplazamiento: mirar a la derecha aleja el lado derecho de la foto */
@@ -227,9 +237,9 @@
   /* ¿la foto transformada sigue cubriendo todo el recuadro? Misma cuenta que
      perspective(P) rotateY(ry) rotateX(rx) translate(x, y) scale(z), con origen en el centro */
   function lookCovers(x, y, z) {
-    var W = look.W / 2, H = look.H / 2, r = lookRot(x, y), ry = r[0] * RAD, rx = r[1] * RAD;
+    var W = look.W / 2, H = look.H / 2, A = look.IW / 2, B = look.IH / 2, r = lookRot(x, y), ry = r[0] * RAD, rx = r[1] * RAD;
     var cy = Math.cos(ry), sy = Math.sin(ry), cx = Math.cos(rx), sx = Math.sin(rx);
-    var q = [[-W, -H], [W, -H], [W, H], [-W, H]].map(function (c) {
+    var q = [[-A, -B], [A, -B], [A, B], [-A, B]].map(function (c) {
       var X = c[0] * z + x, Y = c[1] * z + y, Y1 = Y * cx, Z1 = Y * sx, X2 = X * cy + Z1 * sy, Z2 = -X * sy + Z1 * cy, k = PERSP / (PERSP - Z2);
       return [X2 * k, Y1 * k];
     });
@@ -244,7 +254,7 @@
   function lookLimits(z) {
     var key = z.toFixed(3);
     if (look.lim[key]) return look.lim[key];
-    var wx = MAXX * look.W + (z - BASE) * look.W / 2, wy = MAXY * look.H + (z - BASE) * look.H / 2;
+    var wx = MAXX * look.W + (look.IW * z - look.W * BASE) / 2, wy = MAXY * look.H + (look.IH * z - look.H * BASE) / 2;   /* ±7 % y ±3 % más todo lo que sobra por zoom o por llenar el escenario */
     var ok = function (k) { return lookCovers(wx * k, wy * k, z) && lookCovers(-wx * k, wy * k, z) && lookCovers(wx * k, -wy * k, z) && lookCovers(-wx * k, -wy * k, z); };
     var k = 1;
     if (!look.W || !ok(1)) {
@@ -391,12 +401,49 @@
     function one(g, to, back) {
       if (!g || n < 2) return '';
       var name = to.name;
-      var side = g.lab || (g.x < 26 ? 's' : g.x > 74 ? 'e' : 'c');     /* cerca de un borde, la etiqueta se alinea hacia adentro */
-      return '<button class="intr-go" type="button" data-room="' + esc(to.id) + '" data-lab="' + side + '" style="--x:' + g.x + '%;--y:' + g.y + '%;--rot:' + g.rot + 'deg" aria-label="Ir a: ' + esc(name) + '">' +
+      return '<button class="intr-go" type="button" data-room="' + esc(to.id) + '" data-x="' + g.x + '" data-y="' + g.y + '" data-lab="' + (g.lab || 'c') + '"' + (g.lab ? ' data-labfix="1"' : '') + ' style="--rot:' + g.rot + 'deg" aria-label="Ir a: ' + esc(name) + '">' +
         '<span class="intr-go-floor">' + CHEVRON + '</span>' +
         '<span class="intr-go-label">' + esc(back ? '← ' + name : name + ' →') + '</span></button>';
     }
     ui.gos.innerHTML = one(room.prev, unit.rooms[(st.i + n - 1) % n], true) + one(room.next, unit.rooms[(st.i + 1) % n], false);
+    placeGos();
+  }
+  /* Ubica las flechas en su ancla (% de la foto), corrida lo necesario para que en reposo se vean enteras: con el zoom y
+     con la foto llenando el escenario, los bordes de la foto quedan fuera de la vista. Si las dos quedan pegadas, las separa. */
+  function placeGos() {
+    if (!ui || !look.W || !look.IW) return;
+    var gs = clamp(look.W * 0.088, 48, 104);                              /* tamaño de la flecha en pantalla */
+    var kx = 100 / (look.IW * BASE), ky = 100 / (look.IH * BASE);         /* px de pantalla -> % de la foto, con el zoom inicial */
+    var half = look.W / 2 * kx, lo = 50 - half + gs * 0.62 * kx, hi = 50 + half - gs * 0.62 * kx;
+    var bottom = 50 + look.H / 2 * ky - gs * 0.4 * ky;
+    var els = Array.prototype.slice.call(ui.gos.querySelectorAll('.intr-go'));
+    var xs = els.map(function (el) { return lo < hi ? clamp(Number(el.getAttribute('data-x')), lo, hi) : 50; });
+    var sep = gs * 1.3 * kx;
+    if (xs.length === 2 && Math.abs(xs[1] - xs[0]) < sep && hi - lo > sep) {
+      var mid = clamp((xs[0] + xs[1]) / 2, lo + sep / 2, hi - sep / 2), sg = xs[1] < xs[0] ? -1 : 1;
+      xs[0] = mid - sg * sep / 2; xs[1] = mid + sg * sep / 2;
+    }
+    ui.box.style.setProperty('--gs', gs + 'px');
+    els.forEach(function (el, i) {
+      el.style.setProperty('--x', xs[i].toFixed(2) + '%');
+      el.style.setProperty('--y', Math.min(Number(el.getAttribute('data-y')), bottom).toFixed(2) + '%');
+    });
+    /* etiquetas (las que van arriba de su flecha): centradas, corridas lo justo para no salirse del recuadro ni pisarse */
+    var labs = [];
+    els.forEach(function (el, i) {
+      if (el.hasAttribute('data-labfix')) return;
+      var lb = el.querySelector('.intr-go-label'), w = lb.offsetWidth, cx = look.W / 2 + (xs[i] - 50) / kx;
+      labs.push({ el: el, w: w, want: cx - w / 2, left: clamp(cx - w / 2, 6, Math.max(6, look.W - 6 - w)) });
+    });
+    labs.sort(function (a, b) { return a.want - b.want; });
+    if (labs.length === 2 && labs[1].left < labs[0].left + labs[0].w + 6) {
+      var tot = labs[0].w + labs[1].w + 6;
+      if (tot <= look.W - 12) {
+        labs[0].left = clamp((labs[0].want + labs[1].want + labs[1].w) / 2 - tot / 2, 6, look.W - 6 - tot);
+        labs[1].left = labs[0].left + labs[0].w + 6;
+      }
+    }
+    labs.forEach(function (l) { l.el.style.setProperty('--lx', (l.left - l.want).toFixed(1) + 'px'); });
   }
 
   function renderLists() {

@@ -40,12 +40,12 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 .intr-img:not([src]){visibility:hidden}
 .intr-msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:80%;text-align:center;color:var(--i-cream);font-size:.9rem}
 
-/* Recuadro de la foto (lo calcula interiores.js con la proporción de la imagen): recorta lo que sobra del zoom.
+/* Recuadro de la foto (lo calcula interiores.js): llena el escenario y recorta lo que sobra de la foto.
    Adentro, .intr-pan lleva las fotos y las flechas del piso y es lo que se desplaza y gira al mirar alrededor;
    la etiqueta, el esqueleto de carga y el aviso quedan fijos. */
 .intr-box{position:absolute;overflow:hidden;cursor:grab}
 .intr.is-drag .intr-box{cursor:grabbing}
-.intr-pan{position:absolute;inset:0;transform-origin:50% 50%;transform:scale(1.18)}
+.intr-pan{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 50%;transform:scale(1.18)}   /* tamaño y posición: interiores.js (la foto llena el escenario) */
 .intr.is-drag .intr-pan{will-change:transform}                 /* solo mientras se arrastra */
 .intr-gos{position:absolute;inset:0;pointer-events:none;transition:opacity .25s ease}
 .intr-skel,.intr-tag,.intr-look{pointer-events:none}
@@ -95,13 +95,11 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 
 /* flecha apoyada en el piso: el plano se acuesta con rotateX y la flecha gira dentro de ese plano hacia su destino */
 .intr-go{
-  --gs:clamp(48px,calc(var(--bw,800px) * .088),104px);
-  position:absolute;width:var(--gs);height:var(--gs);
-  /* ancla en % de la foto, dentro de la zona que se ve en reposo con el zoom inicial (del 8 % al 92 %) */
-  left:clamp(calc(8% + var(--gs) * .5),var(--x,50%),calc(92% - var(--gs) * .5));
-  top:min(var(--y,85%),calc(92% - var(--gs) * .4));
+  /* --gs (tamaño), --x y --y (ancla en % de la foto, ya dentro de lo que se ve en reposo) los pone interiores.js */
+  position:absolute;width:var(--gs,72px);height:var(--gs,72px);
+  left:var(--x,50%);top:var(--y,85%);
   transform:translate(-50%,-50%) scale(var(--iz,.85));           /* --iz = 1 / zoom: en pantalla no crecen con el zoom */
-  perspective:calc(var(--gs) * 3.2);
+  perspective:calc(var(--gs,72px) * 3.2);
   background:none;border:0;padding:0;border-radius:50%;
   pointer-events:auto;touch-action:manipulation;
 }
@@ -123,7 +121,7 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
 .intr-go .c2{animation:intr-march 1.8s ease-in-out .3s infinite}
 @keyframes intr-march{0%,100%{opacity:.55}45%{opacity:1}}
 .intr-go-label{
-  position:absolute;left:50%;bottom:78%;transform:translateX(-50%);
+  position:absolute;left:50%;bottom:78%;transform:translateX(calc(-50% + var(--lx,0px)));   /* --lx: corrimiento que calcula interiores.js */
   white-space:nowrap;
   font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
   color:var(--i-cream);background:rgba(var(--i-ink),.76);
@@ -131,8 +129,6 @@ html.intr-lock,html.intr-lock body{overflow:hidden}
   padding:5px 10px;border-radius:8px;
   transition:background-color .15s,color .15s;
 }
-.intr-go[data-lab="s"] .intr-go-label{left:0;transform:none}                                   /* flecha cerca del borde izquierdo */
-.intr-go[data-lab="e"] .intr-go-label{left:auto;right:0;transform:none}                        /* cerca del borde derecho */
 .intr-go[data-lab="r"] .intr-go-label{left:100%;bottom:auto;top:50%;transform:translate(2px,-50%)}
 .intr-go[data-lab="l"] .intr-go-label{left:auto;right:100%;bottom:auto;top:50%;transform:translate(-2px,-50%)}
 .intr-go:hover .ln,.intr-go:focus-visible .ln{stroke:#fff}
