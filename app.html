@@ -1303,7 +1303,7 @@ window.start3D=function(){
   /* interiores modelados en Blender (blender/build_alheli.py): muros del plano, pisos, mobiliario y autos */
   const gltf=new THREE.GLTFLoader();
   ['pb','pa','tc'].forEach(lvl=>gltf.load('models/alheli-'+lvl+'.json',g=>{const grp=g.scene;grp.position.y=LV[lvl];if(lvl==='pa')grp.position.z=PA_DZ;grp.userData.level=lvl;grp.userData.interior=true;grp.userData.baseY=LV[lvl];
-    {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,FH-5);/* hasta la losa: con 40 quedaba una franja de cielo de 0,2 m entre muro y techo */w.visible=cut||!!walk}}
+    {const w=grp.getObjectByName('walls');if(w&&w.isMesh&&WALLS2[lvl]){w.geometry.dispose();w.geometry=lvl==='pb'&&PBREC.rects?new THREE.BufferGeometry():wallGeo(lvl,lvl==='pb'?inUnitPB:()=>true,FH-5);/* hasta la losa: con 40 quedaba una franja de cielo de 0,2 m entre muro y techo */w.visible=cut||!!walk}}
     if(lvl==='tc'){const fs=grp.getObjectByName('floor_salon');if(fs&&fs.isMesh){const sh=shape([[316,128],[531,128],[531,411],[316,411]]);sh.holes.push(new THREE.Path([[401,135.7],[448.6,135.7],[448.6,174.1],[401,174.1]].map(p=>new THREE.Vector2(p[0],-p[1]))));const ge=new THREE.ExtrudeGeometry(sh,{depth:1.2,bevelEnabled:false});ge.rotateX(-Math.PI/2);ge.translate(0,.4,0);fs.geometry.dispose();fs.geometry=ge}}   // hueco de la escalera oeste (plano de terraza)
     {const old=[];grp.traverse(o=>{if(o.isMesh&&(/^(car\d|tire)$/.test(o.material.name||'')||/^(win|light)/.test(o.name)))old.push(o)});old.forEach(o=>o.parent.remove(o))}
     /* mobiliario que atravesaba muros del plano (auditoría 24-nov, choque caja del mueble vs WALLS2): se corre lo justo para apoyarlo en su muro; null = se quita.
@@ -1369,6 +1369,22 @@ window.start3D=function(){
     if(floor!=='all'){const b=$('#floor3 .chip.on');if(b)b.click()}shadowDirty()}
   window.setStyle3D=name=>{if(!STYLES[name])return;styleNow=name;document.querySelectorAll('#style3 .chip').forEach(c=>c.classList.toggle('on',c.dataset.st===name));applyMats();buildDecor();if(!cut&&!walk)$('#cut3').click();wake(20)};
   $('#style3').onclick=e=>{const b=e.target.closest('button');if(b)setStyle3D(b.dataset.st)};
+  /* planta baja reconstruida en Blender (models/planta-pb.glb, en metros): muros de los departamentos 1 a 4 y áreas comunes con sus vanos,
+     jambas, dinteles, hojas de puerta, antepechos y vidrios. Reemplaza a los muros trazados del plano dentro de las unidades de planta baja
+     y da la colisión y el minimapa del recorrido en primera persona. */
+  const PBREC={rects:null};
+  gltf.load('models/planta-pb.glb',g=>{const SX=14.58,SZ=14.65,SY=(FH-5)/2.75,OX=24+35.45*SX,OZ=28+16.54*SZ;g.scene.updateMatrixWorld(true);
+    const keep=/^0[3-6]_Departamento|^07_Comun/,skip=/Pavimento|Cabina|Peldano/,block=/Muro|Antepecho|Vidrio|Montante|Jamba|Puerta_ascensor|Puerta ascensor/,B={solid:{p:[],c:[]},glass:{p:[],c:[]}},rects=[];
+    g.scene.traverse(o=>{if(!o.isMesh||!keep.test(o.name)||skip.test(o.name))return;let ge=o.geometry.clone();ge.applyMatrix4(o.matrixWorld);if(ge.index)ge=ge.toNonIndexed();
+      const pos=ge.attributes.position,col=ge.attributes.color,k=col&&col.array instanceof Uint8Array?1/255:1,t=/Vidrio/.test(o.name)?B.glass:B.solid;
+      for(let i=0;i<pos.count;i++){t.p.push(pos.getX(i),pos.getY(i),pos.getZ(i));if(col)t.c.push(Math.pow(col.getX(i)*k,2.2),Math.pow(col.getY(i)*k,2.2),Math.pow(col.getZ(i)*k,2.2));else t.c.push(.85,.83,.78)}
+      if(block.test(o.name)){ge.computeBoundingBox();const b=ge.boundingBox;rects.push([OX+b.min.x*SX,OZ+b.min.z*SZ,OX+b.max.x*SX,OZ+b.max.z*SZ])}});
+    const grp=new THREE.Group();grp.scale.set(SX,SY,SZ);grp.position.set(OX,LV.pb+LIDX.pb*gap,OZ);Object.assign(grp.userData,{level:'pb',interior:true,baseY:LV.pb});
+    const mk=(t,mat)=>{if(!t.p.length)return;const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(t.p,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(t.c,3));ge.computeVertexNormals();
+      const m=new THREE.Mesh(ge,mat);m.name='walls';m.castShadow=m.receiveShadow=true;Object.assign(m.userData,{level:'pb',interior:true});m.visible=cut||!!walk;grp.add(m)};
+    mk(B.solid,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95}));mk(B.glass,new THREE.MeshPhysicalMaterial({color:0x9fc0d0,roughness:.1,transparent:true,opacity:.28,depthWrite:false}));
+    root.add(grp);PBREC.rects=rects;root.traverse(o=>{if(o.isMesh&&o.name==='walls'&&o.userData.level==='pb'&&!grp.children.includes(o)){o.geometry.dispose();o.geometry=new THREE.BufferGeometry()}});   // retira los muros trazados de planta baja
+    if(cut)applyCut();if(floor!=='all'){const b=$('#floor3 .chip.on');if(b)b.click()}shadowDirty()},undefined,()=>{});
   /* patio central: celosía de ladrillo, cuencos de agua y macizos de flores (según los renders) */
   const brick=new THREE.MeshStandardMaterial({color:0x9e4f36,roughness:.9});
   const cel=new THREE.InstancedMesh(new THREE.BoxGeometry(3,2.2,4.2),brick,2*23*14);{let k=0;const mm=new THREE.Matrix4();for(let row=0;row<8;row++)for(let c=0;c<23;c++)for(let dd=0;dd<2;dd++){mm.makeTranslation(614+dd*3.2,2.2+row*2.9,152+c*8.4+(row%2?2.8:0));cel.setMatrixAt(k++,mm)}cel.count=k;cel.castShadow=true;cel.userData.level='pb';root.add(cel)}
@@ -1748,7 +1764,7 @@ window.start3D=function(){
   window.walk3D=n=>{const u=UNITS.find(x=>x.n===n);if(!u)return;if(walk)exitWalk();const lvl=u.planta;if(cut)$('#cut3').click();if(gapT)$('#explode3').click();if(floor!=='all')$('#floor3 [data-fl="all"]').click();
     const polys=ENC[n].concat(TER[n]||[]),all=polys.flat(),bb=[Math.min(...all.map(p=>p[0]))-4,Math.min(...all.map(p=>p[1]))-4,Math.max(...all.map(p=>p[0]))+4,Math.max(...all.map(p=>p[1]))+4];
     const mine=FURN[lvl].filter(f=>ENC[n].some(p=>inside([f[1],f[2]],p)));
-    walk={u,lvl,polys,bb,rects:WALLS2[lvl].r,mrects:WALLS2[lvl].r.filter(r=>r[2]>bb[0]&&r[0]<bb[2]&&r[3]>bb[1]&&r[1]<bb[3]),dz:lvl==='pa'?PA_DZ:0,x:0,z:0,goal:null,prev:{iso,theta,phi,dist,sun:+$('#sun').value},
+    walk={u,lvl,polys,bb,rects:(lvl==='pb'&&PBREC.rects)||WALLS2[lvl].r,mrects:((lvl==='pb'&&PBREC.rects)||WALLS2[lvl].r).filter(r=>r[2]>bb[0]&&r[0]<bb[2]&&r[3]>bb[1]&&r[1]<bb[3]),dz:lvl==='pa'?PA_DZ:0,x:0,z:0,goal:null,prev:{iso,theta,phi,dist,sun:+$('#sun').value},
       furn:mine.map(f=>{const sw=Math.abs(f[5]||0)%180===90,w=(sw?f[4]:f[3])||(f[0]==='sala'?40:16),d=(sw?f[3]:f[4])||(f[0]==='sala'?30:16);return[f[1]-w/2,f[2]-d/2,f[1]+w/2,f[2]+d/2]})};
     // ambientes del departamento, según el mobiliario del plano
     const rooms=[],one=(ks,t)=>{const f=mine.find(f=>ks.includes(f[0]));if(f)rooms.push({t,p:[f[1],f[2]]})};one(['sala','sofa'],'Sala');one(['dtable','round'],'Comedor');one(['counter'],'Cocina');
