@@ -18,13 +18,20 @@ const PLANOS = {
   9: ['pa', 931, 670, 29, 31, 40.65], 10: ['pa', 912, 552, 33, 31, 40.65]
 };
 const CON_PANOS = [1, 2, 3];
+/* Fondo detrás de los vidrios: una panorámica por nivel (Poly Haven, CC0; ver PROGRESO.md). FONDO_VERDE = columna (0–1) de la
+   panorámica que debe quedar de frente; VENTANAL = hacia dónde dan los ventanales principales de la sala, en ejes del plano (x, y). */
+const FONDO_VERDE = { pb: 0.38, pa: 0.38 };
+const BRUMA = { pb: 0x626c3e, pa: 0x626c3e };          // color hacia el que se funde el césped lejano (el del horizonte de cada panorámica)
+const VENTANAL = { 1: [1, 0], 2: [0, -1], 3: [0, -1], 4: [0, -1], 5: [1, 0], 6: [-1, 0], 7: [-1, 0], 8: [0, -1], 9: [0, 1], 10: [0, 1] };
+const ENTORNO_RESPALDO = ['models/entorno.webp', 'models/entorno_m.webp'];
 const NOMBRES = { sala: 'Sala', comedor: 'Comedor', cocina: 'Cocina', sala_de_estar: 'Sala de estar', dormitorio_master: 'Dormitorio máster',
   dormitorio_1: 'Dormitorio 1', dormitorio_2: 'Dormitorio 2' };
 const RECORRIDOS = {};
 PUBLICADOS.forEach(n => { const p = PLANOS[n]; RECORRIDOS[n] = {
   piso: p[0] === 'pb' ? 'Planta baja' : 'Planta alta',
   glb: `models/d${n}.glb`, glbMovil: `models/d${n}_m.glb`, nav: `models/d${n}_nav.json`,
-  entorno: 'models/entorno.webp', entornoMovil: 'models/entorno_m.webp',
+  n, nivel: p[0], entorno: `models/entorno_${p[0]}.webp`, entornoMovil: `models/entorno_${p[0]}_m.webp`,
+  giroFondo: 2 * Math.PI * (FONDO_VERDE[p[0]] - 0.5) - Math.atan2(VENTANAL[n][1], VENTANAL[n][0]),
   plano: { src: `img/pisos/u${n}.jpg`, w: p[1], h: p[2], x0: p[3], y0: p[4], k: p[5] },
   panos: CON_PANOS.includes(n) ? `img/interiores/d${n}/pano_` : null, nombres: NOMBRES }; });
 
@@ -189,10 +196,13 @@ function crearGL() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;          // el look (AgX + exposición) ya viene horneado en las texturas: sRGB tal cual
   const scene = new THREE.Scene(); scene.background = new THREE.Color(0xc9d6de);
-  const cam = new THREE.PerspectiveCamera(FOV0, 16 / 9, 0.05, 300); cam.rotation.order = 'YXZ';
+  const cam = new THREE.PerspectiveCamera(FOV0, 16 / 9, 0.05, 1400); cam.rotation.order = 'YXZ';
   const marca = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.22, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, depthWrite: false }));
   marca.visible = false; marca.renderOrder = 3; scene.add(marca);
-  gl = { renderer, scene, cam, marca, modelo: null, frames: 0, fpsT: 0, fps: 0 };
+  const cesped = crearCesped(); scene.add(cesped);
+  scene.fog = new THREE.Fog(BRUMA.pb, 8, 170);        // funde césped y vegetación lejana con el fondo; el modelo y la marca llevan fog = false
+  marca.material.fog = false;
+  gl = { renderer, scene, cam, marca, cesped, modelo: null, frames: 0, fpsT: 0, fps: 0 };
   return gl;
 }
 /* Estilos de decoración: tiñen los materiales del modelo (muebles, carpintería, piso y muros). «Natural» es el modelo tal como viene. */
@@ -220,18 +230,95 @@ function cargarModelo(cfg, token) {
     const aniso = Math.min(8, gl.renderer.capabilities.getMaxAnisotropy());
     g.scene.traverse(o => {
       if (!o.isMesh) return;
+      o.material.fog = false;
       if (o.material.map) o.material.map.anisotropy = aniso;
       if (o.material.transparent) {            // vidrio: casi invisible, para que no lave el color del jardín
         o.material.depthWrite = false; o.renderOrder = 2; o.material.color.setRGB(0.45, 0.52, 0.5); o.material.opacity = 0.07;
       }
     });
-    /* fondo detrás de los vidrios: el mismo HDRI de los renders, ya con su look, en vez de un cielo plano */
-    new THREE.TextureLoader().load(movil ? cfg.entornoMovil : cfg.entorno, t => {
-      t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
-      gl.scene.background = t; gl.scene.backgroundRotation.set(0, Math.PI, 0);
-    });
     return g.scene;
   });
+}
+/* fondo detrás de los vidrios: panorámica del nivel del depto, girada para que el lado verde quede hacia los ventanales
+   principales. Si no existe, usa la panorámica anterior (entorno.webp). Se cambia en cada apertura, no solo al cargar el GLB. */
+const fondos = {};
+function ponerFondo(cfg, token) {
+  const movil = esMovil(), url = movil ? cfg.entornoMovil : cfg.entorno;
+  const usar = (t, giro) => { if (token !== st.token) return; gl.scene.background = t; gl.scene.backgroundRotation.set(0, giro, 0); };
+  gl.scene.fog.color.setHex(BRUMA[cfg.nivel]);
+  const cargar = (u, ok, err) => fondos[u] ? ok(fondos[u]) : new THREE.TextureLoader().load(u, t => {
+    t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; fondos[u] = t; ok(t); }, undefined, err);
+  cargar(url, t => usar(t, cfg.giroFondo), () => cargar(ENTORNO_RESPALDO[movil ? 1 : 0], t => usar(t, Math.PI), () => {}));
+}
+/* césped sin hornear a la altura del suelo exterior (y = 0 del modelo: bajo el piso en planta baja, 3,2 m abajo en planta alta).
+   Llega hasta el horizonte (1200 m de lado) y la bruma lo funde con el suelo de la panorámica, así que no tiene borde visible.
+   La variación sale de dos escalas: una textura fina de briznas y manchas grandes por color de vértice. */
+function ruido(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+function crearCesped() {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), rnd = ruido(7);
+  x.fillStyle = '#6f7d45'; x.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 60; i++) {                                   // manchas medianas (0,3 – 1 m)
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, 1), k = rnd(); g.addColorStop(0, k < 0.5 ? 'rgba(52,74,30,0.13)' : 'rgba(150,150,82,0.11)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    const px = rnd() * 256, py = rnd() * 256, r = 14 + rnd() * 34;
+    for (const dx of [-256, 0, 256]) for (const dy of [-256, 0, 256]) { x.setTransform(r, 0, 0, r * (0.6 + rnd() * 0.6), px + dx, py + dy); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 1, 0, 6.3); x.fill(); }
+  }
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  for (let i = 0; i < 9000; i++) {                                 // briznas
+    const g = 78 + rnd() * 70 | 0; x.fillStyle = `rgba(${g * (0.62 + rnd() * 0.3) | 0},${g},${g * 0.36 | 0},0.5)`;
+    x.fillRect(rnd() * 256, rnd() * 256, 1, 1 + rnd() * 3);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(170, 170); t.rotation = 0.37; t.anisotropy = 8;
+  const L = 1200, N = 150, geo = new THREE.PlaneGeometry(L, L, N, N).rotateX(-Math.PI / 2), pos = geo.attributes.position, col = new Float32Array(pos.count * 3);
+  const h = (i, j) => { const v = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return v - Math.floor(v); };
+  const suave = (u, v) => { const i = Math.floor(u), j = Math.floor(v), fu = u - i, fv = v - j, a = fu * fu * (3 - 2 * fu), b = fv * fv * (3 - 2 * fv);
+    return (h(i, j) * (1 - a) + h(i + 1, j) * a) * (1 - b) + (h(i, j + 1) * (1 - a) + h(i + 1, j + 1) * a) * b; };
+  for (let k = 0; k < pos.count; k++) {
+    const px = pos.getX(k), pz = pos.getZ(k), m = 0.55 * suave(px / 23 + 40, pz / 23 + 40) + 0.3 * suave(px / 61 + 9, pz / 61 + 9) + 0.15 * suave(px / 9, pz / 9);
+    const seco = suave(px / 37 + 70, pz / 37 + 70);             // parches algo más secos / más oscuros
+    col[k * 3] = 0.72 + 0.5 * m + 0.16 * seco; col[k * 3 + 1] = 0.74 + 0.48 * m; col[k * 3 + 2] = 0.7 + 0.4 * m - 0.1 * seco;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: t, vertexColors: true, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 }));
+  m.position.y = -0.015; m.renderOrder = -1; return m;
+}
+/* arbustos y árboles low-poly con alfa justo afuera del ventanal principal: dos planos cruzados por planta, con una copa
+   dibujada en un canvas. Van en abanico frente al ventanal, sobre el césped, y tapan la unión entre el césped y el fondo. */
+function texFollaje(seed, arbol) {
+  const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), rnd = ruido(seed);
+  if (arbol) { x.fillStyle = '#3d3122'; x.beginPath(); x.moveTo(121, 256); x.lineTo(125, 140); x.lineTo(132, 140); x.lineTo(136, 256); x.fill(); }
+  /* copa irregular: varios lóbulos, cada uno con hojas pequeñas; más claras arriba (sol) y oscuras abajo y al centro */
+  const lob = []; const nl = arbol ? 7 : 6;
+  for (let i = 0; i < nl; i++) lob.push(arbol ? [128 + (rnd() - 0.5) * 120, 40 + rnd() * 110, 34 + rnd() * 26] : [128 + (rnd() - 0.5) * 170, 150 + rnd() * 60, 36 + rnd() * 24]);
+  for (let i = 0; i < 2600; i++) {
+    const l = lob[i % nl], a = rnd() * 6.283, r = Math.pow(rnd(), 0.6) * l[2], px = l[0] + Math.cos(a) * r, py = l[1] + Math.sin(a) * r * 0.85;
+    if (py > 253 || py < 3 || px < 3 || px > 253) continue;
+    const arriba = 1 - (py - (l[1] - l[2])) / (2 * l[2]), luz = 0.2 + 0.65 * arriba + (rnd() - 0.5) * 0.3, g = 32 + 94 * Math.max(0, Math.min(1, luz)) | 0;
+    x.fillStyle = `rgb(${g * (0.84 + rnd() * 0.08) | 0},${g},${g * (0.58 + rnd() * 0.08) | 0})`;      // verde del HDRI: sombra (26,34,21), sol (116,128,79)
+    x.beginPath(); x.ellipse(px, py, 2.5 + rnd() * 4.5, 1.8 + rnd() * 3.2, rnd() * 3.1, 0, 6.3); x.fill();
+  }
+  if (arbol) {                                                    // árboles: copia desenfocada, para que se fundan con el fondo (que también va desenfocado)
+    const d = document.createElement('canvas'); d.width = d.height = 256; const y = d.getContext('2d'); y.filter = 'blur(2.2px)'; y.drawImage(c, 0, 0); y.filter = 'none'; x.clearRect(0, 0, 256, 256); x.drawImage(d, 0, 0);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+let matsFollaje = null;
+function crearVegetacion(cfg, nav) {
+  if (!matsFollaje) matsFollaje = [[11, 0], [23, 0], [37, 1], [53, 1]].map(([sd, ar]) =>
+    new THREE.MeshBasicMaterial({ map: texFollaje(sd, ar), alphaTest: ar ? 0.38 : 0.5, side: THREE.DoubleSide }));
+  const g = new THREE.Group(), rnd = ruido(100 + cfg.n * 17), v = VENTANAL[cfg.n], az = Math.atan2(v[1], v[0]);
+  const c = nav.puntos[0].pos, alta = cfg.nivel === 'pa';
+  const planta = (x, z, alto, ancho, mat) => { for (const giro of [0, Math.PI / 2]) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(ancho, alto), mat); m.position.set(x, alto / 2 - 0.02, z); m.rotation.y = giro + rnd() * 0.6; g.add(m); } };
+  /* seto: arbustos solapados en arco; detrás, árboles. Radios medidos desde la sala, fuera del depto y sus terrazas. */
+  for (let k = 0; k < 26; k++) { const a = az + (k / 25 - 0.5) * 2.5 + (rnd() - 0.5) * 0.05, r = (alta ? 15 : 17) + rnd() * 3;
+    planta(c[0] + Math.cos(a) * r, c[2] + Math.sin(a) * r, (alta ? 2.6 : 2.2) + rnd() * 1.4, 3.2 + rnd() * 1.4, matsFollaje[k % 2]); }
+  /* árboles: 9, detrás del seto y fuera de primer plano. La distancia se mide desde el ventanal (el borde del piso caminable
+     hacia ese lado), no desde la sala: el más cercano queda a 22 m o más del vidrio. */
+  const ext = nav.caminable.exterior; let borde = 0;
+  for (const q of ext) borde = Math.max(borde, (q[0] - c[0]) * v[0] + (q[1] - c[2]) * v[1]);
+  for (let k = 0; k < 9; k++) { const da = (k / 8 - 0.5) * 2.2 + (rnd() - 0.5) * 0.1, d = 22 + rnd() * 26, r = (borde + d) / Math.max(Math.cos(da), 0.45);
+    planta(c[0] + Math.cos(az + da) * r, c[2] + Math.sin(az + da) * r, (alta ? 7 : 6) + rnd() * 3.5, 5.5 + rnd() * 3, matsFollaje[2 + k % 2]); }
+  return g;
 }
 function onResize() {
   if (!st.open) return;
@@ -341,7 +428,9 @@ async function open(n, roomId) {
     armarPanel();
     if (sinWebGL()) { if (!cfg.panos) { ui.load.classList.add('is-err'); ui.loadT.textContent = 'Este recorrido necesita un navegador con WebGL.'; return false; } throw new Error('sin WebGL'); }
     st.modo = '3d'; ui.pano.hidden = true; ui.canvas.hidden = false; textos();
-    crearGL();
+    crearGL(); ponerFondo(cfg, token);
+    if (!c.veg) c.veg = crearVegetacion(cfg, st.nav);
+    if (gl.veg !== c.veg) { if (gl.veg) gl.scene.remove(gl.veg); gl.scene.add(c.veg); gl.veg = c.veg; }
     if (!c.scene) c.scene = await cargarModelo(cfg, token);
     if (token !== st.token) return true;
     if (gl.modelo !== c.scene) { if (gl.modelo) gl.scene.remove(gl.modelo); gl.scene.add(c.scene); gl.modelo = c.scene; }
